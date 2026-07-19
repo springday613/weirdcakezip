@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { orders } from "./data/orders.js";
 import { judge } from "./judgeClient.js";
+import { coinsFor } from "./scoreCake.js";
 import TitleScreen from "./screens/TitleScreen.jsx";
 import OrderScreen from "./screens/OrderScreen.jsx";
 import ResultScreen from "./screens/ResultScreen.jsx";
@@ -22,6 +23,7 @@ export default function App() {
   const [cake, setCake] = useState(emptyCake());
   const [result, setResult] = useState(null);
   const [totalScore, setTotalScore] = useState(0);
+  const [money, setMoney] = useState(0); // 누적 수익(원)
   const [busy, setBusy] = useState(false);
 
   const order = orders[orderIndex];
@@ -30,6 +32,7 @@ export default function App() {
     setOrderIndex(0);
     setCake(emptyCake());
     setTotalScore(0);
+    setMoney(0);
     setScreen("PLAYING");
   }
 
@@ -37,8 +40,10 @@ export default function App() {
     setBusy(true);
     const r = await judge(order.id, cake);
     setBusy(false);
-    setResult(r);
+    const earned = coinsFor(r.score);
+    setResult({ ...r, earned });
     setTotalScore((s) => s + r.score);
+    setMoney((m) => m + earned);
     setScreen("RESULT");
   }
 
@@ -64,6 +69,7 @@ export default function App() {
           order={order}
           index={orderIndex}
           total={orders.length}
+          money={money}
           cake={cake}
           setCake={setCake}
           onSubmit={submit}
@@ -78,7 +84,8 @@ export default function App() {
       {screen === "END" && (
         <div className="screen center">
           <h1>영업 종료 🎂</h1>
-          <p className="big">총점 {totalScore}점</p>
+          <p className="big">💰 오늘 매출 {money.toLocaleString()}원</p>
+          <p className="hint">총점 {totalScore}점</p>
           <button className="btn" onClick={start}>
             다시 하기
           </button>

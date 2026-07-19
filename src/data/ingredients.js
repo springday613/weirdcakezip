@@ -61,26 +61,35 @@ export const hexOf = (id) => COLORS.find((c) => c.id === id)?.hex ?? "#f5efe6";
 export const emojiOf = (list, id) => list.find((x) => x.id === id)?.emoji ?? "•";
 export const labelOf = (list, id) => list.find((x) => x.id === id)?.label ?? id;
 
-// 케이크 상태 → 사람이 읽는 요약 (결과 화면 "내가 만든 것"용)
-export function describeCake(cake) {
-  const decoCount = {};
-  for (const d of cake.deco ?? []) decoCount[d.type] = (decoCount[d.type] ?? 0) + 1;
-  const lines = [
-    `시트: ${(cake.base ?? []).map((b) => labelOf(SHEET_BASE, b)).join("+") || "없음"}` +
-      ` (색: ${cake.sheetColor ? labelOf(COLORS, cake.sheetColor) : "없음"})`,
-    `생크림: ${cake.cream ? labelOf(COLORS, cake.cream.color) : "안 올림"}`,
-    `토핑: ${(cake.toppings ?? []).map((t) => labelOf(TOPPINGS, t.type)).join(", ") || "없음"}`,
-    `데코: ${Object.entries(decoCount).map(([t, n]) => `${labelOf(DECO, t)}×${n}`).join(", ") || "없음"}`,
-    `레터링: ${cake.lettering?.text ? `"${cake.lettering.text}" (${cake.lettering.color ? labelOf(COLORS, cake.lettering.color) : "-"})` : "없음"}`,
-  ];
-  return lines;
+// 같은 종류끼리 묶어 "라벨 ×개수"로
+function groupCount(items, list) {
+  const m = {};
+  for (const it of items ?? []) m[it.type] = (m[it.type] ?? 0) + 1;
+  return Object.entries(m).map(([t, n]) => `${labelOf(list, t)} ×${n}`).join(", ") || "없음";
 }
 
-// 괴물 손님 5마리 (색·표정 변형, 나중에 PNG 교체)
+// 케이크 상태 → 사람이 읽는 요약 (결과 화면 "내가 만든 것"용)
+export function describeCake(cake) {
+  const creamN = cake.cream?.dollops?.length ?? 0;
+  return [
+    `시트: ${(cake.base ?? []).map((b) => labelOf(SHEET_BASE, b)).join("+") || "없음"}` +
+      ` (색: ${cake.sheetColor ? labelOf(COLORS, cake.sheetColor) : "없음"})`,
+    `생크림: ${cake.cream ? `${labelOf(COLORS, cake.cream.color)} ×${creamN}` : "안 올림"}`,
+    `토핑: ${groupCount(cake.toppings, TOPPINGS)}`,
+    `데코: ${groupCount(cake.deco, DECO)}`,
+    `레터링: ${cake.lettering?.text ? `"${cake.lettering.text}" (${cake.lettering.color ? labelOf(COLORS, cake.lettering.color) : "-"})` : "없음"}`,
+  ];
+}
+
+// 괴물 손님 — 직접 만든 그림(표정 3종: normal/happy/sad)
 export const MONSTERS = {
-  blue: { emoji: "👾", color: "#7cc4ff" },
-  pink: { emoji: "👹", color: "#ff9ec7" },
-  green: { emoji: "👽", color: "#9be29b" },
-  yellow: { emoji: "🐤", color: "#ffe08a" },
-  purple: { emoji: "🦑", color: "#c9a6f0" },
+  ghost: {
+    img: { normal: "/assets/ghost.png", happy: "/assets/ghost_happy.png", sad: "/assets/ghost_sad.png" },
+  },
+  pink: {
+    img: { normal: "/assets/pink.png", happy: "/assets/pink_happy.png", sad: "/assets/pink_sad.png" },
+  },
 };
+
+// 점수 → 몬스터 표정
+export const moodOf = (score) => (score >= 80 ? "happy" : score < 50 ? "sad" : "normal");

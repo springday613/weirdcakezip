@@ -53,10 +53,27 @@ export function scoreCake(order, cake) {
   return { score, parts, missing, passed: score >= 80 };
 }
 
-// 점수 → 괴물 반응 (점수와 항상 일치)
+// 한글 조사: 받침 있으면 withB(이/은/을), 없으면 withoutB(가/는/를)
+function hasBatchim(word) {
+  const s = word ?? "";
+  const c = s.charCodeAt(s.length - 1);
+  if (c < 0xac00 || c > 0xd7a3) return false; // 한글 음절이 아니면 받침 없음 취급
+  return (c - 0xac00) % 28 !== 0;
+}
+export function josa(word, withB, withoutB) {
+  return (word ?? "") + (hasBatchim(word) ? withB : withoutB);
+}
+
+// 점수 → 괴물 반응 (점수와 항상 일치, 조사 처리)
 export function reactionFor(score, missing) {
   if (score >= 95) return "완벽해! 딱 내가 원하던 거야! 🎉";
   if (score >= 80) return "좋아, 마음에 쏙 들어!";
-  if (score >= 60) return `음… 나쁘진 않은데, ${missing[0] ?? "뭔가"}가 좀 아쉬워.`;
-  return `이건 내가 원한 게 아니야… 특히 ${missing[0] ?? "많은 게"}가 아쉬워.`;
+  const m = missing[0] ?? "뭔가";
+  if (score >= 60) return `음… 나쁘진 않은데, ${josa(m, "이", "가")} 좀 아쉬워.`;
+  return `이건 내가 원한 게 아니야… 특히 ${josa(missing[0] ?? "많은 것", "이", "가")} 아쉬워.`;
+}
+
+// 만족도(점수) → 이번 라운드 수익(원). 잘 맞출수록 많이 번다.
+export function coinsFor(score) {
+  return score * 10; // 100점=1000원, 70점=700원
 }

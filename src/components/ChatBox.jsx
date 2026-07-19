@@ -5,7 +5,7 @@ import { MONSTERS } from "../data/ingredients.js";
 // 손님 괴물과의 대화창. order.dialogue를 첫 대사로 시드.
 // 대화 기록(history)은 이 컴포넌트가 보관하고 매 호출 시 서버로 전달(서버는 stateless).
 export default function ChatBox({ order }) {
-  const monster = MONSTERS[order.monster] ?? MONSTERS.blue;
+  const monster = MONSTERS[order.monster] ?? MONSTERS.ghost;
   const [messages, setMessages] = useState([{ role: "monster", content: order.dialogue }]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -32,7 +32,7 @@ export default function ChatBox({ order }) {
       <div className="chat-list" ref={listRef}>
         {messages.map((m, i) => (
           <div key={i} className={"bubble " + m.role}>
-            {m.role === "monster" && <span className="bubble-face">{monster.emoji}</span>}
+            {m.role === "monster" && <img className="bubble-face" src={monster.img.normal} alt="" />}
             <span className="bubble-text">{m.content}</span>
           </div>
         ))}

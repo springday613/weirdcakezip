@@ -10,8 +10,9 @@ body {
   margin: 0;
   background: linear-gradient(160deg, #fff5f9, #ffeaf3);
   color: var(--ink);
-  font-family: system-ui, -apple-system, "Apple SD Gothic Neo", sans-serif;
+  font-family: "Gowun Dodum", system-ui, -apple-system, "Apple SD Gothic Neo", sans-serif;
 }
+h1, .btn, .tab, .step-label, .big, .spec-title, .monster-face { font-family: "Jua", sans-serif; }
 .app { max-width: 480px; margin: 0 auto; padding: 20px; }
 .screen { display: flex; flex-direction: column; gap: 14px; }
 .center { align-items: center; text-align: center; padding-top: 40px; }
@@ -125,3 +126,77 @@ h1 { color: var(--pink); }
 
 .edit-row { display: flex; gap: 8px; justify-content: center; }
 .note { font-size: .72rem; color: #a9869a; }
+.hud-row { display: flex; justify-content: space-between; align-items: center; }
+.money { font-weight: 700; color: var(--gold, #ffc24b); background: #fff8e8; padding: 3px 10px; border-radius: 12px; }
+.earned { font-weight: 700; color: #c98a00; }
+
+/* 스텝 방식(화살표) */
+.stepper {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #fff0f7; border: 2px solid var(--line); border-radius: 14px; padding: 6px 8px;
+}
+.arrow {
+  width: 40px; height: 36px; border: none; border-radius: 10px; background: var(--pink);
+  color: #fff; font-size: 1.2rem; cursor: pointer;
+}
+.arrow:disabled { background: #ffd1e6; cursor: default; }
+.step-label { font-size: 1.05rem; color: var(--pinkd); }
+.step-label em { font-style: normal; color: #a9869a; font-size: .85rem; }
+
+/* 케이크 위 레터링 = 손글씨 느낌 */
+.lettering { font-family: "Gaegu", cursive; font-size: 1.4rem; }
+
+/* 에셋(로고·몬스터 그림) */
+.logo { width: 100%; max-width: 340px; height: auto; }
+.monster-big { width: 160px; height: 160px; object-fit: contain; display: block; margin: 0 auto; }
+.bubble-face { width: 34px; height: 34px; object-fit: contain; }
+.result-label { font-family: "Jua", sans-serif; font-size: 1rem; color: var(--muted, #a9869a); }
+
+/* 케이크 그림(시트색 베리에이션) */
+.cake {
+  width: 240px; height: 240px; border: none; border-radius: 0;
+  box-shadow: none; background: none; overflow: visible; cursor: default;
+}
+.cake-base { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.cream {
+  inset: auto; left: 50%; top: 32%; transform: translate(-50%, -50%);
+  width: 52%; height: 24%; border-radius: 50%; opacity: .45;
+}
+.lettering { top: 36%; background: rgba(255,255,255,.55); }
+
+/* 스텝 제목 + 하단 만들기 네비 */
+.step-title {
+  font-family: "Jua", sans-serif; color: var(--pinkd); font-size: 1.1rem;
+  text-align: center; padding: 4px 0;
+}
+.step-title em { font-style: normal; color: #a9869a; font-size: .8rem; }
+.make-nav { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.make-nav .submit { flex: 1; max-width: 260px; margin-top: 0; }
+
+/* 시트 스텝 제목을 박스로 (버튼처럼은 안 보이게) */
+.step-title {
+  background: #fff0f7; border: 2px solid var(--line); border-radius: 14px;
+  padding: 8px 0; cursor: default;
+}
+
+/* 스텝 전체(제목+재료)를 감싸는 박스 */
+.step-box {
+  background: #fff0f7; border: 2px solid var(--line); border-radius: 16px;
+  padding: 12px; display: flex; flex-direction: column; gap: 8px;
+}
+/* 제목은 박스 없이 핑크 글자만 */
+.step-title { background: none; border: none; padding: 0; color: var(--pink); }
+
+/* 레터링: 배경 제거 + 토핑 위로 */
+.lettering { background: none; padding: 0; z-index: 2; }
+
+/* 생크림 덩이 (케이크 위, 토핑보다 아래) */
+.cream-dollop {
+  position: absolute; width: 24%; transform: translate(-50%, -50%);
+  pointer-events: none; z-index: 0;
+}
+
+.cream-dollop { width: 17%; }
+
+/* 케이크 크기 120% */
+.cake { width: 288px; height: 288px; }

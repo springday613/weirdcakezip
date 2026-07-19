@@ -1,15 +1,22 @@
-import { describeCake } from "../data/ingredients.js";
+import { describeCake, MONSTERS, moodOf } from "../data/ingredients.js";
 
 export default function ResultScreen({ result, order, cake, onNext }) {
   const good = result.passed;
+  const monster = MONSTERS[order.monster] ?? MONSTERS.ghost;
+  const mood = moodOf(result.score);
+  const label = mood === "happy" ? "🎉 만족!" : mood === "sad" ? "😢 이상해요" : "🤔 애매해요";
   return (
     <div className="screen center">
-      <h1>{good ? "🎉 만족!" : "🤔 애매해요"}</h1>
+      <div className="result-label">{label}</div>
+      <img className="monster-big" src={monster.img[mood]} alt="손님 반응" />
       <div className="score-ring" data-good={good}>
         {result.score}
         <span className="score-unit">점</span>
       </div>
       <p className="reaction">{result.reaction}</p>
+      {result.earned != null && (
+        <p className="earned">💰 +{result.earned.toLocaleString()}원 벌었어요!</p>
+      )}
 
       {result.parts && (
         <div className="spec">

@@ -39,18 +39,22 @@ export default function IngredientPalette({ step, cake, setCake }) {
   };
 
   const cur = STEPS[step] ?? STEPS[0];
+  const isBasic =
+    BASIC_BASE.length === cake.base.length && BASIC_BASE.every((b) => cake.base.includes(b));
 
+  // 재료 이미지 칩 (이모지·글자 대신 그림)
+  const ImgChip = ({ id, on, onClick }) => (
+    <button className={"chip img-chip" + (on ? " on" : "")} onClick={onClick} title={id}>
+      {id === "vanilla" ? (
+        <span className="color-dot" style={{ background: "#fff2cc" }} />
+      ) : (
+        <img className="ing-img" src={`/assets/ing_${id}.png`} alt="" />
+      )}
+    </button>
+  );
   // 색내기 재료 칩 (단일 선택) — 시트/생크림/레터링 공용
   const colorChips = (selectedId, onPick) =>
-    COLORS.map((c) => (
-      <button
-        key={c.id}
-        className={"chip" + (selectedId === c.id ? " on" : "")}
-        onClick={() => onPick(c.id)}
-      >
-        {c.emoji} {c.label}
-      </button>
-    ));
+    COLORS.map((c) => <ImgChip key={c.id} id={c.id} on={selectedId === c.id} onClick={() => onPick(c.id)} />);
 
   return (
     <div className="palette">
@@ -61,17 +65,14 @@ export default function IngredientPalette({ step, cake, setCake }) {
         <>
           <div className="palette-row">
             <span className="palette-label">섞기</span>
-            <button className="chip" onClick={() => set({ base: [...BASIC_BASE] })}>
-              ⭐ 기본 시트
+            <button
+              className={"chip" + (isBasic ? " on" : "")}
+              onClick={() => set({ base: isBasic ? [] : [...BASIC_BASE] })}
+            >
+              기본 시트
             </button>
             {SHEET_BASE.map((b) => (
-              <button
-                key={b.id}
-                className={"chip" + (cake.base.includes(b.id) ? " on" : "")}
-                onClick={() => toggleBase(b.id)}
-              >
-                {b.emoji} {b.label}
-              </button>
+              <ImgChip key={b.id} id={b.id} on={cake.base.includes(b.id)} onClick={() => toggleBase(b.id)} />
             ))}
           </div>
           <div className="palette-row">
@@ -102,9 +103,7 @@ export default function IngredientPalette({ step, cake, setCake }) {
         <div className="palette-row">
           <span className="palette-label">토핑</span>
           {TOPPINGS.map((t) => (
-            <button key={t.id} className="chip" onClick={() => addTopping(t.id)}>
-              {t.emoji} {t.label}
-            </button>
+            <ImgChip key={t.id} id={t.id} onClick={() => addTopping(t.id)} />
           ))}
         </div>
       )}
@@ -113,9 +112,7 @@ export default function IngredientPalette({ step, cake, setCake }) {
         <div className="palette-row">
           <span className="palette-label">데코</span>
           {DECO.map((d) => (
-            <button key={d.id} className="chip" onClick={() => addDeco(d.id)}>
-              {d.emoji} {d.label}
-            </button>
+            <ImgChip key={d.id} id={d.id} onClick={() => addDeco(d.id)} />
           ))}
         </div>
       )}

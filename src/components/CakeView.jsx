@@ -1,16 +1,17 @@
 import { useRef } from "react";
-import { TOPPINGS, DECO, hexOf, emojiOf } from "../data/ingredients.js";
+import { TOPPINGS, DECO, hexOf, emojiOf, sheetType } from "../data/ingredients.js";
 
 // preview 상태: "bowl-empty" | "bowl-dough" | "making" | "cake"
 export default function CakeView({ cake, preview = "cake", onPlace }) {
   const ref = useRef(null);
   const sheet = cake.sheetColor || "vanilla";
+  const cakeType = sheetType(cake.base) || "cake";
 
   const src =
     preview === "bowl-empty" ? "/assets/bowl_empty.png"
     : preview === "bowl-dough" ? `/assets/dough_${sheet}.png`
     : preview === "making" ? "/assets/bowl_making.png"
-    : `/assets/cake_${sheet}.png`;
+    : `/assets/${cakeType}_${sheet}.png`;
   const isCake = preview === "cake";
 
   function handleClick(e) {
@@ -39,9 +40,13 @@ export default function CakeView({ cake, preview = "cake", onPlace }) {
           ))}
         {isCake &&
           [...cake.toppings, ...cake.deco].map((t, i) => (
-            <span key={i} className="topping" style={{ left: `${t.x}%`, top: `${t.y}%` }}>
-              {emoji(t.type)}
-            </span>
+            <img
+              key={i}
+              className="topping"
+              src={t.type === "sprinkle" ? "/assets/ing_sprinkle_on.png" : `/assets/ing_${t.type}.png`}
+              style={{ left: `${t.x}%`, top: `${t.y}%` }}
+              alt=""
+            />
           ))}
         {isCake && cake.lettering.text && (
           <span className="lettering" style={{ color: hexOf(cake.lettering.color) }}>

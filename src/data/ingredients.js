@@ -8,6 +8,7 @@ export const SHEET_BASE = [
   { id: "milk", label: "우유", emoji: "🥛" },
   { id: "egg", label: "계란", emoji: "🥚" },
   { id: "butter", label: "버터", emoji: "🧈" },
+  { id: "water", label: "물", emoji: "💧" },
   { id: "soymilk", label: "두유", emoji: "🫗" },
   { id: "riceflour", label: "쌀가루", emoji: "🍚" },
   { id: "veggieoil", label: "식물성오일", emoji: "🌻" },
@@ -16,6 +17,24 @@ export const SHEET_BASE = [
 ];
 // 기본 시트 조합
 export const BASIC_BASE = ["flour", "milk", "egg", "butter"];
+
+// 시트 조합 판정 → "cake" | "jelly" | "icecream" | null(이상한 조합)
+// 정식 조합:
+//  · 일반 케이크: {밀가루|쌀가루} + {우유|두유} + {버터|올리브오일}, 계란은 선택(있어도/없어도)
+//  · 젤리: 젤라틴 + 물 (딱 둘)
+//  · 아이스크림: 아이스크림 (딱 하나)
+export function sheetType(base) {
+  const s = new Set(base ?? []);
+  if (s.size === 2 && s.has("gelatin") && s.has("water")) return "jelly";
+  if (s.size === 1 && s.has("icecream")) return "icecream";
+  const flour = ["flour", "riceflour"].filter((x) => s.has(x));
+  const milk = ["milk", "soymilk"].filter((x) => s.has(x));
+  const fat = ["butter", "veggieoil"].filter((x) => s.has(x));
+  const known = new Set(["flour", "riceflour", "milk", "soymilk", "butter", "veggieoil", "egg"]);
+  const others = [...s].filter((x) => !known.has(x));
+  if (flour.length === 1 && milk.length === 1 && fat.length === 1 && others.length === 0) return "cake";
+  return null;
+}
 
 // ② 색내기: 시트·레터링·생크림의 맛/색을 결정 (색이 아니라 '재료'로 선택)
 export const COLORS = [

@@ -66,7 +66,7 @@ export function josa(word, withB, withoutB) {
 
 // 점수 → 괴물 반응 (점수와 항상 일치, 조사 처리)
 export function reactionFor(score, missing) {
-  if (score >= 95) return "완벽해! 딱 내가 원하던 거야! 🎉";
+  if (score >= 95) return "완벽해! 딱 내가 원하던 거야!";
   if (score >= 80) return "좋아, 마음에 쏙 들어!";
   const m = missing[0] ?? "뭔가";
   if (score >= 60) return `음… 나쁘진 않은데, ${josa(m, "이", "가")} 좀 아쉬워.`;
@@ -74,6 +74,8 @@ export function reactionFor(score, missing) {
 }
 
 // 만족도(점수) → 이번 라운드 수익(원). 잘 맞출수록 많이 번다.
+// '이상해요'(50점 미만)면 손님이 안 사감 → 0원.
 export function coinsFor(score) {
+  if (score < 50) return 0;
   return score * 10; // 100점=1000원, 70점=700원
 }

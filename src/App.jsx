@@ -83,8 +83,8 @@ export default function App() {
 
       {screen === "END" && (
         <div className="screen center">
-          <h1>영업 종료 🎂</h1>
-          <p className="big">💰 오늘 매출 {money.toLocaleString()}원</p>
+          <h1>영업 종료</h1>
+          <p className="big">오늘 매출 {money.toLocaleString()}원</p>
           <p className="hint">총점 {totalScore}점</p>
           <button className="btn" onClick={start}>
             다시 하기

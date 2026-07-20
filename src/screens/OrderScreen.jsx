@@ -2,17 +2,18 @@ import { useState, useEffect } from "react";
 import CakeView from "../components/CakeView.jsx";
 import IngredientPalette, { STEPS } from "../components/IngredientPalette.jsx";
 import ChatBox from "../components/ChatBox.jsx";
-import { MONSTERS } from "../data/ingredients.js";
+import { MONSTERS, sheetType } from "../data/ingredients.js";
 
 export default function OrderScreen({ order, index, total, money, cake, setCake, onSubmit, busy }) {
   const monster = MONSTERS[order.monster] ?? MONSTERS.ghost;
   const [step, setStep] = useState(0);
   const [made, setMade] = useState(false);   // 시트가 케이크로 구워졌는가
   const [making, setMaking] = useState(false); // 굽는 중(1초 연출)
+  const [warn, setWarn] = useState(false);    // 이상한 시트 조합 경고
 
-  // 섞기 재료(base)가 바뀌면 케이크 해제 → 다시 보울부터. (맛/색만 바꾸면 유지)
+  // 섞기 재료(base)가 바뀌면 케이크 해제 → 다시 보울부터. 경고도 해제.
   const baseKey = cake.base.join(",");
-  useEffect(() => { setMade(false); }, [baseKey]);
+  useEffect(() => { setMade(false); setWarn(false); }, [baseKey]);
 
   const preview = making
     ? "making"
@@ -24,18 +25,23 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
 
   const lastStep = STEPS.length - 1;
 
-  // 시트 단계에서 '다음' → 굽기 연출 1초 후 케이크로 (색은 다음 단계에서)
+  // 시트 단계에서 '다음' → 조합 검증 후 굽기(1초) or 경고
   function goNext() {
-    if (step === 0 && !made && cake.base.length > 0) {
-      setMaking(true);
-      setTimeout(() => {
-        setMaking(false);
-        setMade(true);
-        setStep(1);
-      }, 1000);
-    } else {
-      setStep(Math.min(step + 1, lastStep));
+    if (step === 0 && !made) {
+      if (sheetType(cake.base)) {
+        setWarn(false);
+        setMaking(true);
+        setTimeout(() => {
+          setMaking(false);
+          setMade(true);
+          setStep(1);
+        }, 1000);
+      } else {
+        setWarn(true); // 이상한 조합 → 넘어가지 않음
+      }
+      return;
     }
+    setStep(Math.min(step + 1, lastStep));
   }
 
   // 케이크 위 클릭 → 선택된 토핑/데코를 그 좌표에 배치 (드래그 대신 좌표 클릭)
@@ -45,15 +51,19 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
     else setCake({ ...cake, toppings: [...cake.toppings, item] });
   }
   const sheetReady = cake.base.length > 0 && cake.sheetColor;
-  const clearBoard = () => setCake({ ...cake, toppings: [], deco: [] });
-  const resetAll = () =>
+  const clearBoard = () => setCake({ ...cake, toppings: [], deco: [], cream: null });
+  const resetAll = () => {
     setCake({ base: [], sheetColor: null, cream: null, toppings: [], deco: [], lettering: { text: "", color: null } });
+    setMade(false);
+    setMaking(false);
+    setStep(0);
+  };
 
   return (
     <div className="screen">
       <div className="hud hud-row">
         <span>주문 {index + 1} / {total}</span>
-        <span className="money">💰 {(money ?? 0).toLocaleString()}원</span>
+        <span className="money">매출 {(money ?? 0).toLocaleString()}원</span>
       </div>
 
       <img className="monster-big" src={monster.img.normal} alt="손님 괴물" />
@@ -61,6 +71,9 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
       {/* 애매한 주문은 대화로 푼다 (런타임 LLM) */}
       <ChatBox order={order} />
 
+      {warn && step === 0 && (
+        <div className="warn-bubble">시트가 뭔가 이상해! 다시 보자</div>
+      )}
       <CakeView cake={cake} preview={preview} onPlace={place} />
 
       <IngredientPalette step={step} cake={cake} setCake={setCake} />
@@ -82,8 +95,8 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
       </div>
 
       <div className="edit-row">
-        <button className="chip ghost" onClick={clearBoard}>🧹 케이크 위 지우기</button>
-        <button className="chip ghost" onClick={resetAll}>↺ 처음부터 만들기</button>
+        <button className="chip ghost" onClick={clearBoard}>케이크 위 지우기</button>
+        <button className="chip ghost" onClick={resetAll}>처음부터 만들기</button>
       </div>
     </div>
   );

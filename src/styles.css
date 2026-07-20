@@ -200,3 +200,25 @@ h1 { color: var(--pink); }
 
 /* 케이크 크기 120% */
 .cake { width: 288px; height: 288px; }
+
+/* 재료 이미지 칩 (이모지·글자 대신 그림) */
+.img-chip { padding: 3px; line-height: 0; }
+.ing-img { width: 36px; height: 36px; object-fit: contain; display: block; }
+.color-dot { width: 30px; height: 30px; border-radius: 50%; display: block; border: 1px solid var(--line); }
+/* 케이크 위 토핑/데코 = 이미지 */
+.topping { width: 15%; height: auto; }
+
+/* 결과: 몬스터 + 점수 병렬 */
+.result-row { display: flex; align-items: center; justify-content: center; gap: 16px; }
+.result-row .monster-big { margin: 0; width: 130px; height: 130px; }
+
+/* 이상한 시트 조합 경고 말풍선 */
+.warn-bubble {
+  align-self: center; background: #fff0f7; border: 2px solid var(--pink);
+  color: var(--pinkd); font-weight: 700; border-radius: 16px; padding: 8px 16px;
+  position: relative; font-size: .95rem;
+}
+.warn-bubble::after {
+  content: ""; position: absolute; bottom: -9px; left: 50%; transform: translateX(-50%);
+  border: 8px solid transparent; border-top-color: var(--pink);
+}

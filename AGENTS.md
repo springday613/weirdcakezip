@@ -87,5 +87,5 @@ PR 리뷰 규칙은 [`rules/code-review.md`](./rules/code-review.md) 를 따릅�
 - **브랜치명 = `S<번호>[-짧은-설명]`.** GitHub 이슈 번호에 맞춘다. (예: `S1-initial-game`, `S2`, `S3-model-routing`)
 - **GitHub 이슈 제목 ↔ PR 제목을 연동한다.** PR 제목은 `S<번호>: <이슈 이름>` 형식. (예: `S2: 에이전트 협업 하네스 구축`)
 - **이슈 이름은 영어로 짓는다** — PR 제목·브랜치명과 매칭하기 쉽도록.
-- 리포 오너(효희)는 `.github/CODEOWNERS` 로 모든 PR 에 자동 리뷰어 등록된다.
+- **상호 리뷰**: `.github/CODEOWNERS` 에 두 사람을 모두 등록해, 모든 PR 이 작성자를 뺀 **상대방**을 자동 리뷰어로 요청한다 (springday613 ↔ VanilaJelly). 진짜 필수화는 브랜치 보호 "Require review from Code Owners" 로.
 - force-push 는 사용자 승인 후에만.

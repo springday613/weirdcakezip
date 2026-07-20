@@ -1,4 +1,4 @@
-# 리포 오너(효희)를 모든 PR의 기본 리뷰어로 자동 등록.
-# GitHub 는 PR base 브랜치의 이 파일을 읽어, 매칭되는 변경에 대해 리뷰를 자동 요청한다.
-# (PR 작성자 본인은 자동 제외된다.)
-* @springday613
+# 상호 리뷰: 두 사람을 모두 코드오너로 등록.
+# GitHub 는 PR base 브랜치의 이 파일을 읽어 두 명 다 리뷰 요청하되, PR 작성자 본인은 자동 제외한다.
+# → springday613 이 올리면 VanilaJelly 가, VanilaJelly 가 올리면 springday613 이 리뷰어가 된다.
+* @springday613 @VanilaJelly

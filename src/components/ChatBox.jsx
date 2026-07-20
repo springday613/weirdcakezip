@@ -6,10 +6,11 @@ import { MONSTERS } from "../data/ingredients.js";
 // 대화 기록(history)은 이 컴포넌트가 보관하고 매 호출 시 서버로 전달(서버는 stateless).
 export default function ChatBox({ order }) {
   const monster = MONSTERS[order.monster] ?? MONSTERS.ghost;
-  const [messages, setMessages] = useState([{ role: "monster", content: order.dialogue }]);
+  const [messages, setMessages] = useState([{ id: 0, role: "monster", content: order.dialogue }]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const listRef = useRef(null);
+  const nextId = useRef(1); // 메시지별 안정적 key (배열 인덱스 대신)
 
   useEffect(() => {
     listRef.current?.scrollTo(0, listRef.current.scrollHeight);
@@ -18,20 +19,20 @@ export default function ChatBox({ order }) {
   async function send() {
     const text = input.trim();
     if (!text || busy) return;
-    const next = [...messages, { role: "user", content: text }];
+    const next = [...messages, { id: nextId.current++, role: "user", content: text }];
     setMessages(next);
     setInput("");
     setBusy(true);
     const { reply } = await chat(order.id, next);
     setBusy(false);
-    setMessages((m) => [...m, { role: "monster", content: reply }]);
+    setMessages((m) => [...m, { id: nextId.current++, role: "monster", content: reply }]);
   }
 
   return (
     <div className="chat">
       <div className="chat-list" ref={listRef}>
-        {messages.map((m, i) => (
-          <div key={i} className={"bubble " + m.role}>
+        {messages.map((m) => (
+          <div key={m.id} className={"bubble " + m.role}>
             {m.role === "monster" && <img className="bubble-face" src={monster.img.normal} alt="" />}
             <span className="bubble-text">{m.content}</span>
           </div>

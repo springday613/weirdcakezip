@@ -1,0 +1,26 @@
+name: CI
+
+# PR 리뷰에 red/green 사실 근거를 준다: 빌드가 깨지면 리뷰어가 근거로 블로킹.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        # 자동화만 먼저 main에 올라간 시점엔 package.json 이 없을 수 있다.
+        run: |
+          if [ -f package.json ]; then echo "has_pkg=true" >> "$GITHUB_OUTPUT"; else echo "has_pkg=false" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.has_pkg == 'true'
+        with:
+          node-version: 20
+          cache: npm
+      - if: steps.check.outputs.has_pkg == 'true'
+        run: npm ci && npm run build
+      - if: steps.check.outputs.has_pkg != 'true'
+        run: echo "package.json 없음(자동화-only) — 빌드 스킵."

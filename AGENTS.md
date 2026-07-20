@@ -69,6 +69,9 @@ PR 리뷰 규칙은 [`rules/code-review.md`](./rules/code-review.md) 를 따릅�
 
 ## 브랜치·PR
 
-- `main` 에 직접 커밋하지 않는다. `feat/*` 브랜치에서 작업 → PR.
-- Notion Task([S번호])와 PR 제목을 연동한다. (예: `S2: 에이전트 하네스 세팅`)
+- **`main` 은 PR 로만 갱신한다.** 직접 push·커밋 금지.
+- **브랜치명 = `S<번호>[-짧은-설명]`.** Notion Task 번호에 맞춘다. (예: `S1-initial-game`, `S2`)
+- **Notion Task 이름 ↔ PR 제목을 연동한다.** PR 제목은 `S<번호>: <Task 이름>` 형식. (예: `S2: 에이전트 협업 하네스 구축`)
+- **Notion Task 이름은 영어로 짓는다** — PR 제목·브랜치명과 매칭하기 쉽도록.
+- 리포 오너(효희)는 `.github/CODEOWNERS` 로 모든 PR 에 자동 리뷰어 등록된다.
 - force-push 는 사용자 승인 후에만.

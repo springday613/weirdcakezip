@@ -1,0 +1,49 @@
+name: Deploy (production)
+
+# main 에 커밋이 올라가면 바로 Vercel 프로덕션으로 배포한다.
+# 배포 대상 프로젝트: scentory-s-projects / weirdcakezip (cake-shop-black.vercel.app)
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # 수동 재배포용
+
+# 연달아 push 될 때 이전 배포를 취소하고 마지막 것만 살린다
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Install Vercel CLI
+        run: npm i -g vercel@latest
+
+      # 프로젝트 설정·환경변수(OPENAI_API_KEY 등)를 Vercel 에서 받아온다
+      - name: Pull Vercel env
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy
+        id: deploy
+        run: |
+          url=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "배포 완료: $url" >> "$GITHUB_STEP_SUMMARY"
+          echo "공개 주소: https://cake-shop-black.vercel.app" >> "$GITHUB_STEP_SUMMARY"

@@ -22,7 +22,8 @@ def chat(order_id, history):
 def U(t): return {"role": "user", "content": t}
 def M(t): return {"role": "monster", "content": t}
 
-D1 = "바다가 그리운데.. 바다 생각나는 케이크 없을까요?"  # order-001 딸기+바닐라크림
+D1 = "바다가 그리운데.. 바다 생각나는 케이크 없을까요?"  # order-001 딸기+바닐라크림 (deco/lettering = none)
+D3 = "모든 걸 딸기로 해주세요! 레터링도 '딸기'!"          # order-003 전부 딸기 (deco = don't-care)
 
 # (라벨, orderId, history, 기대, 체크함수)  체크: reply -> (ok:bool, note)
 def no(*words):   # reply에 어떤 단어도 없어야 PASS
@@ -63,9 +64,16 @@ SCEN = [
     ("이미 밝혀진 정답 재질문: 직답", "order-001",
      [M(D1), M("딸기! 바로 그거야!"), U("근데 딸기야 복숭아야?")],
      "아까 말했듯 딸기", yes("딸기")),
-    ("don't-care(레터링): 아무거나", "order-001",
+    # don't-care = wants 에 그 필드 키가 아예 없는 경우(order-003 의 deco).
+    # order-001 의 lettering 은 text:"" 즉 '없음(none)'이므로 don't-care 가 아니다 — 아래 none 시나리오로 분리.
+    ("don't-care(데코): 아무거나", "order-003",
+     [M(D3), U("데코는 뭐 올려?")],
+     "아무거나 괜찮아 (wants 에 deco 키 없음)", yes("아무거나", "상관없", "괜찮", "알아서")),
+    ("없음(레터링): '필요없어'로, 아무거나 아님", "order-001",
      [M(D1), U("레터링은 뭐라고 써?")],
-     "아무거나 괜찮아", yes("아무거나", "상관없", "괜찮")),
+     "필요없어/안 써도 (text:\"\" = none)",
+     lambda r: (any(w in r for w in ["필요 없", "필요없", "안 써", "안 적", "없어도", "안 해도", "안 올려"]) and "아무거나" not in r,
+                "필요없음 표현 & 아무거나 아님")),
     ("0후보(토핑은?): 딸기 이름 노출 금지", "order-001",
      [M(D1), M("딸기! 바로 그거야!"), U("토핑은 뭘로 해줘?")],
      "특성만, 딸기 이름 X", no("딸기")),

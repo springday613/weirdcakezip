@@ -22,13 +22,10 @@ jobs:
         run: |
           list=$(curl -sS -H "Authorization: Bearer $VT" \
             "https://api.vercel.com/v6/deployments?projectId=$PROJ&teamId=$ORG&limit=100&meta-pr=$PR")
-          ids=$(printf '%s' "$list" | python3 -c '
-import json, sys
-d = json.load(sys.stdin)
-# 안전장치: 프로덕션 배포는 절대 지우지 않는다
-print("\n".join(x["uid"] for x in d.get("deployments", []) if x.get("target") != "production"))')
+          # 안전장치: target 이 production 인 배포는 절대 지우지 않는다
+          ids=$(printf '%s' "$list" | jq -r '.deployments[]? | select(.target != "production") | .uid')
           if [ -z "$ids" ]; then
-            echo "지울 프리뷰 배포 없음 (PR #$PR)" >> "$GITHUB_STEP_SUMMARY"
+            echo "지울 프리뷰 배포 없음 (PR #$PR)" | tee -a "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
           n=0

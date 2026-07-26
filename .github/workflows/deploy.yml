@@ -13,6 +13,10 @@ concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  pull-requests: write # 프리뷰 주소를 PR 댓글로 남기기
+
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -53,16 +57,49 @@ jobs:
       - name: Build
         run: vercel build ${{ steps.t.outputs.prod }} --token=${{ secrets.VERCEL_TOKEN }}
 
+      # 프리뷰 배포에는 `pr=<번호>` 메타를 심는다 → 머지 후 cleanup 이 이걸로 찾아 지운다
       - name: Deploy
+        id: deploy
         run: |
-          url=$(vercel deploy --prebuilt ${{ steps.t.outputs.prod }} --token=${{ secrets.VERCEL_TOKEN }})
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            url=$(vercel deploy --prebuilt --meta pr=${{ github.event.pull_request.number }} --token=${{ secrets.VERCEL_TOKEN }})
+          else
+            url=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
           {
             echo "### 배포 완료 (${{ steps.t.outputs.env }})"
             echo ""
             echo "- 이번 배포: $url"
             if [ "${{ steps.t.outputs.env }}" = "production" ]; then
               echo "- 공개 주소: https://cake-shop-black.vercel.app"
-            else
-              echo "- 프리뷰는 프로덕션에 영향 없음. 환경변수가 production 스코프라 프리뷰는 mock 폴백으로 돈다."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # 프리뷰 주소를 PR 댓글로 남긴다. 같은 댓글을 갱신해서 커밋마다 도배되지 않게 한다.
+      - name: Comment preview URL
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          URL: ${{ steps.deploy.outputs.url }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          {
+            echo "<!-- preview-url -->"
+            echo "🍰 **프리뷰 배포 준비됨** — $URL"
+            echo ""
+            echo "- 이 PR 최신 커밋(\`${GITHUB_SHA::7}\`)으로 빌드했습니다. **로그인 없이** 열립니다."
+            echo "- 프로덕션(https://cake-shop-black.vercel.app)에는 영향 없습니다."
+            echo "- 환경변수가 production 스코프라 프리뷰에서는 손님 대화가 **mock** 으로 돕니다(화면·빌드 확인용)."
+            echo "- 커밋을 더 올리면 이 댓글이 최신 주소로 갱신되고, **머지되면 이 프리뷰는 자동 삭제**됩니다."
+          } > preview-comment.md
+          id=$(gh api "repos/$REPO/issues/$PR/comments" \
+                --jq '[.[] | select(.body | startswith("<!-- preview-url -->")) | .id] | last // empty')
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$id" -F body=@preview-comment.md >/dev/null
+            echo "기존 댓글 갱신 (id=$id)"
+          else
+            gh api -X POST "repos/$REPO/issues/$PR/comments" -F body=@preview-comment.md >/dev/null
+            echo "새 댓글 작성"
+          fi

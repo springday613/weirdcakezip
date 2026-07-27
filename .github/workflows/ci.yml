@@ -21,6 +21,12 @@ jobs:
           node-version: 20
           cache: npm
       - if: steps.check.outputs.has_pkg == 'true'
-        run: npm ci && npm run build
+        run: npm ci
+      # 채점 무결성 — 리뷰 규칙의 블로킹 사유 1번을 자동 검증한다
+      - name: Unit tests (scoreCake)
+        if: steps.check.outputs.has_pkg == 'true'
+        run: npm test
+      - if: steps.check.outputs.has_pkg == 'true'
+        run: npm run build
       - if: steps.check.outputs.has_pkg != 'true'
         run: echo "package.json 없음(자동화-only) — 빌드 스킵."

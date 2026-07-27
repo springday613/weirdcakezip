@@ -1,0 +1,67 @@
+name: Prompt regression
+
+# 손님 프롬프트·판정에 영향 있는 파일이 바뀐 PR 에서만 회귀 테스트를 돌린다.
+# 실제 LLM 을 호출하므로(비용) 경로 필터로 범위를 좁힌다.
+on:
+  pull_request:
+    paths:
+      - "api/_monsterPrompt.js"
+      - "api/chat.js"
+      - "api/_llm.js"
+      - "src/data/orders.js"
+      - "scripts/testChat.py"
+      - ".github/workflows/prompt-regression.yml"
+  workflow_dispatch:
+    inputs:
+      repeat:
+        description: "시나리오당 반복 횟수"
+        default: "2"
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Check secret
+        env:
+          KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "::error::리포 시크릿 OPENAI_API_KEY 가 없어 회귀 테스트를 돌릴 수 없습니다."
+            exit 1
+          fi
+
+      # devServer.js 는 process.env 를 직접 읽으므로 .env.local 없이 뜬다
+      - name: Start dev API server
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4o-mini' }}
+        run: |
+          node devServer.js > api.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -sf -o /dev/null -X POST http://localhost:3001/api/chat \
+                 -H 'content-type: application/json' -d '{"orderId":"order-001","history":[]}'; then
+              echo "dev API 준비됨"; break
+            fi
+            sleep 1
+          done
+          grep -q "provider: OpenAI" api.log || { echo "::error::dev 서버가 OpenAI 로 안 떴습니다"; cat api.log; exit 1; }
+
+      - name: Run scenario regression
+        run: python3 scripts/testChat.py --repeat ${{ github.event.inputs.repeat || 2 }}
+
+      - name: Dump API log on failure
+        if: failure()
+        run: cat api.log

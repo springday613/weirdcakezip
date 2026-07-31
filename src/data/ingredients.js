@@ -62,7 +62,6 @@ export const TOPPINGS = [
   { id: "avocado", label: "아보카도", emoji: "🥑" },
   { id: "peach", label: "복숭아", emoji: "🍑" },
   { id: "banana", label: "바나나", emoji: "🍌" },
-  { id: "protein", label: "프로틴파우더", emoji: "🥤" },
   { id: "almond", label: "아몬드", emoji: "🌰" },
   { id: "chicken", label: "닭가슴살", emoji: "🍗" },
 ];

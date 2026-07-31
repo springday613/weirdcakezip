@@ -1,53 +1,115 @@
-import { useRef } from "react";
-import { TOPPINGS, DECO, hexOf, emojiOf, sheetType } from "../data/ingredients.js";
+import { hexOf, sheetType } from "../data/ingredients.js";
+import layout from "../data/cakeLayout.json";
+
+// 배치는 전부 cakeLayout.json 에 미리 계산돼 있다(손그림에서 실측한 윗면 타원 기준).
+// 여기서는 계산하지 않고 자리만 찾아 그린다 — 개수가 늘어도 이미 올린 것이 움직이지 않는다.
+const CANDLE_TYPES = ["birthday_candle", "heart_candle", "bomb_candle"];
+export const MAX_CANDLES = Object.keys(layout.candle.arrangements).length;
+export const TOPPING_SLOTS = layout.topping.slots.length;
+
+/** 다음 토핑을 놓을 자리 — 남은 자리 중 무작위.
+ *  add 시점에 자리를 고정해야 뒤에 더 올려도 이미 올린 토핑이 안 움직인다. */
+export function pickToppingSlot(used) {
+  const taken = new Set(used);
+  const free = layout.topping.slots.map((_, i) => i).filter((i) => !taken.has(i));
+  const pool = free.length ? free : layout.topping.slots.map((_, i) => i);
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 
 // preview 상태: "bowl-empty" | "bowl-dough" | "making" | "cake"
-export default function CakeView({ cake, preview = "cake", onPlace }) {
-  const ref = useRef(null);
+export default function CakeView({ cake, preview = "cake" }) {
   const sheet = cake.sheetColor || "vanilla";
   const cakeType = sheetType(cake.base) || "cake";
 
   const src =
     preview === "bowl-empty" ? "/assets/bowl_empty.png"
-    : preview === "bowl-dough" ? `/assets/dough_${sheet}.png`
-    : preview === "making" ? "/assets/bowl_making.png"
+    : preview === "bowl-dough" ? "/assets/bowl_dough.png"
+    : preview === "making" ? "/assets/dough_knead.png"
     : `/assets/${cakeType}_${sheet}.png`;
   const isCake = preview === "cake";
 
-  function handleClick(e) {
-    if (!onPlace || !cake._placing) return;
-    const rect = ref.current.getBoundingClientRect();
-    const x = Math.round(((e.clientX - rect.left) / rect.width) * 100);
-    const y = Math.round(((e.clientY - rect.top) / rect.height) * 100);
-    onPlace(cake._placing, x, y);
-  }
-  const emoji = (type) =>
-    emojiOf(TOPPINGS, type) !== "•" ? emojiOf(TOPPINGS, type) : emojiOf(DECO, type);
+  // 생크림 — fill_order 앞에서부터. 몇 개를 올리든 링 전체에 고르게 퍼진다.
+  const dollops = cake.cream?.dollops ?? [];
+  const creamSlots = layout.cream.fill_order
+    .slice(0, dollops.length)
+    .map((i) => layout.cream.slots[i]);
+
+  // 초 — 개수마다 배치가 통째로 다르다 (1개 정중앙 / 2개 수평 / 3개부터 원)
+  const candles = (cake.deco ?? []).filter((d) => CANDLE_TYPES.includes(d.type));
+  const candleSlots =
+    layout.candle.arrangements[String(Math.min(candles.length, MAX_CANDLES))] ?? [];
+
+  // 스프링클 — 한 번 올릴 때 per_click 알씩 통으로
+  const clicks = (cake.deco ?? []).filter((d) => d.type === "sprinkle").length;
+  const grains = layout.sprinkle.slots.slice(0, clicks * layout.sprinkle.per_click);
+
+  const at = (p, deg = 0) => ({
+    left: `${p.x * 100}%`,
+    top: `${p.y * 100}%`,
+    transform: `translate(-50%,-50%) rotate(${deg}deg)`,
+  });
 
   return (
     <div className="cake-stage">
-      <div className="cake" ref={ref} onClick={handleClick}>
+      <div className="cake">
         <img className="cake-base" src={src} alt="케이크" />
+
         {isCake &&
-          (cake.cream?.dollops ?? []).map((d, i) => (
+          creamSlots.map((p, i) => (
             <img
               key={"cr" + i}
-              className="cream-dollop"
+              className="cake-item"
               src={`/assets/cream_${cake.cream.color || "vanilla"}.png`}
-              style={{ left: `${d.x}%`, top: `${d.y}%` }}
+              style={{ ...at(p), width: `${layout.cream.size * 100}%` }}
               alt=""
             />
           ))}
+
         {isCake &&
-          [...cake.toppings, ...cake.deco].map((t, i) => (
+          (cake.toppings ?? []).map((t, i) => {
+            const p = layout.topping.slots[(t.slot ?? i) % layout.topping.slots.length];
+            return (
+              <img
+                key={"tp" + i}
+                className="cake-item"
+                src={`/assets/ing_${t.type}.png`}
+                style={{ ...at(p, p.deg), width: `${(layout.topping.size[t.type] ?? 0.09) * 100}%` }}
+                alt=""
+              />
+            );
+          })}
+
+        {isCake &&
+          grains.map((p, i) => (
             <img
-              key={i}
-              className="topping"
-              src={t.type === "sprinkle" ? "/assets/ing_sprinkle_on.png" : `/assets/ing_${t.type}.png`}
-              style={{ left: `${t.x}%`, top: `${t.y}%` }}
+              key={"sp" + i}
+              className="cake-item"
+              src={`/assets/${layout.sprinkle.grains[p.grain % layout.sprinkle.grains.length]}`}
+              style={{ ...at(p, p.deg), width: `${3.2 * layout.sprinkle.scale}%` }}
               alt=""
             />
           ))}
+
+        {/* 초는 세워 꽂는 물건이라 기준점이 바닥이다 — 중심을 맞추면 케이크에 파묻힌다 */}
+        {isCake &&
+          candles.map((d, i) => {
+            const p = candleSlots[i];
+            if (!p) return null;
+            return (
+              <img
+                key={"kd" + i}
+                className="cake-item cake-item--stand"
+                src={`/assets/ing_${d.type}.png`}
+                style={{
+                  left: `${p.x * 100}%`,
+                  top: `${p.y * 100}%`,
+                  width: `${(layout.candle.size[d.type] ?? 0.1) * 100}%`,
+                }}
+                alt=""
+              />
+            );
+          })}
+
         {isCake && cake.lettering.text && (
           <span className="lettering" style={{ color: hexOf(cake.lettering.color) }}>
             {cake.lettering.text}

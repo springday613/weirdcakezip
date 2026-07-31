@@ -7,3 +7,5 @@ dist
 
 __pycache__/
 .vite
+
+.claude/settings.local.json

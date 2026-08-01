@@ -104,10 +104,10 @@ export function describeCake(cake) {
 // 괴물 손님 — 직접 만든 그림(표정 3종: normal/happy/sad)
 export const MONSTERS = {
   ghost: {
-    img: { normal: "/assets/ghost.png", happy: "/assets/ghost_happy.png", sad: "/assets/ghost_sad.png" },
+    img: { normal: "/assets/ghost.webp", happy: "/assets/ghost_happy.webp", sad: "/assets/ghost_sad.webp" },
   },
   pink: {
-    img: { normal: "/assets/pink.png", happy: "/assets/pink_happy.png", sad: "/assets/pink_sad.png" },
+    img: { normal: "/assets/pink.webp", happy: "/assets/pink_happy.webp", sad: "/assets/pink_sad.webp" },
   },
 };
 

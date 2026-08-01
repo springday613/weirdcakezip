@@ -54,7 +54,7 @@ export default function IngredientPalette({ step, cake, setCake }) {
       {id === "vanilla" ? (
         <span className="color-dot" style={{ background: "#fff2cc" }} />
       ) : (
-        <img className="ing-img" src={`/assets/ing_${id}.png`} alt="" />
+        <img className="ing-img" src={`/assets/ing_${id}.webp`} alt="" />
       )}
     </button>
   );

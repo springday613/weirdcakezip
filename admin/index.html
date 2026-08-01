@@ -113,6 +113,11 @@
   .i-slot.non{background:#FDF0C8; border-color:#E6CE84; color:#6B4A12}  /* 없음 */
   .intent.bad{align-self:flex-start; padding:6px 10px; border:1px dashed var(--warn);
               border-radius:8px; color:var(--warn); font-size:11px}
+  .rawbox{align-self:flex-start; max-width:96%; margin:2px 0 4px}
+  .rawbox summary{cursor:pointer; font-size:10.5px; color:var(--dim); font-family:var(--mono)}
+  .rawbox pre{margin:4px 0 0; padding:8px 10px; background:var(--paper); border:1px solid var(--edge);
+              border-radius:7px; font-family:var(--mono); font-size:10.5px; line-height:1.5;
+              white-space:pre-wrap; word-break:break-all; color:var(--ink)}
   .ask{display:flex; gap:6px; padding:10px 16px; border-top:1px solid var(--edge)}
   .ask input{flex:1}
 </style>
@@ -150,7 +155,7 @@
 
 <script type="module">
 const $ = (s) => document.querySelector(s);
-let S = null, view = "template", curId = null, curMid = null, history = [], draftWants = null;
+let S = null, view = "template", curId = null, curMid = null, history = [];
 
 const api = async (p, body) => {
   const r = await fetch(p, body ? {
@@ -187,7 +192,7 @@ function renderNav() {
     b.setAttribute("aria-current", String(on));
     b.onclick = () => {
       view = b.dataset.view;
-      if (b.dataset.id) { curId = b.dataset.id; history = []; draftWants = null; }
+      if (b.dataset.id) { curId = b.dataset.id; history = []; }
       if (b.dataset.mid) curMid = b.dataset.mid;
       renderNav(); render();
     };
@@ -258,7 +263,6 @@ function renderMonster() {
 
 function renderOrder() {
   const o = order();
-  draftWants ??= structuredClone(o.wants ?? {});
   $("#main").innerHTML = `
     <div class="tabs">
       <button data-tab="fields" aria-selected="true">손님 값</button>
@@ -305,129 +309,38 @@ function tabFields(o) {
 //   상관없음 = wants 에 키가 아예 없음(don't-care) → 무엇을 올려도 감점 없음
 //   없음     = 키는 있고 값이 빔 → 올리면 감점, 손님이 "필요 없어"라고 답한다
 //   지정     = 값이 있음
-const SLOTS = [
-  { key: "base",       name: "시트반죽", none: false },
-  { key: "sheetColor", name: "케이크 맛", none: false },
-  { key: "toppings",   name: "토핑",     none: true },
-  { key: "cream",      name: "생크림",   none: true },
-  { key: "deco",       name: "데코",     none: true },
-  { key: "lettering",  name: "레터링",   none: true },
-];
 
-const stateOf = (w, s) => {
-  if (!(s.key in w)) return "care";
-  const v = w[s.key];
-  if (s.key === "cream") return v == null ? "none" : "set";
-  if (s.key === "lettering") return (v?.text ?? "") === "" ? "none" : "set";
-  if (Array.isArray(v)) return v.length === 0 ? "none" : "set";
-  return "set";
-};
 
-function setState(s, st) {
-  const w = draftWants;
-  if (st === "care") { delete w[s.key]; return; }
-  if (st === "none") {
-    w[s.key] = s.key === "cream" ? null : s.key === "lettering" ? { text: "", color: null } : [];
-    return;
-  }
-  if (stateOf(w, s) === "set") return;
-  w[s.key] = s.key === "base" ? ["flour", "milk", "egg", "butter"]
-    : s.key === "sheetColor" ? S.vocab.colors[0].id
-    : s.key === "cream" ? { color: S.vocab.colors[0].id }
-    : s.key === "lettering" ? { text: "축하해", color: null }
-    : s.key === "deco" ? [{ type: S.vocab.deco[0].id, count: 1 }]
-    : [S.vocab.toppings[0].id];
-}
 
 function tabWants(o) {
   $("#tab").innerHTML = `
     <div class="legend">
-      <b>상관없음</b> = 채점에서 빠진다(무엇을 올려도 감점 없음) ·
-      <b>없음</b> = 올리면 감점, 손님이 “필요 없어”라고 답한다 ·
-      <b>지정</b> = 이 값이어야 정답<br />
-      <span class="hint">이 둘을 헷갈리면 “왜 0점?”이 됩니다. 저장하면 대화와 채점에 모두 반영됩니다.</span>
+      <b>키가 없으면</b> 상관없음(채점 제외) · <b>키가 있고 빈 값이면</b> 없어야 함(올리면 감점) ·
+      <b>값이 있으면</b> 그 값이 정답<br />
+      <span class="hint">저장하면 대화와 채점에 모두 반영됩니다. 저장 전에 서버가 재료 id 를 검사합니다.</span>
     </div>
-    <div id="slots">${SLOTS.map(slotHtml).join("")}</div>
+    <label>hidden.wants — 원본 그대로 편집</label>
+    <textarea id="wantsRaw" rows="20">${esc(JSON.stringify(o.wants, null, 2))}</textarea>
     <label>프롬프트에 들어가는 정답 — 손님이 출력할 intent 와 같은 모양</label>
     <pre class="preview" id="answerJson" style="max-height:none">${esc(JSON.stringify(o.answer, null, 2))}</pre>
-    <p class="why">주인이 다 알아내면 손님의 intent 가 이것과 같아집니다.
-       <code>"dont care"</code> = 상관없음 · <code>"none"</code> = 없어야 함 · 그 외 = 정답 값.</p>
+    <p class="why"><code>"dont care"</code> 상관없음 · <code>"none"</code> 없어야 함 · 그 외 정답 값.
+       위 wants 를 저장하면 여기가 다시 계산됩니다.</p>
     <div class="bar">
       <button class="btn" id="save">저장</button>
       <button class="btn ghost" id="reset">이 손님 되돌리기</button>
       <span class="status" id="msg"></span>
     </div>`;
-  bindSlots();
-  $("#save").onclick = () => save({ orderId: o.id, fields: { wants: draftWants } });
+  $("#save").onclick = () => {
+    let wants;
+    try {
+      wants = JSON.parse($("#wantsRaw").value);
+    } catch (e) {
+      const m = $("#msg"); m.textContent = "JSON 문법 오류: " + e.message; m.className = "status warn";
+      return;
+    }
+    save({ orderId: o.id, fields: { wants } });
+  };
   $("#reset").onclick = () => resetOrder(o);
-}
-
-function slotHtml(s) {
-  const st = stateOf(draftWants, s);
-  const seg = [["care", "상관없음"], s.none ? ["none", "없음"] : null, ["set", "지정"]].filter(Boolean);
-  return `<div class="slot" data-key="${s.key}">
-    <div class="slot-head">
-      <span class="slot-name">${s.name}</span>
-      <span class="seg">${seg.map(([v, l]) =>
-        `<button data-st="${v}" aria-pressed="${st === v}">${l}</button>`).join("")}</span>
-    </div>
-    <div class="slot-body">${st === "set" ? slotBody(s) : ""}</div>
-  </div>`;
-}
-
-function slotBody(s) {
-  const v = draftWants[s.key];
-  const chips = (list, sel, multi) => `<div class="chips">${list.map((x) => `
-    <label><input type="${multi ? "checkbox" : "radio"}" name="${s.key}" value="${x.id}"
-      ${(multi ? sel.includes(x.id) : sel === x.id) ? "checked" : ""} /><span>${x.emoji ?? ""} ${esc(x.label)}</span></label>`).join("")}</div>`;
-
-  if (s.key === "base") return chips(S.vocab.base, v ?? [], true);
-  if (s.key === "sheetColor") return chips(S.vocab.colors, v, false);
-  if (s.key === "toppings") return chips(S.vocab.toppings, v ?? [], true)
-    + `<p class="why">여러 개면 그 조합이 정답입니다. 여분을 올리면 감점됩니다.</p>`;
-  if (s.key === "cream") return chips(S.vocab.colors, v?.color, false);
-  if (s.key === "lettering") return `<input type="text" id="letText" value="${esc(v?.text ?? "")}" placeholder="케이크에 쓸 글자" />`;
-  if (s.key === "deco") return (v ?? []).map((d, i) => `
-    <div class="decorow" data-i="${i}">
-      <select>${S.vocab.deco.map((x) => `<option value="${x.id}" ${x.id === d.type ? "selected" : ""}>${x.emoji} ${esc(x.label)}</option>`).join("")}</select>
-      <input type="number" min="1" value="${d.count ?? 1}" />
-      <button class="btn ghost" data-del="${i}">삭제</button>
-    </div>`).join("") + `<button class="btn ghost" id="addDeco">데코 추가</button>
-    <p class="why">배치한 <b>개수</b>까지 정답과 같아야 만점입니다.</p>`;
-  return "";
-}
-
-function bindSlots() {
-  document.querySelectorAll(".slot").forEach((el) => {
-    const s = SLOTS.find((x) => x.key === el.dataset.key);
-    el.querySelectorAll(".seg button").forEach((b) => {
-      b.onclick = () => { setState(s, b.dataset.st); redrawSlots(); };
-    });
-    el.querySelectorAll(".chips input").forEach((inp) => {
-      inp.onchange = () => {
-        const picked = [...el.querySelectorAll(".chips input:checked")].map((i) => i.value);
-        if (s.key === "base") draftWants.base = picked;
-        else if (s.key === "toppings") draftWants.toppings = picked;
-        else if (s.key === "sheetColor") draftWants.sheetColor = inp.value;
-        else if (s.key === "cream") draftWants.cream = { color: inp.value };
-      };
-    });
-    const lt = el.querySelector("#letText");
-    if (lt) lt.oninput = () => { draftWants.lettering = { text: lt.value, color: null }; };
-    el.querySelectorAll(".decorow").forEach((r) => {
-      const i = +r.dataset.i;
-      r.querySelector("select").onchange = (e) => { draftWants.deco[i].type = e.target.value; };
-      r.querySelector("input").oninput = (e) => { draftWants.deco[i].count = Math.max(1, +e.target.value || 1); };
-      r.querySelector("[data-del]").onclick = () => { draftWants.deco.splice(i, 1); redrawSlots(); };
-    });
-    const add = el.querySelector("#addDeco");
-    if (add) add.onclick = () => { draftWants.deco.push({ type: S.vocab.deco[0].id, count: 1 }); redrawSlots(); };
-  });
-}
-
-function redrawSlots() {
-  $("#slots").innerHTML = SLOTS.map(slotHtml).join("");
-  bindSlots();
 }
 
 function tabPreview(o) {
@@ -445,7 +358,6 @@ function tabPreview(o) {
 async function resetOrder(o) {
   if (!confirm("이 손님의 편집을 되돌릴까요?")) return;
   await api("/api/admin/reset", { orderId: o.id });
-  draftWants = null;
   await load();
 }
 
@@ -453,7 +365,6 @@ async function save(payload) {
   const msg = $("#msg");
   try {
     S = await api("/api/admin/save", payload);
-    draftWants = payload.fields?.wants ? structuredClone(order().wants) : draftWants;
     msg.textContent = "저장됨 · 대화와 채점에 바로 반영됩니다";
     msg.className = "status";
     renderNav();
@@ -489,7 +400,9 @@ function intentHtml(m) {
     ? `<div class="intent bad">정답과 어긋남 — ${esc(Object.entries(m.intentCheck)
         .map(([k, v]) => `${SLOT_KO[k] ?? k}: ${v}`).join(" · "))}</div>`
     : "";
-  return `<div class="intent">${rows}</div>` + bad;
+  const raw = m.raw
+    ? `<details class="rawbox"><summary>raw</summary><pre>${esc(m.raw)}</pre></details>` : "";
+  return `<div class="intent">${rows}</div>` + bad + raw;
 }
 
 async function ask() {

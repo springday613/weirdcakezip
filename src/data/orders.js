@@ -15,7 +15,8 @@ export const orders = [
     dialogue: "모든 걸 딸기로 해주세요! 레터링도 '딸기'!",
     hidden: {
       intent: "시트·토핑·레터링 전부 딸기.",
-      wants: { base: BASIC_BASE, sheetColor: "strawberry", toppings: ["strawberry"], lettering: { text: "딸기", color: null } },
+      wants: { base: BASIC_BASE, sheetColor: "strawberry", toppings: ["strawberry"],
+               cream: { color: "strawberry" }, lettering: { text: "딸기", color: null } },
     },
     hints: ["난 딸기가 세상에서 제일 좋아! 전부 딸기였으면 좋겠어."],
   },

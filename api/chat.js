@@ -42,6 +42,32 @@ export default async function handler(req, res) {
 // JSON 이 깨져도 대화는 끊기지 않아야 한다 → 파싱 실패 시 원문을 대사로 쓴다.
 // 정답은 서버가 안다 → 모델이 적은 intent 를 대조해 어긋난 슬롯을 짚는다.
 // 대화를 막지는 않는다(연출은 살린다). 콘솔·회귀 테스트가 이걸 보고 판단한다.
+// 프롬프트를 고치면 출력 모양도 바뀐다. 실험 도구인데 파서가 그때마다 죽으면 안 되므로
+// 두 모양을 다 받아 평평한 맵으로 맞춘다.
+//   (가) { intent: { 슬롯: 값 } }                          — 슬롯마다 값 하나
+//   (나) { known_intent, unknown_intent, dont_care/"don't care" } — 예전 3분할
+// 3분할은 같은 슬롯이 두 곳에 동시에 들어갈 수 있어서(실측) 겹치면 dont care > 확인값 > unknown 순으로 정한다.
+const SLOTS = ["base", "sheetColor", "toppings", "cream", "deco", "lettering"];
+
+export function normalizeIntent(o) {
+  if (o.intent && typeof o.intent === "object" && !Array.isArray(o.intent)) return o.intent;
+
+  const pick = (v) => (Array.isArray(v) ? Object.fromEntries(v.map((k) => [k, true])) : v ?? {});
+  const care = pick(o.dont_care ?? o["don't care"] ?? o.dontCare);
+  const known = pick(o.known_intent);
+  const unknown = pick(o.unknown_intent);
+  if (![care, known, unknown].some((x) => Object.keys(x).length)) return null;
+
+  const out = {};
+  for (const k of SLOTS) {
+    if (k in care) out[k] = "dont care";
+    else if (k in known) out[k] = typeof known[k] === "string" ? known[k] : "unknown";
+    else if (k in unknown) out[k] = "unknown";
+    else out[k] = "unknown";
+  }
+  return out;
+}
+
 export function checkIntent(order, intent) {
   if (!intent) return null;
   const truth = answerMap(order);
@@ -61,9 +87,7 @@ export function parseReply(text) {
     const o = JSON.parse(raw.replace(/^```(?:json)?|```$/g, "").trim());
     const msg = String(o.monster_message ?? "").trim();
     if (!msg) throw new Error("monster_message 없음");
-    // 슬롯마다 값이 정확히 하나 — 상관없음/미확인/확인됨이 서로 겹칠 수 없다.
-    // (앞서 known/unknown/dont_care 를 따로 두었더니 같은 슬롯이 두 곳에 동시에 들어갔다)
-    return { reply: msg, intent: o.intent ?? null, raw };
+    return { reply: msg, intent: normalizeIntent(o), raw };
   } catch (e) {
     console.warn("[chat] 구조 파싱 실패 — 원문을 대사로 쓴다:", e.message);
     return { reply: raw || "...", intent: null, raw: null };

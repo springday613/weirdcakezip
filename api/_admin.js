@@ -14,7 +14,7 @@ import { dirname, join } from "node:path";
 
 import { orders } from "../src/data/orders.js";
 import { SHEET_BASE, COLORS, TOPPINGS, DECO, MONSTERS } from "../src/data/ingredients.js";
-import { TEMPLATE, setTemplate, getTemplate, promptParts, buildMonsterSystem, answerMap } from "./_monsterPrompt.js";
+import { TEMPLATE, setTemplate, getTemplate, promptParts, buildMonsterSystem, answerMap, toApiMessages } from "./_monsterPrompt.js";
 import { callLLM } from "./_llm.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -196,6 +196,15 @@ export default async function handler(req, res) {
   // 회귀 하네스(testChat.py --judge)의 LLM 판정용. 키는 이 서버만 들고 있으므로
   // 파이썬이 직접 외부 API 를 부르지 않고 여기로 온다. 손님(OPENAI_MODEL)과
   // 판정자(JUDGE_MODEL)를 분리한다 — 자기 채점 편향을 피한다.
+  // 이번 턴에 모델로 갈 것 그대로 — chat.js 와 같은 함수(buildMonsterSystem·toApiMessages)로
+  // 재구성하므로 실제 전송분과 일치한다(재시도 교정 메시지는 제외 — 그건 raw 로 본다).
+  if (path === "/api/admin/payload") {
+    const { orderId, history = [] } = req.body ?? {};
+    const order = orders.find((o) => o.id === orderId);
+    if (!order) return res.status(404).json({ error: "unknown orderId" });
+    return res.json({ system: buildMonsterSystem(order), messages: toApiMessages(order, history) });
+  }
+
   if (path === "/api/admin/judge") {
     const { system, messages } = req.body ?? {};
     if (!system || !messages) return res.status(400).json({ error: "system·messages 필요" });

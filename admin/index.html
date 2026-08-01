@@ -149,7 +149,9 @@
     </div>
     <div class="ask" style="border-top:0; padding-top:0">
       <button class="btn ghost" id="clearBtn" style="flex:1">대화 비우기</button>
+      <button class="btn ghost" id="payloadBtn" style="flex:1">모델에 가는 것 보기</button>
     </div>
+    <pre id="payloadBox" class="preview" style="display:none; margin:0 16px 12px; max-height:40vh"></pre>
   </section>
 </div>
 
@@ -427,7 +429,22 @@ async function ask() {
 
 $("#askBtn").onclick = ask;
 $("#ask").onkeydown = (e) => e.key === "Enter" && ask();
-$("#clearBtn").onclick = () => { history = []; drawLog(); };
+$("#clearBtn").onclick = () => { history = []; drawLog(); $("#payloadBox").style.display = "none"; };
+
+// 다음 턴에 모델로 갈 페이로드(system + 대화 기록) 그대로. 손님 턴은 raw(JSON)째로 간다.
+$("#payloadBtn").onclick = async () => {
+  if (view !== "order") return;
+  const box = $("#payloadBox");
+  if (box.style.display !== "none") { box.style.display = "none"; return; }
+  const o = order();
+  const p = await api("/api/admin/payload", {
+    orderId: o.id,
+    history: [{ role: "monster", content: o.dialogue }, ...history],
+  });
+  const msgs = p.messages.map((m) => `[${m.role}]\n${m.content}`).join("\n\n");
+  box.textContent = `━━ system (설정집) ━━\n${p.system}\n\n━━ messages (대화 — 이대로 전송) ━━\n${msgs}`;
+  box.style.display = "block";
+};
 
 load();
 </script>

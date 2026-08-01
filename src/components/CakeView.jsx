@@ -3,7 +3,7 @@ import layout from "../data/cakeLayout.json";
 
 // 배치는 전부 cakeLayout.json 에 미리 계산돼 있다(손그림에서 실측한 윗면 타원 기준).
 // 여기서는 계산하지 않고 자리만 찾아 그린다 — 개수가 늘어도 이미 올린 것이 움직이지 않는다.
-const CANDLE_TYPES = ["birthday_candle", "heart_candle", "bomb_candle"];
+const CANDLE_TYPES = Object.keys(layout.candle.size);
 export const MAX_CANDLES = Object.keys(layout.candle.arrangements).length;
 export const TOPPING_SLOTS = layout.topping.slots.length;
 

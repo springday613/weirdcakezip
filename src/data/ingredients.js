@@ -69,7 +69,9 @@ export const TOPPINGS = [
 // ④ 데코 (개수 있음 — 배치한 수가 곧 개수)
 export const DECO = [
   { id: "birthday_candle", label: "생일초", emoji: "🕯️" },
-  { id: "heart_candle", label: "하트초", emoji: "💗" },
+  { id: "heart_candle_red", label: "빨간 하트초", emoji: "❤️" },
+  { id: "heart_candle_pink", label: "핑크 하트초", emoji: "💗" },
+  { id: "heart_candle_blue", label: "파란 하트초", emoji: "💙" },
   { id: "bomb_candle", label: "폭탄초", emoji: "🧨" },
   { id: "sprinkle", label: "레인보우스프링클", emoji: "🌈" },
 ];

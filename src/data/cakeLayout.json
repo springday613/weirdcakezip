@@ -232,7 +232,9 @@
   "scale": 1.32,
   "size": {
    "birthday_candle": 0.0576,
-   "heart_candle": 0.1445,
+   "heart_candle_red": 0.1445,
+   "heart_candle_pink": 0.1445,
+   "heart_candle_blue": 0.1445,
    "bomb_candle": 0.1505
   },
   "arrangements": {

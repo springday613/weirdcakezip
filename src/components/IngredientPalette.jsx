@@ -2,7 +2,7 @@ import { SHEET_BASE, BASIC_BASE, COLORS, TOPPINGS, DECO } from "../data/ingredie
 import { pickToppingSlot, TOPPING_SLOTS, MAX_CANDLES } from "./CakeView.jsx";
 import layout from "../data/cakeLayout.json";
 
-const CANDLE_TYPES = ["birthday_candle", "heart_candle", "bomb_candle"];
+const CANDLE_TYPES = Object.keys(layout.candle.size);
 const CREAM_SLOTS = layout.cream.slots.length;
 const SPRINKLE_MAX_CLICKS = layout.sprinkle.max_clicks;
 

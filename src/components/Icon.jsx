@@ -87,8 +87,10 @@ const SHAPE_FALLBACKS = {
 
 const SIZE_MAP = { sm: 20, md: 28, lg: 36 };
 
-export default function Icon({ name, size = "sm", color, className = "" }) {
-  const [useFallback, setUseFallback] = useState(() => _svgMissing.has(name));
+export default function Icon({ name, size = "sm", color, className = "", alt = "" }) {
+  // name 이 바뀌면 자동 추종 — Set에서 매 렌더 파생시킨다
+  const [, bump] = useState(0);
+  const useFallback = _svgMissing.has(name);
   const px = SIZE_MAP[size] || SIZE_MAP.sm;
   const sizeClass = `icon-box icon-box--${size}`;
 
@@ -98,12 +100,12 @@ export default function Icon({ name, size = "sm", color, className = "" }) {
       <span className={`${sizeClass} ${className}`}>
         <img
           src={`/assets/ui_${name}.svg`}
-          alt={name}
+          alt={alt}
           width={px}
           height={px}
           onError={() => {
             _svgMissing.add(name);
-            setUseFallback(true);
+            bump((n) => n + 1);
           }}
           style={{ display: "block" }}
         />

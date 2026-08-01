@@ -14,17 +14,20 @@ export const orders = [
   {
     id: "order-000",
     monster: "ghost",
-    dialogue: "초코맛 케이크에 체리 생크림이랑, 토핑은 복숭아... 그리고 뭐였더라, 하나 더 있었는데!",
+    dialogue: "초코맛 케이크에 체리 생크림 부탁해! 토핑은 복숭아랑... 뭐였더라? 하나가 기억이 안 나~",
     hidden: {
-      intent: "초코 시트 + 체리 생크림 + 복숭아·체리 토핑. '하나 더'는 체리 토핑 — 물어보면 바로 알려준다(튜토리얼).",
+      intent: "초코 시트 + 체리 생크림(가득) + 복숭아·체리 토핑. 기억 안 나는 토핑 하나 = 체리 — 헤매면 사다리로 하나씩(튜토리얼이라 후하게).",
       wants: {
         base: BASIC_BASE,
         sheetColor: "chocolate",
-        cream: { color: "cherry" },
+        cream: { color: "cherry", amount: "full" },
         toppings: ["peach", "cherry"],
       },
     },
-    hints: ["아 맞다, 체리! 체리 토핑도 올려줘!"],
+    hints: [
+      "빨갛고 동그란… 꼭지가 달린 과일이었는데…",
+      "아 맞다, 체리! 체리 토핑도 올려줘!",
+    ],
   },
 
   // ── 1번째: 기본(딸기) ────────────────────────
@@ -35,7 +38,7 @@ export const orders = [
     hidden: {
       intent: "시트·토핑·레터링 전부 딸기.",
       wants: { base: BASIC_BASE, sheetColor: "strawberry", toppings: ["strawberry"],
-               cream: { color: "strawberry" }, lettering: { text: "딸기", color: null } },
+               cream: { color: "strawberry", amount: "full" }, lettering: { text: "딸기", color: null } },
     },
     hints: ["난 딸기가 세상에서 제일 좋아! 전부 딸기였으면 좋겠어."],
   },
@@ -62,7 +65,7 @@ export const orders = [
       wants: {
         base: BASIC_BASE,
         sheetColor: "chocolate",
-        cream: { color: "chocolate" },
+        cream: { color: "chocolate", amount: "full" },
         toppings: ["chocolate"],
         deco: [],
         lettering: { text: "필요없음", color: null },
@@ -82,7 +85,7 @@ export const orders = [
     dialogue: "바다가 그리운데.. 바다 생각나는 케이크 없을까요?",
     hidden: {
       intent: "예전에 바다에서 먹었던 딸기케이크(하얀 생크림)를 다시 먹고 싶은 것. '바다'는 추억일 뿐 실제로는 딸기+하얀 크림 케이크.",
-      wants: { base: BASIC_BASE, sheetColor: "strawberry", toppings: ["strawberry"], cream: { color: "vanilla" }, deco: [], lettering: { text: "", color: null } },
+      wants: { base: BASIC_BASE, sheetColor: "strawberry", toppings: ["strawberry"], cream: { color: "vanilla", amount: "full" }, deco: [], lettering: { text: "", color: null } },
     },
     hints: [
       "바다 그 자체가 아니야… 그 여름, 바닷가에서 있었던 일이 자꾸 떠올라.",

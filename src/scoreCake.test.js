@@ -209,3 +209,12 @@ test("통과·별점·표정·코인은 전부 최종 점수를 본다", () => {
   assert.equal(r.passed, true);
   assert.equal(r.reaction, reactionFor(r.score, r.missing));
 });
+
+test("생크림 amount full — 가득 채워야 만점, 색 틀리면 0", () => {
+  const w = { cream: { color: "cherry", amount: "full" } };
+  const full = Array.from({ length: 19 }, (_, i) => ({ slot: i }));
+  assert.equal(scoreCake(order(w), cake({ cream: { color: "cherry", dollops: full } })).score, 100);
+  const half = scoreCake(order(w), cake({ cream: { color: "cherry", dollops: full.slice(0, 9) } })).score;
+  assert.ok(half < 100 && half > 0, `절반이면 부분 점수: ${half}`);
+  assert.equal(scoreCake(order(w), cake({ cream: { color: "vanilla", dollops: full } })).score, 0, "색 틀리면 개수 무관 0");
+});

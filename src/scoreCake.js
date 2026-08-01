@@ -31,9 +31,14 @@ function toppingFrac(want, made) {
   const extra = types.filter((t) => !want.includes(t)).length;
   return Math.min(1, Math.max(0, (hit - extra * 0.5) / want.length));
 }
+// 생크림 '가득' 기준 — cakeLayout.json cream.slots 수와 같아야 한다 (슬롯 19자리)
+const CREAM_FULL = 19;
 function creamFrac(want, made) {
   if (want == null) return made ? 0 : 1; // 크림 없어야 함
-  return made && made.color === want.color ? 1 : 0;
+  if (!made || made.color !== want.color) return 0;
+  // amount 미지정 주문은 예전처럼 색만 본다(과거 호환). "full" 은 채운 만큼 비례.
+  if (want.amount === "full") return Math.min(1, (made.dollops?.length ?? 0) / CREAM_FULL);
+  return 1;
 }
 function counts(list) {
   const m = {};

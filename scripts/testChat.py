@@ -85,7 +85,45 @@ SCEN = [
 ap = argparse.ArgumentParser()
 ap.add_argument("--repeat", type=int, default=1, help="시나리오당 반복 횟수 (CI 권장 2)")
 ap.add_argument("--summary", default=os.environ.get("GITHUB_STEP_SUMMARY"), help="결과 표를 쓸 파일")
+ap.add_argument("--judge", action="store_true",
+                help="LLM 판정 추가 — 키워드로 못 재는 규칙(거짓부정·누설·지어내기·톤)을 "
+                     "루브릭+근거 인용으로 평가. 리포트만 내고 종료 코드에는 영향 없음")
 args = ap.parse_args()
+
+# ── LLM 판정 (--judge) ─────────────────────────────────────────
+# 키워드 체크는 결정적이지만 말투가 바뀌면 뒤집힌다. 판정자는 규칙 위반의 '의미'를 보되,
+# 확률적이므로 게이트가 아니라 리포트다. 판정 모델은 손님과 분리(JUDGE_MODEL, 기본 gpt-4o).
+RUBRIC = """너는 게임 대화 QA 판정자다. '손님 괴물'의 응답 하나가 아래 규칙을 지켰는지 판정한다.
+
+[규칙]
+R1 진실성: 정답에 있는 값을 부정하거나("아니야","필요 없어") 없는 값을 확정해주면 위반.
+R2 비유출: 플레이어가 짚지 않은 정답 재료의 '이름'을 손님이 먼저 말하면 위반. (색·맛 묘사는 허용)
+R3 지어내기: 정답이 "dont care"(상관없음)인 슬롯에 특정 값·특성이 있는 것처럼 답하면 위반.
+   반대로 정답 값이 있는 슬롯을 "아무거나 괜찮아"라고 하면 R1 위반.
+R4 톤: 명시된 성격과 확연히 다른 말투면 위반. (애매하면 통과)
+
+[출력 — JSON 만]
+{"violations": [{"rule": "R1", "evidence": "<응답에서 그대로 인용>", "why": "<한 문장>"}]}
+위반이 없으면 {"violations": []}. evidence 는 반드시 응답 원문에서 인용한다."""
+
+def judge_one(order_answer, character, hist, reply, expect):
+    convo = "\n".join(f"{'주인' if m['role']=='user' else '손님'}: {m['content']}" for m in hist)
+    user = (f"[손님 성격]\n{character}\n\n[정답 — 슬롯별. dont care=상관없음, none=없어야 함]\n"
+            f"{json.dumps(order_answer, ensure_ascii=False)}\n\n[대화]\n{convo}\n\n"
+            f"[판정 대상 응답]\n{reply}\n\n[이 장면에서 기대되는 동작]\n{expect}")
+    data = json.dumps({"system": RUBRIC, "messages": [{"role": "user", "content": user}]}).encode()
+    req = urllib.request.Request(URL.replace("/api/chat", "/api/admin/judge"), data=data,
+                                 headers={"Content-Type": "application/json"})
+    text = json.load(urllib.request.urlopen(req))["text"]
+    try:
+        return json.loads(text).get("violations", [])
+    except Exception:
+        return [{"rule": "PARSE", "evidence": text[:80], "why": "판정 JSON 파싱 실패"}]
+
+def load_answers():
+    st = json.load(urllib.request.urlopen(URL.replace("/api/chat", "/api/admin/state")))
+    return ({o["id"]: o["answer"] for o in st["orders"]},
+            {o["id"]: next((m["character"] for m in st["monsters"] if m["id"] == o["monster"]), {}) for o in st["orders"]})
 
 print(f"{'라벨':<38} {'체크':<6} 응답")
 print("-" * 100)
@@ -117,9 +155,9 @@ for label, oid, hist, expect, check in SCEN:
     if verdict != "PASS":
         _, note = check(replies[-1]) if replies else (None, "")
         print(f"{'':<36} └ 기대: {expect} ({note})")
-    results.append((label, verdict, shown, expect))
+    results.append((label, verdict, shown, expect, oid, hist, replies))
 
-n = {v: sum(1 for _, vv, _, _ in results if vv == v) for v in ("PASS", "FLAKY", "FAIL", "ERR")}
+n = {v: sum(1 for r in results if r[1] == v) for v in ("PASS", "FLAKY", "FAIL", "ERR")}
 print("-" * 100)
 print(f"총 {len(results)}  PASS {n['PASS']}  FLAKY {n['FLAKY']}  FAIL {n['FAIL']}  ERR {n['ERR']}  (repeat={args.repeat})")
 
@@ -129,9 +167,38 @@ if args.summary:
         f.write(f"### 프롬프트 회귀 (repeat={args.repeat})\n\n")
         f.write(f"PASS {n['PASS']} · FLAKY {n['FLAKY']} · **FAIL {n['FAIL']}** · ERR {n['ERR']}\n\n")
         f.write("| 시나리오 | 판정 | 응답 |\n|---|---|---|\n")
-        for label, verdict, shown, _ in results:
+        for label, verdict, shown, *_ in results:
             cell = str(shown).replace("|", "\\|").replace("\n", " ")[:120]
             f.write(f"| {label} | {verdict} | {cell} |\n")
 
-# FLAKY 는 통과. 전부 실패(FAIL)나 호출 오류(ERR)만 게이트를 막는다.
+# ── LLM 판정 리포트 (게이트 아님) ─────────────────────────────
+if args.judge:
+    answers, chars = load_answers()
+    print()
+    print(f"{'라벨':<38} 판정(위반/응답수)")
+    print("-" * 100)
+    lines = [f"# LLM 판정 리포트", "",
+             f"- 실행: {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M')} · repeat={args.repeat} · 판정 모델: JUDGE_MODEL(기본 gpt-4o), 손님 모델과 분리",
+             f"- 루브릭: R1 진실성 · R2 비유출 · R3 지어내기(don't-care) · R4 톤. evidence 는 응답 원문 인용.",
+             "", "| 시나리오 | 키워드 | 위반율 | 위반 내용 |", "|---|---|---|---|"]
+    total_v = 0
+    for label, verdict, _, expect, oid, hist, replies in results:
+        ch = chars.get(oid, {})
+        char_txt = " / ".join(f"{k}: {v}" for k, v in ch.items() if v) or "(없음)"
+        vio_all = []
+        for r in replies:
+            vio_all.append(judge_one(answers[oid], char_txt, hist, r, expect))
+        n_bad = sum(1 for v in vio_all if v)
+        total_v += n_bad
+        detail = " · ".join(f"{v['rule']}: “{v['evidence'][:40]}”" for vs in vio_all for v in vs) or "—"
+        mark = "✅" if n_bad == 0 else f"⚠ {n_bad}/{len(vio_all)}"
+        print(f"{label:<36} {mark}  {detail[:70]}")
+        lines.append(f"| {label} | {verdict} | {n_bad}/{len(vio_all)} | {detail.replace('|', '/')} |")
+    print("-" * 100)
+    print(f"판정: 위반 있는 응답 {total_v}건 (리포트 → docs/judge-report.md)")
+    lines += ["", f"**위반 있는 응답 {total_v}건.** 키워드 판정과 어긋나는 행(키워드 PASS + 위반, 또는 FAIL + 무위반)이 회귀 스위트의 사각지대다.", ""]
+    from pathlib import Path
+    Path(__file__).resolve().parent.parent.joinpath("docs", "judge-report.md").write_text("\n".join(lines), encoding="utf-8")
+
+# FLAKY 는 통과. 전부 실패(FAIL)나 호출 오류(ERR)만 게이트를 막는다. --judge 는 게이트에 영향 없음.
 sys.exit(1 if n["FAIL"] or n["ERR"] else 0)

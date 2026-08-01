@@ -15,6 +15,7 @@ import { dirname, join } from "node:path";
 import { orders } from "../src/data/orders.js";
 import { SHEET_BASE, COLORS, TOPPINGS, DECO, MONSTERS } from "../src/data/ingredients.js";
 import { TEMPLATE, setTemplate, getTemplate, promptParts, buildMonsterSystem, answerMap } from "./_monsterPrompt.js";
+import { callLLM } from "./_llm.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FILE = join(HERE, "..", "prompt-overrides.json");
@@ -187,10 +188,27 @@ function appendLog(what, before, after) {
   }
 }
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   const path = req.url.split("?")[0];
 
   if (path === "/api/admin/state") return res.json(state());
+
+  // 회귀 하네스(testChat.py --judge)의 LLM 판정용. 키는 이 서버만 들고 있으므로
+  // 파이썬이 직접 외부 API 를 부르지 않고 여기로 온다. 손님(OPENAI_MODEL)과
+  // 판정자(JUDGE_MODEL)를 분리한다 — 자기 채점 편향을 피한다.
+  if (path === "/api/admin/judge") {
+    const { system, messages } = req.body ?? {};
+    if (!system || !messages) return res.status(400).json({ error: "system·messages 필요" });
+    try {
+      const text = await callLLM({
+        system, messages, maxTokens: 500, json: true,
+        model: process.env.JUDGE_MODEL || "gpt-4o",
+      });
+      return res.json({ text });
+    } catch (e) {
+      return res.status(500).json({ error: String(e) });
+    }
+  }
 
   if (path === "/api/admin/save") {
     const { template, orderId, monsterId, fields } = req.body ?? {};

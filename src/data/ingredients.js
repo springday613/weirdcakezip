@@ -101,13 +101,23 @@ export function describeCake(cake) {
 }
 
 // 괴물 손님 — 직접 만든 그림(표정 3종: normal/happy/sad)
+//
+// trait 는 성격 '초안'이다. 손님이 애매하게 말하는 방식을 종마다 다르게 하려고 둔다.
+// 프롬프트에 쓰이는 건 orders.js 의 persona 이고, 둘을 맞추는 건 S8(KAN-11).
+// 그림이 아직 없어 여기 없는 종: 어금니(채색 대기) · 네모(표정 1종) → 위키 캐릭터 도감 참조.
+const face = (id) => ({
+  normal: `/assets/${id}.webp`, happy: `/assets/${id}_happy.webp`, sad: `/assets/${id}_sad.webp`,
+});
+
 export const MONSTERS = {
-  ghost: {
-    img: { normal: "/assets/ghost.png", happy: "/assets/ghost_happy.png", sad: "/assets/ghost_sad.png" },
-  },
-  pink: {
-    img: { normal: "/assets/pink.png", happy: "/assets/pink_happy.png", sad: "/assets/pink_sad.png" },
-  },
+  spike:  { name: "별사탕", trait: "활발한 개구쟁이. 감탄사가 많고 말이 빠르다. 신나서 앞서 말한다.", img: face("spike") },
+  cherry: { name: "체리",   trait: "공손하고 또박또박. 정중한 나머지 원하는 걸 에둘러 말한다.", img: face("cherry") },
+  flame:  { name: "활활이", trait: "급하고 욱한다. 자기 말이 문자 그대로 진심이라고 우긴다.", img: face("flame") },
+  dust:   { name: "먼지",   trait: "조용하고 몽롱하다. 추억에 잠겨 말끝을 흐린다.", img: face("dust") },
+  pink:   { name: "핑크",   trait: "감정이 크고 시끄럽다. 좋으면 폭발하고 싫으면 대성통곡한다.", img: face("pink") },
+  bean:   { name: "젤리콩", trait: "말랑하게 늘어진다. 기분 따라 녹아서 기복이 크다.", img: face("bean") },
+  cat:    { name: "나비",   trait: "도도한 미식가. 칭찬에 인색하고 '알아서 해줘'라고 던진다.", img: face("cat") },
+  marsh:  { name: "모찌",   trait: "순하지만 우유부단하다. 말을 계속 바꾼다.", img: face("marsh") },
 };
 
 // 점수 → 몬스터 표정

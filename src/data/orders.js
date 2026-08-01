@@ -10,7 +10,7 @@ export const orders = [
   // ── 1번째: 기본(딸기) ────────────────────────
   {
     id: "order-003",
-    monster: "ghost",
+    monster: "spike",
     persona: "활발하고 신난 개구쟁이 괴물. 딸기를 세상에서 제일 좋아해서 들떠 있다. 감탄사('우와!', '히히!')가 많고 말이 빠르다.",
     dialogue: "모든 걸 딸기로 해주세요! 레터링도 '딸기'!",
     hidden: {
@@ -23,7 +23,7 @@ export const orders = [
   // ── 2번째: 블루베리 케이크, 레터링 없음 ─────────
   {
     id: "order-004",
-    monster: "pink",
+    monster: "cherry",
     persona: "공손하고 또박또박한 괴물. 주문을 깔끔하고 정중하게 말한다. '~해주세요', '~랍니다' 같은 예의 바른 말투.",
     dialogue: "블루베리 케이크! 레터링은 필요없어요",
     hidden: {
@@ -36,7 +36,7 @@ export const orders = [
   // ── 3번째: 애매(레터링 '필요없음' + 초콜릿) ──────
   {
     id: "order-002",
-    monster: "pink",
+    monster: "flame",
     persona: "고집 세고 직설적인 괴물. 살짝 툴툴대며 말한다. 오해받는 걸 싫어하고, 자기 말이 문자 그대로 진심이라고 우긴다.",
     dialogue: "카카오톡으로 주문했는데 레터링 문구에 '필요없음'이라고 써주세요!",
     hidden: {
@@ -60,7 +60,7 @@ export const orders = [
   // ── 4번째: 애매(바다 → 딸기케이크) ──────────────
   {
     id: "order-001",
-    monster: "ghost",
+    monster: "dust",
     persona: "수줍고 몽환적인 괴물. 추억에 잠겨 말끝을 자주 흐리고, 감상적이고 나긋하게 말한다. '음…', '헤헤…' 같은 여린 감탄사를 쓴다.",
     dialogue: "바다가 그리운데.. 바다 생각나는 케이크 없을까요?",
     hidden: {

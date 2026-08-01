@@ -45,6 +45,13 @@ export default function ChatBox({ order, turns = 0, onAsk }) {
           <div key={m.id} className={"bubble " + m.role}>
             {m.role === "monster" && <img className="bubble-face" src={monster.img.normal} alt="" />}
             <span className="bubble-text">{m.content}</span>
+            {/* 디버그: 모델이 실제로 뱉은 JSON. raw 가 없으면 mock 응답이라는 뜻 */}
+            {import.meta.env.DEV && m.role === "monster" && m.raw && (
+              <details className="bubble-raw">
+                <summary>raw</summary>
+                <pre>{m.raw}</pre>
+              </details>
+            )}
           </div>
         ))}
         {busy && <div className="bubble monster"><span className="bubble-text">…</span></div>}

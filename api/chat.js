@@ -67,9 +67,19 @@ export default async function handler(req, res) {
     const topicClash = clashOf(out.reply ?? "");
     if (topicClash && !critical.includes(topic)) critical.push(topic);
 
+    // 역할 역전 가드 — 손님이 주인에게 취향을 되묻는 것("어떤 색으로 하고 싶어?").
+    // 정답이 정해진 슬롯을 자유 선택처럼 보이게 해 플레이어를 오도한다(실플레이 제보 2건).
+    // 프롬프트 규칙으로는 확률적으로 새서(실측) 결정적으로 잡는다.
+    const flipRe = /(어떤|무슨|뭐).{0,12}(하고 싶|좋아해|할까|해 ?줄까|드릴까|원하)|골라 ?(봐|줘)|정해 ?(봐|줘)|생각해 ?[봐보]|보렴/;
+    const roleFlip = (r) => flipRe.test(r);
+    if (roleFlip(out.reply ?? "")) critical.push("roleflip");
+
     if (critical.length || !out.intent) {
       const note = !out.intent
         ? "방금 출력이 형식을 어겼다. '출력 형식' 절의 JSON 하나로 다시 답해라. 대사 내용은 그대로."
+        : critical.includes("roleflip")
+        ? "너는 손님이다 — 주인에게 뭘 원하는지·어떤 색이 좋은지 묻지 마라. 네가 원하는 건 이미 정답에 " +
+          "정해져 있다. 방금 질문에만 답하고, 질문·제안 없이 끝내라."
         : topicClash
         ? `주인은 지금 ${topic} 슬롯을 물었고, 그 슬롯의 정답은 ${JSON.stringify(truth[topic])} 이다. ` +
           (truth[topic] === "none" ? '"필요 없어"라고 답해라 ("아무거나"는 금지). '
@@ -91,7 +101,8 @@ export default async function handler(req, res) {
       const intentOk = retry.intent && (!retryCheck ||
         (check && Object.keys(retryCheck).length <= Object.keys(check).length));
       const clashFixed = !topicClash || !clashOf(retry.reply ?? "");
-      if (intentOk && clashFixed) { out = retry; check = retryCheck; out.retried = true; }
+      const flipFixed = !critical.includes("roleflip") || !roleFlip(retry.reply ?? "");
+      if (intentOk && clashFixed && flipFixed) { out = retry; check = retryCheck; out.retried = true; }
     }
 
     return res.json({ reply: out.reply, intent: out.intent, raw: out.raw,

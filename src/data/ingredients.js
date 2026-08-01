@@ -1,6 +1,8 @@
 // 재료 vocabulary — 회의록(260717) "그려야할거" 기준.
 // 지금은 이모지/색으로 렌더(에셋 0). 나중에 PNG로 교체해도 이 구조 그대로.
 
+import { PASS, starsFor } from "../scoreCake.js";
+
 // ① 시트 베이스: 섞어서 시트를 만든다. 기본 조합 = 밀가루+우유+계란+버터.
 //    아이스크림→아이스크림케이크, 젤라틴→젤리케이크 등 변형 가능.
 export const SHEET_BASE = [
@@ -110,5 +112,6 @@ export const MONSTERS = {
   },
 };
 
-// 점수 → 몬스터 표정
-export const moodOf = (score) => (score >= 80 ? "happy" : score < 50 ? "sad" : "normal");
+// 점수 → 몬스터 표정. 경계는 별점과 같다(★4 이상 happy · 통과선 미만 sad).
+// 근원은 scoreCake.js 의 구간 상수 — 여기서 숫자를 따로 들고 있으면 어긋난다.
+export const moodOf = (score) => (starsFor(score) >= 4 ? "happy" : score < PASS ? "sad" : "normal");

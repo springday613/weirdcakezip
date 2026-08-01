@@ -2,9 +2,16 @@
 // ★ wants에 '적힌 항목만' 채점한다. 안 적은 항목은 don't-care(상관없음) → 감점 없음.
 //   (손님이 대화로 언급한 것만 정답에 넣으면, 알 수 없는 걸로 감점되지 않아 공정)
 //
-// 기본 가중치(적힌 항목끼리 100점으로 정규화): 시트맛 30 / 토핑 30 / 레터링 20 / 생크림 10 / 데코 10
+// 기본 가중치(적힌 항목끼리 100점으로 정규화):
+//   시트반죽 15 / 시트맛 25 / 토핑 25 / 레터링 20 / 생크림 10 / 데코 10
 
 const WEIGHT = { base: 15, sheetColor: 25, toppings: 25, lettering: 20, cream: 10, deco: 10 };
+
+// 점수 구간 — 위키 「게임 플로우」 스펙(2026-07-27 확정)이 근원이다.
+//   90+ ★5 happy · 75+ ★4 happy · 60+ ★3 기본(통과선) · 50+ ★2 sad · 그 미만 ★1 sad
+// 별점·표정·통과·코인이 전부 이 경계를 쓴다. 한 곳에서만 고치도록 상수로 둔다.
+export const PASS = 60;
+const TIERS = [90, 75, 60, 50];
 const norm = (t) => (t ?? "").trim();
 const sameSet = (a, b) => {
   const x = new Set(a ?? []), y = new Set(b ?? []);
@@ -50,7 +57,7 @@ export function scoreCake(order, cake) {
   const parts = raw.map((p) => ({ key: p.key, weight: Math.round((WEIGHT[p.wk] / totalW) * 100), frac: p.frac }));
   const score = Math.round((raw.reduce((s, p) => s + WEIGHT[p.wk] * p.frac, 0) / totalW) * 100);
   const missing = parts.filter((p) => p.frac < 0.999).map((p) => p.key);
-  return { score, parts, missing, passed: score >= 80 };
+  return { score, parts, missing, passed: score >= PASS };
 }
 
 // 한글 조사: 받침 있으면 withB(이/은/을), 없으면 withoutB(가/는/를)
@@ -64,18 +71,25 @@ export function josa(word, withB, withoutB) {
   return (word ?? "") + (hasBatchim(word) ? withB : withoutB);
 }
 
-// 점수 → 괴물 반응 (점수와 항상 일치, 조사 처리)
+// 점수 → 별점 1~5. 플레이어에게 점수는 숨기고 이것만 보여준다 —
+// 대문짝만한 "68점"은 기준이 뭔지 되묻게 만든다(260725 회의).
+export function starsFor(score) {
+  const i = TIERS.findIndex((t) => score >= t);
+  return i < 0 ? 1 : 5 - i;
+}
+
+// 점수 → 괴물 반응 (점수와 항상 일치, 조사 처리). 경계는 별점과 같다.
 export function reactionFor(score, missing) {
-  if (score >= 95) return "완벽해! 딱 내가 원하던 거야!";
-  if (score >= 80) return "좋아, 마음에 쏙 들어!";
+  if (score >= TIERS[0]) return "완벽해! 딱 내가 원하던 거야!";
+  if (score >= TIERS[1]) return "좋아, 마음에 쏙 들어!";
   const m = missing[0] ?? "뭔가";
-  if (score >= 60) return `음… 나쁘진 않은데, ${josa(m, "이", "가")} 좀 아쉬워.`;
+  if (score >= PASS) return `음… 나쁘진 않은데, ${josa(m, "이", "가")} 좀 아쉬워.`;
   return `이건 내가 원한 게 아니야… 특히 ${josa(missing[0] ?? "많은 것", "이", "가")} 아쉬워.`;
 }
 
-// 만족도(점수) → 이번 라운드 수익(원). 잘 맞출수록 많이 번다.
-// '이상해요'(50점 미만)면 손님이 안 사감 → 0원.
+// 만족도(점수) → 이번 라운드 수익(코인). 점수가 그대로 코인이다 — 68점이면 68코인.
+// 점수는 한 판으로 사라지고 코인은 쌓인다는 게 '돈 버는 재미'의 근거(260725 회의).
+// 통과선을 못 넘으면 손님이 안 사감 → 0.
 export function coinsFor(score) {
-  if (score < 50) return 0;
-  return score * 10; // 100점=1000원, 70점=700원
+  return score < PASS ? 0 : score;
 }

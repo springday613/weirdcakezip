@@ -19,7 +19,7 @@ export default function ResultScreen({ result, order, cake, onNext }) {
       </div>
       <p className="reaction">{result.reaction}</p>
       {result.earned != null && (
-        <p className="earned">+{result.earned.toLocaleString()}원 벌었어요!</p>
+        <p className="earned">+{result.earned.toLocaleString()}코인 벌었어요!</p>
       )}
 
       {result.parts && (

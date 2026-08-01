@@ -9,8 +9,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { scoreCake, coinsFor, reactionFor, josa } from "./scoreCake.js";
-import { BASIC_BASE, sheetType } from "./data/ingredients.js";
+import { scoreCake, coinsFor, reactionFor, josa, starsFor } from "./scoreCake.js";
+import { BASIC_BASE, sheetType, moodOf } from "./data/ingredients.js";
 
 // ── fixture ────────────────────────────────────────────────────
 // 주문 하나를 손으로 만든다(orders.js 를 그대로 쓰면 정답이 바뀔 때 테스트가 같이 흔들린다).
@@ -149,13 +149,28 @@ test("조사 처리", () => {
   assert.equal(josa("시트", "이", "가"), "시트가");
 });
 
-// ── 스펙과 코드의 차이 (S8 에서 맞출 것) ───────────────────────
-// 위키 「게임 플로우」: 통과선 60점 = 별 3개 / 코인 = 점수 그대로(68→68).
-// 현재 코드는 passed>=80, coinsFor=score*10. S8 에서 고치면 이 두 테스트의 todo 를 지운다.
-test("[S8] 통과선은 60점이어야 한다", { todo: "현재 코드는 80" }, () => {
+// ── 점수 구간 (위키 「게임 플로우」 스펙) ──────────────────────
+// 별점·표정·통과·코인이 같은 경계를 쓴다. 하나만 어긋나도 "왜 우는 얼굴인데 통과야?" 가 된다.
+test("통과선은 60점", () => {
   assert.equal(scoreCake(order(WANTS), cake({ sheetColor: "lemon" })).passed, true);
+  assert.equal(coinsFor(59), 0, "통과선 미만이면 손님이 안 사간다");
 });
 
-test("[S8] 코인은 점수 그대로여야 한다", { todo: "현재 코드는 score*10" }, () => {
+test("코인은 점수 그대로", () => {
   assert.equal(coinsFor(68), 68);
+  assert.equal(coinsFor(100), 100);
+});
+
+test("별점 경계 — 90/75/60/50", () => {
+  assert.deepEqual([100, 90, 89, 75, 74, 60, 59, 50, 49, 0].map(starsFor),
+                   [5, 5, 4, 4, 3, 3, 2, 2, 1, 1]);
+});
+
+test("표정은 별점·통과선과 어긋나지 않는다", () => {
+  for (const s of [0, 49, 50, 59, 60, 74, 75, 89, 90, 100]) {
+    const mood = moodOf(s), stars = starsFor(s), passed = s >= 60;
+    if (mood === "happy") assert.ok(stars >= 4, `${s}점: happy 인데 별 ${stars}개`);
+    if (mood === "sad") assert.ok(!passed, `${s}점: sad 인데 통과`);
+    if (mood === "normal") assert.ok(passed && stars === 3, `${s}점: 기본 표정인데 별 ${stars}개`);
+  }
 });

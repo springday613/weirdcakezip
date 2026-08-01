@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     // 어긋난 슬롯을 짚어 한 번 다시 시킨다. 재시도로도 틀리면 그대로 내보내되 표시는 남긴다.
     const system = buildMonsterSystem(order);
     const messages = toApiMessages(order, history);
-    let out = parseReply(await callLLM({ system, messages, maxTokens: 400, json: true }));
+    let out = parseReply(await callLLM({ system, messages, maxTokens: 500, json: true }));
     let check = checkIntent(order, out.intent);
 
     // 재시도는 공정성을 깨는 부류에서만 — 실제 정답이 있는 슬롯을 '상관없음/없음'으로,
@@ -42,9 +42,41 @@ export default async function handler(req, res) {
              (want === "none" && got === "dont care");
     });
 
+    // 슬롯 혼동 가드 — intent 는 맞는데 '대사'가 물은 칸의 정답과 모순되게 말하는 경우.
+    // 어느 칸을 물었는지는 모델에게 맡기지 않고(협조 안 함, 실측 전부 null) 플레이어의
+    // 마지막 질문에서 서버가 판정한다. 물은 칸의 정답이 실값인데 대사가 "없어도/아무거나"
+    // 라고 하면, 플레이어는 그 말을 믿고 안 올려서 감점된다. (판정자가 2/2 로 잡던 부류)
+    const lastUser = [...history].reverse().find((m) => m.role === "user")?.content ?? "";
+    const topic =
+      /반죽|시트 ?반죽/.test(lastUser) ? "base"
+      : /데코|장식|초(?![a-가-힣])|스프링클/.test(lastUser) ? "deco"
+      : /크림/.test(lastUser) ? "cream"
+      : /토핑/.test(lastUser) ? "toppings"
+      : /레터링|글자|문구/.test(lastUser) ? "lettering"
+      : /시트|케이크 ?맛/.test(lastUser) ? "sheetColor"
+      : null;
+    // 대사가 물은 칸의 정답과 모순되는가 — 원본과 재시도 결과 모두 이걸로 심사한다
+    const clashOf = (reply) => {
+      const tt = topic ? truth[topic] : undefined;
+      if (tt === undefined) return false;
+      const denies = /없어도|필요 ?없|안 ?올려도/.test(reply);
+      const shrugs = /아무거나|상관없|알아서/.test(reply);
+      return (tt !== "dont care" && tt !== "none" && (denies || shrugs)) ||
+             (tt === "none" && shrugs) || (tt === "dont care" && denies);
+    };
+    const topicClash = clashOf(out.reply ?? "");
+    if (topicClash && !critical.includes(topic)) critical.push(topic);
+
     if (critical.length || !out.intent) {
       const note = !out.intent
         ? "방금 출력이 형식을 어겼다. '출력 형식' 절의 JSON 하나로 다시 답해라. 대사 내용은 그대로."
+        : topicClash
+        ? `주인은 지금 ${topic} 슬롯을 물었고, 그 슬롯의 정답은 ${JSON.stringify(truth[topic])} 이다. ` +
+          (truth[topic] === "none" ? '"필요 없어"라고 답해라 ("아무거나"는 금지). '
+           : truth[topic] === "dont care" ? '"아무거나 괜찮아"라고 답해라 ("필요 없어"는 금지). '
+           : '"아무거나/필요 없어"는 거짓말이 된다 — 금지. 주인이 그 이름을 아직 말하지 않았으니 ' +
+             "이름 대신 색·맛·식감으로만 암시해라. ") +
+          "다른 슬롯 이야기는 꺼내지 말고, intent 도 정답 JSON 에 맞게 바로잡아라."
         : `intent 의 ${critical.join(", ")} 값이 정답과 다르다. 정답 JSON 의 그 슬롯을 다시 보고 ` +
           "intent 만 바로잡아라. 대사는 원래 규칙(소거·확인·묘사)대로 방금 질문에만 답하고, " +
           "다른 슬롯 이야기를 새로 꺼내지 마라.";
@@ -52,13 +84,14 @@ export default async function handler(req, res) {
         system,
         messages: [...messages, { role: "assistant", content: out.raw ?? out.reply },
                    { role: "user", content: `(시스템 교정) ${note}` }],
-        maxTokens: 400, json: true,
+        maxTokens: 500, json: true,
       }));
       const retryCheck = checkIntent(order, retry.intent);
-      // 재시도가 더 낫을 때만 채택 (어긋남이 줄었거나 사라졌을 때)
-      const better = retry.intent && (!retryCheck ||
-        (check && Object.keys(retryCheck).length < Object.keys(check).length));
-      if (better) { out = retry; check = retryCheck; out.retried = true; }
+      // 재시도 채택 기준: intent 가 나빠지지 않았고, 대사 모순(있었다면)이 실제로 사라졌을 때
+      const intentOk = retry.intent && (!retryCheck ||
+        (check && Object.keys(retryCheck).length <= Object.keys(check).length));
+      const clashFixed = !topicClash || !clashOf(retry.reply ?? "");
+      if (intentOk && clashFixed) { out = retry; check = retryCheck; out.retried = true; }
     }
 
     return res.json({ reply: out.reply, intent: out.intent, raw: out.raw,

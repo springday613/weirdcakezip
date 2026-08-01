@@ -59,6 +59,7 @@
 
   /* 터치 타깃 최소 크기 */
   --tap-min: 44px;
+  --tap-min-sm: 36px;
 
   /* 상태 */
   --disabled-opacity: .4;
@@ -87,7 +88,7 @@ body {
 }
 
 .layer-art   { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-.layer-veil  { position: absolute; inset: 0; z-index: 0; background: rgba(255,255,255,.65); pointer-events: none; }
+.layer-veil  { position: absolute; inset: 0; z-index: 0; background: var(--veil); pointer-events: none; }
 .layer-frame { position: relative; z-index: 1; }
 .layer-asset { position: relative; z-index: 2; }
 .layer-ui    { position: relative; z-index: 3; padding: var(--pad-screen); }
@@ -171,7 +172,7 @@ body {
 .btn.small {
   font-size: var(--fs-label);
   padding: 8px 14px;
-  min-height: 36px;
+  min-height: var(--tap-min-sm);
 }
 
 /* ── 6. 말풍선 ───────────────────────────────────────────── */
@@ -252,7 +253,7 @@ body {
   padding: 4px 12px 4px 6px;
   font-size: var(--fs-label);
   font-weight: 700;
-  min-height: 36px;
+  min-height: var(--tap-min-sm);
 }
 .hud-spacer { flex: 1; }
 
@@ -487,7 +488,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   color: var(--text-muted);
   border-color: var(--ink);
 }
-.chip.sm { padding: 4px 8px; font-size: var(--fs-body); min-height: 36px; }
+.chip.sm { padding: 4px 8px; font-size: var(--fs-body); min-height: var(--tap-min-sm); }
 .img-chip { padding: 3px; line-height: 0; }
 .ing-img { width: var(--icon-sm); height: var(--icon-sm); object-fit: contain; display: block; }
 .color-dot {
@@ -600,3 +601,31 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 }
 .step-label { font-size: var(--fs-body); color: var(--text); }
 .step-label em { font-style: normal; color: var(--text-muted); font-size: var(--fs-note); }
+
+/* ── 13. 타이틀 화면 ─────────────────────────────────────── */
+.title-assets {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px var(--pad-screen) 0;
+}
+.title-logo            { width: 340px; aspect-ratio: 720 / 720; }
+.title-ui {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: calc(var(--gap) * 2) var(--pad-screen) calc(var(--gap) * 4);
+}
+.title-tagline {
+  font-size: var(--fs-body);
+  color: var(--text);
+  margin: 0 0 calc(var(--gap) * 3.2);
+  line-height: 1.9;
+}
+.title-ui .btn-primary { margin-bottom: calc(var(--gap) * 1.2); }
+.title-caption {
+  font-size: var(--fs-note);
+  color: var(--text-muted);
+  margin: calc(var(--gap) * 1.8) 0 0;
+}

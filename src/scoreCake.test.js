@@ -9,7 +9,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { scoreCake, coinsFor, reactionFor, josa, starsFor } from "./scoreCake.js";
+import { scoreCake, coinsFor, reactionFor, josa, starsFor, finalScore, judgeResult,
+         TURN_BUDGET, TURN_PENALTY } from "./scoreCake.js";
 import { BASIC_BASE, sheetType, moodOf } from "./data/ingredients.js";
 
 // ── fixture ────────────────────────────────────────────────────
@@ -152,7 +153,7 @@ test("조사 처리", () => {
 // ── 점수 구간 (위키 「게임 플로우」 스펙) ──────────────────────
 // 별점·표정·통과·코인이 같은 경계를 쓴다. 하나만 어긋나도 "왜 우는 얼굴인데 통과야?" 가 된다.
 test("통과선은 60점", () => {
-  assert.equal(scoreCake(order(WANTS), cake({ sheetColor: "lemon" })).passed, true);
+  assert.equal(judgeResult(order(WANTS), cake({ sheetColor: "lemon" })).passed, true);
   assert.equal(coinsFor(59), 0, "통과선 미만이면 손님이 안 사간다");
 });
 
@@ -173,4 +174,38 @@ test("표정은 별점·통과선과 어긋나지 않는다", () => {
     if (mood === "sad") assert.ok(!passed, `${s}점: sad 인데 통과`);
     if (mood === "normal") assert.ok(passed && stars === 3, `${s}점: 기본 표정인데 별 ${stars}개`);
   }
+});
+
+// ── 대화 예산 (질문 턴) ────────────────────────────────────────
+// 스펙: 1턴부터 −2점, 기본 예산 10턴. 11턴부터는 코인으로 산 것이라 깎지 않는다.
+test("질문은 1턴부터 점수로 지불한다", () => {
+  assert.equal(finalScore(100, 0).score, 100, "안 물어보면 감점 없음");
+  assert.equal(finalScore(100, 1).score, 100 - TURN_PENALTY, "첫 턴부터 깎인다 — 무료 구간은 없다");
+  assert.equal(finalScore(100, 5).score, 90);
+});
+
+test("예산을 다 써도 별 4개는 지킨다", () => {
+  // −2 를 고른 근거. −3 이면 10턴에 70점(★3)까지 내려가 질문이 훨씬 무거워진다.
+  assert.equal(finalScore(100, TURN_BUDGET).score, 80);
+  assert.equal(starsFor(finalScore(100, TURN_BUDGET).score), 4);
+});
+
+test("예산을 넘긴 턴은 깎지 않는다 (코인으로 산 캐시템)", () => {
+  const capped = finalScore(100, TURN_BUDGET).score;
+  assert.equal(finalScore(100, TURN_BUDGET + 5).score, capped, "11턴부터는 감점이 늘지 않는다");
+});
+
+test("감점이 점수를 음수로 만들지 않는다", () => {
+  assert.equal(finalScore(5, TURN_BUDGET).score, 0);
+});
+
+test("통과·별점·표정·코인은 전부 최종 점수를 본다", () => {
+  // 만들기는 100점이지만 질문을 많이 해서 최종 80점인 경우
+  const r = judgeResult(order(WANTS), cake(), TURN_BUDGET);
+  assert.equal(r.made, 100, "만들기 점수는 그대로 남는다");
+  assert.equal(r.score, 80);
+  assert.equal(r.penalty, 20);
+  assert.equal(r.stars, starsFor(r.score));
+  assert.equal(r.passed, true);
+  assert.equal(r.reaction, reactionFor(r.score, r.missing));
 });

@@ -12,6 +12,11 @@ const WEIGHT = { base: 15, sheetColor: 25, toppings: 25, lettering: 20, cream: 1
 // 별점·표정·통과·코인이 전부 이 경계를 쓴다. 한 곳에서만 고치도록 상수로 둔다.
 export const PASS = 60;
 const TIERS = [90, 75, 60, 50];
+
+// 대화 예산 — 질문은 1턴부터 점수로 지불한다. "애매함을 몇 마디로 좁히는가"가 이 게임의 재미라
+// 무료 구간을 두지 않는다(260725 회의). 11턴부터는 코인으로 사는 캐시템이라 깎지 않는다.
+export const TURN_BUDGET = 10;
+export const TURN_PENALTY = 2;
 const norm = (t) => (t ?? "").trim();
 const sameSet = (a, b) => {
   const x = new Set(a ?? []), y = new Set(b ?? []);
@@ -57,7 +62,9 @@ export function scoreCake(order, cake) {
   const parts = raw.map((p) => ({ key: p.key, weight: Math.round((WEIGHT[p.wk] / totalW) * 100), frac: p.frac }));
   const score = Math.round((raw.reduce((s, p) => s + WEIGHT[p.wk] * p.frac, 0) / totalW) * 100);
   const missing = parts.filter((p) => p.frac < 0.999).map((p) => p.key);
-  return { score, parts, missing, passed: score >= PASS };
+  // passed 를 여기서 내지 않는다 — 통과는 대화 비용까지 반영한 최종 점수로 판정한다.
+  // 두 곳에서 통과를 정하면 "별 2개인데 통과" 같은 모순이 조용히 생긴다. → judge 층에서 한 번만.
+  return { score, parts, missing };
 }
 
 // 한글 조사: 받침 있으면 withB(이/은/을), 없으면 withoutB(가/는/를)
@@ -69,6 +76,21 @@ function hasBatchim(word) {
 }
 export function josa(word, withB, withoutB) {
   return (word ?? "") + (hasBatchim(word) ? withB : withoutB);
+}
+
+// 만들기 점수 + 질문 턴 수 → 최종 점수. 만들기 품질과 대화 비용은 다른 축이라
+// scoreCake 안에 넣지 않고 여기서 합성한다(채점 테스트가 턴에 흔들리지 않게).
+export function finalScore(score, turns = 0) {
+  const penalty = Math.min(turns, TURN_BUDGET) * TURN_PENALTY;
+  return { score: Math.max(0, score - penalty), penalty };
+}
+
+// 최종 점수 → 결과 한 벌. 통과·별점·반응이 전부 같은 점수를 본다.
+export function judgeResult(order, cake, turns = 0) {
+  const { score: made, parts, missing } = scoreCake(order, cake);
+  const { score, penalty } = finalScore(made, turns);
+  return { score, made, penalty, turns, parts, missing,
+           passed: score >= PASS, stars: starsFor(score), reaction: reactionFor(score, missing) };
 }
 
 // 점수 → 별점 1~5. 플레이어에게 점수는 숨기고 이것만 보여준다 —

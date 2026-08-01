@@ -4,7 +4,7 @@ import IngredientPalette, { STEPS } from "../components/IngredientPalette.jsx";
 import ChatBox from "../components/ChatBox.jsx";
 import { MONSTERS, sheetType } from "../data/ingredients.js";
 
-export default function OrderScreen({ order, index, total, money, cake, setCake, onSubmit, busy }) {
+export default function OrderScreen({ order, index, total, money, cake, setCake, onSubmit, busy, turns, onAsk }) {
   const monster = MONSTERS[order.monster] ?? MONSTERS.ghost;
   const [step, setStep] = useState(0);
   const [made, setMade] = useState(false);   // 시트가 케이크로 구워졌는가
@@ -69,7 +69,7 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
       <img className="monster-big" src={monster.img.normal} alt="손님 괴물" />
 
       {/* 애매한 주문은 대화로 푼다 (런타임 LLM) */}
-      <ChatBox order={order} />
+      <ChatBox order={order} turns={turns} onAsk={onAsk} />
 
       {warn && step === 0 && (
         <div className="warn-bubble">시트가 뭔가 이상해! 다시 보자</div>

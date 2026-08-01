@@ -29,6 +29,7 @@ export default function App() {
   const [totalScore, setTotalScore] = useState(0);
   const [money, setMoney] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [turns, setTurns] = useState(0); // 이번 손님에게 던진 질문 수 — 점수에서 지불한다
   const [bgMode, setBgMode] = useState(0); // 개발용 배경 토글
 
   const order = orders[orderIndex];
@@ -38,12 +39,13 @@ export default function App() {
     setCake(emptyCake());
     setTotalScore(0);
     setMoney(0);
+    setTurns(0);
     setScreen("PLAYING");
   }
 
   async function submit() {
     setBusy(true);
-    const r = await judge(order.id, cake);
+    const r = await judge(order.id, cake, turns);
     setBusy(false);
     const earned = coinsFor(r.score);
     setResult({ ...r, earned });
@@ -61,6 +63,7 @@ export default function App() {
     setOrderIndex(ni);
     setCake(emptyCake());
     setResult(null);
+    setTurns(0); // 예산은 손님마다 새로 준다
     setScreen("PLAYING");
   }
 
@@ -99,6 +102,8 @@ export default function App() {
             setCake={setCake}
             onSubmit={submit}
             busy={busy}
+            turns={turns}
+            onAsk={() => setTurns((n) => n + 1)}
           />
         )}
 

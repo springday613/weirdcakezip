@@ -64,7 +64,6 @@ export const TOPPINGS = [
   { id: "avocado", label: "아보카도", emoji: "🥑" },
   { id: "peach", label: "복숭아", emoji: "🍑" },
   { id: "banana", label: "바나나", emoji: "🍌" },
-  { id: "protein", label: "프로틴파우더", emoji: "🥤" },
   { id: "almond", label: "아몬드", emoji: "🌰" },
   { id: "chicken", label: "닭가슴살", emoji: "🍗" },
 ];
@@ -72,7 +71,9 @@ export const TOPPINGS = [
 // ④ 데코 (개수 있음 — 배치한 수가 곧 개수)
 export const DECO = [
   { id: "birthday_candle", label: "생일초", emoji: "🕯️" },
-  { id: "heart_candle", label: "하트초", emoji: "💗" },
+  { id: "heart_candle_red", label: "빨간 하트초", emoji: "❤️" },
+  { id: "heart_candle_pink", label: "핑크 하트초", emoji: "💗" },
+  { id: "heart_candle_blue", label: "파란 하트초", emoji: "💙" },
   { id: "bomb_candle", label: "폭탄초", emoji: "🧨" },
   { id: "sprinkle", label: "레인보우스프링클", emoji: "🌈" },
 ];
@@ -109,7 +110,7 @@ export function describeCake(cake) {
 // 배경(character)과 성격(persona)을 다른 절로 넣는다.
 export const MONSTERS = {
   ghost: {
-    img: { normal: "/assets/ghost.png", happy: "/assets/ghost_happy.png", sad: "/assets/ghost_sad.png" },
+    img: { normal: "/assets/ghost.webp", happy: "/assets/ghost_happy.webp", sad: "/assets/ghost_sad.webp" },
     character: {
       // ⚠ 스프라이트가 2종뿐이라 한 몬스터가 주문 둘을 맡는다. 성격은 몬스터의 것이므로
       // order-003(개구쟁이)을 이 종의 성격으로 삼았다 — order-001 도 이 말투로 말한다.
@@ -121,7 +122,7 @@ export const MONSTERS = {
     },
   },
   pink: {
-    img: { normal: "/assets/pink.png", happy: "/assets/pink_happy.png", sad: "/assets/pink_sad.png" },
+    img: { normal: "/assets/pink.webp", happy: "/assets/pink_happy.webp", sad: "/assets/pink_sad.webp" },
     character: {
       // order-002(고집불통)의 화법을 이 종의 성격으로 — '필요없음' 함정이 이 말투에 걸려 있다.
       personality: "고집 세고 직설적. 살짝 툴툴대며 말한다. 오해받는 걸 싫어하고, 자기 말이 문자 그대로 진심이라고 우긴다.",

@@ -57,8 +57,8 @@
   .row{display:flex; gap:6px; align-items:flex-start; margin-bottom:6px}
   .row textarea{flex:1}
   .row .idx{color:var(--dim); font-family:var(--mono); padding-top:9px; width:16px; flex:none}
-  .bar{display:flex; gap:8px; align-items:center; margin:18px 0 6px; flex-wrap:wrap;
-       position:sticky; bottom:0; background:var(--paper); padding:10px 0; border-top:1px solid var(--edge-soft)}
+  /* 저장 바 — sticky 로 띄웠더니 긴 편집창 중간에 떠서 내용을 가렸다. 흐름에 그대로 둔다 */
+  .bar{display:flex; gap:8px; align-items:center; margin:18px 0 6px; flex-wrap:wrap}
   .btn{background:var(--accent); color:#fff; border:0; border-radius:7px; padding:8px 17px; cursor:pointer; font:inherit; font-weight:700}
   .btn.ghost{background:var(--panel); color:var(--dim); border:1px solid var(--edge); font-weight:400}
   .btn:disabled{opacity:.45; cursor:default}

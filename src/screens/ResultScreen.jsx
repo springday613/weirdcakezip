@@ -1,4 +1,5 @@
 import { describeCake, MONSTERS, moodOf } from "../data/ingredients.js";
+import { answerMap } from "../scoreCake.js";
 import CakeView from "../components/CakeView.jsx";
 
 export default function ResultScreen({ result, order, cake, onNext }) {
@@ -43,9 +44,13 @@ export default function ResultScreen({ result, order, cake, onNext }) {
         ))}
       </div>
 
+      {/* 손님이 매 턴 뱉는 intent 와 같은 모양. 다 알아냈다면 손님의 intent 가 이것과 같아진다 */}
       <details className="reveal">
         <summary>손님의 진짜 마음은?</summary>
-        <p>{order.hidden.intent}</p>
+        <pre className="reveal-intent">{JSON.stringify(answerMap(order), null, 2)}</pre>
+        <p className="reveal-legend">
+          <code>"dont care"</code> 상관없음 · <code>"none"</code> 없어야 함 · 그 외는 그 값이 정답
+        </p>
       </details>
 
       {result._mock && <p className="hint">※ mock 판정 (실서버 아님)</p>}

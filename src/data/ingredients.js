@@ -38,7 +38,7 @@ export function sheetType(base) {
   return null;
 }
 
-// ② 색내기: 시트·레터링·생크림의 맛/색을 결정 (색이 아니라 '재료'로 선택)
+// ② 케이크 맛: 시트·레터링·생크림의 맛을 결정 (색이 아니라 '재료'로 고른다 — 맛이 곧 색)
 export const COLORS = [
   { id: "vanilla", label: "바닐라", emoji: "🍦", hex: "#fff2cc" },
   { id: "strawberry", label: "딸기", emoji: "🍓", hex: "#ffd1dc" },
@@ -103,12 +103,32 @@ export function describeCake(cake) {
 }
 
 // 괴물 손님 — 직접 만든 그림(표정 3종: normal/happy/sad)
+//
+// character 는 '종'의 것이고, orders.js 의 persona 는 '이 주문에서의 화법'이다.
+// 한 스프라이트가 여러 주문을 맡을 수 있어서 둘을 섞지 않는다 — 프롬프트에서도
+// 배경(character)과 성격(persona)을 다른 절로 넣는다.
 export const MONSTERS = {
   ghost: {
     img: { normal: "/assets/ghost.png", happy: "/assets/ghost_happy.png", sad: "/assets/ghost_sad.png" },
+    character: {
+      // ⚠ 스프라이트가 2종뿐이라 한 몬스터가 주문 둘을 맡는다. 성격은 몬스터의 것이므로
+      // order-003(개구쟁이)을 이 종의 성격으로 삼았다 — order-001 도 이 말투로 말한다.
+      // 9종으로 갈라지는 S15 가 머지되면 주문마다 제 성격을 갖는다.
+      personality: "활발하고 신난 개구쟁이. 딸기를 세상에서 제일 좋아해서 들떠 있다. 감탄사('우와!', '히히!')가 많고 말이 빠르다.",
+      favorite: "하얀 것, 폭신한 것",
+      dislike: "재촉당하는 것",
+      background: "가게에 제일 오래 다닌 단골. 먹은 케이크는 다 기억하는데 언제 먹었는지는 잘 못 떠올린다.",
+    },
   },
   pink: {
     img: { normal: "/assets/pink.png", happy: "/assets/pink_happy.png", sad: "/assets/pink_sad.png" },
+    character: {
+      // order-002(고집불통)의 화법을 이 종의 성격으로 — '필요없음' 함정이 이 말투에 걸려 있다.
+      personality: "고집 세고 직설적. 살짝 툴툴대며 말한다. 오해받는 걸 싫어하고, 자기 말이 문자 그대로 진심이라고 우긴다.",
+      favorite: "분홍색 물건, 자기 말을 끝까지 들어주는 것",
+      dislike: "오해받는 것, 말을 대충 흘려듣는 것",
+      background: "가게 근처에 사는 단골. 주인장이 자기 말을 제대로 알아듣는지 늘 시험한다.",
+    },
   },
 };
 

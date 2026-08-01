@@ -31,9 +31,11 @@ export default function ChatBox({ order, turns = 0, onAsk }) {
     setInput("");
     setBusy(true);
     onAsk?.();
-    const { reply } = await chat(order.id, next);
+    // raw = 손님이 실제로 뱉은 구조(JSON) 원문. 다음 턴에 그대로 되돌려줘야
+    // 이미 확인해준 슬롯·상관없는 항목을 손님이 이어받는다(안 그러면 매 턴 잊는다).
+    const { reply, raw } = await chat(order.id, next);
     setBusy(false);
-    setMessages((m) => [...m, { id: nextId.current++, role: "monster", content: reply }]);
+    setMessages((m) => [...m, { id: nextId.current++, role: "monster", content: reply, raw }]);
   }
 
   return (

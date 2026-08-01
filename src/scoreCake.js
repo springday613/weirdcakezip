@@ -78,6 +78,24 @@ export function josa(word, withB, withoutB) {
   return (word ?? "") + (hasBatchim(word) ? withB : withoutB);
 }
 
+// 슬롯 → 정답 상태. 프롬프트·검증·결과 화면이 같은 계산을 쓰게 한다.
+//   "dont care" = wants 에 키 없음 · "none" = 키는 있고 빈 값 · 그 외 = 정답 값
+// (ingredients.js 가 이 파일을 import 하므로 여기서 ingredients 를 부르면 순환이 된다 — 부르지 않는다)
+export function answerMap(order) {
+  const w = order.hidden.wants ?? {};
+  const val = {
+    base: () => (w.base ?? []).join("+"),
+    sheetColor: () => w.sheetColor,
+    toppings: () => (w.toppings ?? []).join(","),
+    cream: () => w.cream?.color,
+    deco: () => (w.deco ?? []).map((d) => `${d.type}x${d.count}`).join(","),
+    lettering: () => w.lettering?.text,
+  };
+  const out = {};
+  for (const k of Object.keys(val)) out[k] = !(k in w) ? "dont care" : (val[k]() || "none");
+  return out;
+}
+
 // 만들기 점수 + 질문 턴 수 → 최종 점수. 만들기 품질과 대화 비용은 다른 축이라
 // scoreCake 안에 넣지 않고 여기서 합성한다(채점 테스트가 턴에 흔들리지 않게).
 export function finalScore(score, turns = 0) {

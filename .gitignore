@@ -7,3 +7,6 @@ dist
 
 __pycache__/
 .vite
+
+# 프롬프트 콘솔(admin) 편집본 — 로컬 전용
+prompt-overrides.json

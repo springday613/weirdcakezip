@@ -62,7 +62,6 @@ export const TOPPINGS = [
   { id: "avocado", label: "아보카도", emoji: "🥑" },
   { id: "peach", label: "복숭아", emoji: "🍑" },
   { id: "banana", label: "바나나", emoji: "🍌" },
-  { id: "protein", label: "프로틴파우더", emoji: "🥤" },
   { id: "almond", label: "아몬드", emoji: "🌰" },
   { id: "chicken", label: "닭가슴살", emoji: "🍗" },
 ];
@@ -70,7 +69,9 @@ export const TOPPINGS = [
 // ④ 데코 (개수 있음 — 배치한 수가 곧 개수)
 export const DECO = [
   { id: "birthday_candle", label: "생일초", emoji: "🕯️" },
-  { id: "heart_candle", label: "하트초", emoji: "💗" },
+  { id: "heart_candle_red", label: "빨간 하트초", emoji: "❤️" },
+  { id: "heart_candle_pink", label: "핑크 하트초", emoji: "💗" },
+  { id: "heart_candle_blue", label: "파란 하트초", emoji: "💙" },
   { id: "bomb_candle", label: "폭탄초", emoji: "🧨" },
   { id: "sprinkle", label: "레인보우스프링클", emoji: "🌈" },
 ];
@@ -103,10 +104,10 @@ export function describeCake(cake) {
 // 괴물 손님 — 직접 만든 그림(표정 3종: normal/happy/sad)
 export const MONSTERS = {
   ghost: {
-    img: { normal: "/assets/ghost.png", happy: "/assets/ghost_happy.png", sad: "/assets/ghost_sad.png" },
+    img: { normal: "/assets/ghost.webp", happy: "/assets/ghost_happy.webp", sad: "/assets/ghost_sad.webp" },
   },
   pink: {
-    img: { normal: "/assets/pink.png", happy: "/assets/pink_happy.png", sad: "/assets/pink_sad.png" },
+    img: { normal: "/assets/pink.webp", happy: "/assets/pink_happy.webp", sad: "/assets/pink_sad.webp" },
   },
 };
 

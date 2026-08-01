@@ -14,12 +14,12 @@ export const orders = [
   {
     id: "order-000",
     monster: "ghost",
-    dialogue: "초코맛 케이크에 체리 생크림 부탁해! 토핑은 복숭아랑... 뭐였더라? 하나가 기억이 안 나~",
+    dialogue: "바닐라 맛 케이크에 체리 생크림 부탁해! 토핑은 복숭아랑... 뭐였더라? 하나가 기억이 안 나~",
     hidden: {
-      intent: "초코 시트 + 체리 생크림(가득) + 복숭아·체리 토핑. 기억 안 나는 토핑 하나 = 체리 — 헤매면 사다리로 하나씩(튜토리얼이라 후하게).",
+      intent: "바닐라 시트 + 체리 생크림(가득) + 복숭아·체리 토핑. 기억 안 나는 토핑 하나 = 체리 — 헤매면 사다리로 하나씩(튜토리얼이라 후하게).",
       wants: {
         base: BASIC_BASE,
-        sheetColor: "chocolate",
+        sheetColor: "vanilla",
         cream: { color: "cherry", amount: "full" },
         toppings: ["peach", "cherry"],
       },

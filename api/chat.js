@@ -21,14 +21,48 @@ export default async function handler(req, res) {
   }
 
   try {
-    const text = await callLLM({
-      system: buildMonsterSystem(order),
-      messages: toApiMessages(order, history),
-      maxTokens: 400,
-      json: true,
+    // 하이브리드 가드 — 프롬프트만으로는 none/dont-care 혼동·이름 유출이 확률적으로 남는다
+    // (회귀 실측 ~25%). 서버는 정답을 아니까, 손님이 뱉은 intent 가 정답과 어긋나면
+    // 어긋난 슬롯을 짚어 한 번 다시 시킨다. 재시도로도 틀리면 그대로 내보내되 표시는 남긴다.
+    const system = buildMonsterSystem(order);
+    const messages = toApiMessages(order, history);
+    let out = parseReply(await callLLM({ system, messages, maxTokens: 400, json: true }));
+    let check = checkIntent(order, out.intent);
+
+    // 재시도는 공정성을 깨는 부류에서만 — 실제 정답이 있는 슬롯을 '상관없음/없음'으로,
+    // 없어야 하는(none) 슬롯을 '상관없음'으로 잘못 아는 경우. 이때 손님이 "아무거나 괜찮아/
+    // 필요 없어"라고 말해버리면 플레이어가 그 말을 믿고 만들다 감점된다.
+    // 그 외(정답 미리 베끼기 등)는 대사 품질에 해가 없어 건드리지 않는다 — 넓게 재시도를
+    // 걸었더니 교정 지시가 대사를 바꿔쳐 회귀가 깨졌다(실측 FAIL 3).
+    const truth = answerMap(order);
+    const critical = Object.keys(check ?? {}).filter((k) => {
+      const got = out.intent?.[k], want = truth[k];
+      const real = want !== "dont care" && want !== "none";
+      return (real && (got === "dont care" || got === "none")) ||
+             (want === "none" && got === "dont care");
     });
-    const { reply, intent, raw } = parseReply(text);
-    return res.json({ reply, intent, raw, intentCheck: checkIntent(order, intent) });
+
+    if (critical.length || !out.intent) {
+      const note = !out.intent
+        ? "방금 출력이 형식을 어겼다. '출력 형식' 절의 JSON 하나로 다시 답해라. 대사 내용은 그대로."
+        : `intent 의 ${critical.join(", ")} 값이 정답과 다르다. 정답 JSON 의 그 슬롯을 다시 보고 ` +
+          "intent 만 바로잡아라. 대사는 원래 규칙(소거·확인·묘사)대로 방금 질문에만 답하고, " +
+          "다른 슬롯 이야기를 새로 꺼내지 마라.";
+      const retry = parseReply(await callLLM({
+        system,
+        messages: [...messages, { role: "assistant", content: out.raw ?? out.reply },
+                   { role: "user", content: `(시스템 교정) ${note}` }],
+        maxTokens: 400, json: true,
+      }));
+      const retryCheck = checkIntent(order, retry.intent);
+      // 재시도가 더 낫을 때만 채택 (어긋남이 줄었거나 사라졌을 때)
+      const better = retry.intent && (!retryCheck ||
+        (check && Object.keys(retryCheck).length < Object.keys(check).length));
+      if (better) { out = retry; check = retryCheck; out.retried = true; }
+    }
+
+    return res.json({ reply: out.reply, intent: out.intent, raw: out.raw,
+                      intentCheck: check, retried: out.retried ?? false });
   } catch (e) {
     console.error("[chat] error:", e);
     return res.status(500).json({ error: "chat failed", detail: String(e) });
@@ -89,8 +123,12 @@ export function parseReply(text) {
     if (!msg) throw new Error("monster_message 없음");
     return { reply: msg, intent: normalizeIntent(o), raw };
   } catch (e) {
-    console.warn("[chat] 구조 파싱 실패 — 원문을 대사로 쓴다:", e.message);
-    return { reply: raw || "...", intent: null, raw: null };
+    console.warn("[chat] 구조 파싱 실패:", e.message);
+    // JSON 부스러기를 플레이어에게 그대로 보여주지 않는다. 문장만 건질 수 있으면 건지고,
+    // 아니면 얼버무린다(재시도 가드가 한 번 더 기회를 준다).
+    const guess = raw.match(/"monster_message"\s*:\s*"([^"]+)"/)?.[1];
+    const looksJson = raw.trim().startsWith("{") || raw.trim().startsWith("[");
+    return { reply: guess ?? (looksJson ? "으음… 뭐라고 말하지~" : raw || "..."), intent: null, raw: raw || null };
   }
 }
 

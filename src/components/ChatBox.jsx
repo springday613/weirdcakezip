@@ -17,6 +17,21 @@ export default function ChatBox({ order, turns = 0, onAsk }) {
   const listRef = useRef(null);
   const left = TURN_BUDGET - turns;
   const spent = left <= 0;
+
+  // 대본 모드(튜토리얼) — 주인 말이 미리 채워져 있고 '확인'만 누른다. LLM·감점 없음.
+  const script = order.script ?? null;
+  const [scriptIdx, setScriptIdx] = useState(0);
+  const scriptDone = script && scriptIdx >= script.length;
+
+  function advanceScript() {
+    if (!script || scriptDone) return;
+    const { ask, reply } = script[scriptIdx];
+    setMessages((m) => [...m,
+      { id: nextId.current++, role: "user", content: ask },
+      { id: nextId.current++, role: "monster", content: reply },
+    ]);
+    setScriptIdx(scriptIdx + 1);
+  }
   const nextId = useRef(1); // 메시지별 안정적 key (배열 인덱스 대신)
 
   useEffect(() => {
@@ -56,6 +71,18 @@ export default function ChatBox({ order, turns = 0, onAsk }) {
         ))}
         {busy && <div className="bubble monster"><span className="bubble-text">…</span></div>}
       </div>
+      {script ? (
+        <div className="chat-input chat-scripted">
+          {scriptDone ? (
+            <span className="script-done">좋아, 주문은 다 들었다! 이제 케이크를 만들어보자 🍰</span>
+          ) : (
+            <>
+              <span className="script-ask">{script[scriptIdx].ask}</span>
+              <button className="btn small" onClick={advanceScript}>확인</button>
+            </>
+          )}
+        </div>
+      ) : (<>
       <div className="chat-budget">
         {spent ? "질문을 다 썼어요" : `질문 ${left}번 남음 · 1번에 ${TURN_PENALTY}점`}
       </div>
@@ -72,6 +99,7 @@ export default function ChatBox({ order, turns = 0, onAsk }) {
           보내기
         </button>
       </div>
+      </>)}
     </div>
   );
 }

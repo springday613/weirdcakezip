@@ -634,3 +634,12 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   font-family: ui-monospace, Menlo, monospace; font-size: 10px; line-height: 1.5;
   white-space: pre-wrap; word-break: break-all; text-align: left;
 }
+
+/* 튜토리얼 대본 모드 — 주인 말이 미리 채워져 있고 확인만 누른다 */
+.chat-scripted { align-items: center; }
+.script-ask {
+  flex: 1; padding: 8px 12px;
+  background: var(--paper); border: var(--ink-line-thin) dashed var(--ink);
+  border-radius: var(--r-card); font-size: var(--fs-label);
+}
+.script-done { flex: 1; text-align: center; font-size: var(--fs-label); opacity: .8; }

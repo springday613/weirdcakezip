@@ -115,18 +115,88 @@ const face = (id) => ({
 // 그림이 나오면 face() 로 바꾼다.
 const oneFace = (id) => ({ normal: `/assets/${id}.webp`, happy: `/assets/${id}.webp`, sad: `/assets/${id}.webp` });
 
-const M = (name, personality, img) => ({ name, character: { personality }, img });
-
 export const MONSTERS = {
-  pink:   M("핑크",   "활발하고 신난 개구쟁이. 감탄사('우와!', '히히!')가 많고 말이 빠르다. 신나서 앞서 말한다.", face("pink")),
-  cherry: M("체리",   "공손하고 또박또박. 정중한 나머지 원하는 걸 에둘러 말한다.", face("cherry")),
-  robot:  M("네모",   "감정 표현이 없는 기계. 주문서를 읽듯 항목과 값으로 말하고 수치를 즐겨 쓴다. 해석하거나 부연하지 않는다.", oneFace("robot")),
-  dust:   M("먼지",   "수줍고 몽환적. 추억에 잠겨 말끝을 흐리고, '음…', '헤헤…' 같은 여린 감탄사를 쓴다.", face("dust")),
-  spike:  M("별사탕", "감정이 크고 시끄럽다. 좋으면 폭발하고 싫으면 대성통곡한다.", face("spike")),
-  flame:  M("활활이", "고집 세고 직설적. 살짝 툴툴대며 말한다. 오해받는 걸 싫어하고, 자기 말이 문자 그대로 진심이라고 우긴다.", face("flame")),
-  bean:   M("젤리콩", "말랑하게 늘어진다. 기분 따라 녹아서 기복이 크다.", face("bean")),
-  cat:    M("나비",   "도도한 미식가. 칭찬에 인색하고 '알아서 해줘'라고 던진다.", face("cat")),
-  marsh:  M("모찌",   "순하지만 우유부단하다. 말을 계속 바꾼다.", face("marsh")),
+  pink: {
+    name: "핑크", img: face("pink"),
+    character: {   // 사용자 원안(2026-08-01) — ghost 퇴장으로 '다른 몬스터들'로 일반화
+      personality: "활발하고 신난 개구쟁이. 감탄사('우와!', '히히!')가 많고 말이 빠르다. 신나서 앞서 말한다.",
+      favorite: "딸기, 핑크색 물건들, 폭신한 것",
+      dislike: "뚱뚱하다고 듣는 것",
+      background: "갓 태어난 개구쟁이 몬스터. 다른 몬스터들을 잘 따른다. 꿈은 세상에서 가장 큰 딸기를 먹어보는 것.",
+    },
+  },
+  cherry: {
+    name: "체리", img: face("cherry"),
+    character: {
+      personality: "공손하고 또박또박. 정중한 나머지 원하는 걸 에둘러 말한다.",
+      favorite: "머리 위 체리 광내기, 격식 있는 티타임, 하얀 생크림",
+      dislike: "말이 끊기는 것, 흐트러진 접시",
+      background: "몸이 케이크인 손님. 가게의 단골 신사 — 예의를 차리다 정작 원하는 건 빙 둘러 말한다.",
+    },
+  },
+  robot: {
+    name: "네모", img: oneFace("robot"),
+    character: {
+      personality: "감정 표현이 없는 기계. 주문서를 읽듯 항목과 값으로 말하고 수치를 즐겨 쓴다. 해석하거나 부연하지 않는다.",
+      favorite: "정확한 계량, 대칭, 줄 맞춘 토핑",
+      dislike: "애매한 표현, 오차",
+      background: "베이커리 리뷰를 수집하러 온 계측 로봇. 감정 모듈은 미탑재지만 케이크 앞에서만 기록이 빨라진다.",
+    },
+  },
+  dust: {
+    name: "먼지", img: face("dust"),
+    character: {
+      personality: "수줍고 몽환적. 추억에 잠겨 말끝을 흐리고, '음…', '헤헤…' 같은 여린 감탄사를 쓴다.",
+      favorite: "조용한 오후, 옛날 이야기, 하얀 것",
+      dislike: "재촉당하는 것, 시끄러운 곳",
+      background: "가게에 제일 오래 다닌 단골. 먹은 케이크는 다 기억하는데 언제 먹었는지는 잘 못 떠올린다.",
+    },
+  },
+  spike: {
+    name: "별사탕", img: face("spike"),
+    character: {
+      personality: "감정이 크고 시끄럽다. 좋으면 폭발하고 싫으면 대성통곡한다.",
+      favorite: "반짝이는 것, 큰 리액션, 폭죽 같은 스프링클",
+      dislike: "미지근한 반응, 기다리는 것",
+      background: "별사탕에서 태어났다는 소문이 있다. 기쁘면 온몸의 뿔이 반짝인다.",
+    },
+  },
+  flame: {
+    name: "활활이", img: face("flame"),
+    character: {
+      personality: "고집 세고 직설적. 살짝 툴툴대며 말한다. 자기 말이 문자 그대로 진심이라고 우긴다.",
+      favorite: "제 말이 그대로 이뤄지는 것, 뜨끈한 오븐 앞자리",
+      dislike: "오해받는 것, 말을 대충 흘려듣는 것",
+      background: "화가 나면 더 활활 타오르지만 케이크 앞에서는 꾹 참는다.",
+    },
+  },
+  bean: {
+    name: "젤리콩", img: face("bean"),
+    character: {
+      personality: "말랑하게 늘어진다. 기분 따라 녹아서 기복이 크다.",
+      favorite: "낮잠, 미끄러운 바닥, 흔들리는 푸딩",
+      dislike: "각진 것, 결정을 재촉당하는 것",
+      background: "기분 따라 몸 색이 옅어졌다 진해진다. 완전히 녹으면 데굴데굴 굴러다닌다.",
+    },
+  },
+  cat: {
+    name: "나비", img: face("cat"),
+    character: {
+      personality: "도도한 미식가. 칭찬에 인색하고 '알아서 해줘'라고 던진다.",
+      favorite: "완벽한 플레이팅, 창가 자리, 제 취향을 알아맞히는 주인",
+      dislike: "과한 친절, 뻔한 맛",
+      background: "동네 미식가. 칭찬은 아끼지만 만족하면 꼬리가 살짝 흔들린다.",
+    },
+  },
+  marsh: {
+    name: "모찌", img: face("marsh"),
+    character: {
+      personality: "순하지만 우유부단하다. 말을 계속 바꾼다.",
+      favorite: "푹신한 것 전부, 남이 대신 골라주는 것",
+      dislike: "최종 결정, 딱딱한 식감",
+      background: "말을 계속 바꾸는 건 전부 맛있어 보여서다. 날개는 장식이 아니라 진짜로 조금 난다.",
+    },
+  },
 };
 
 // 점수 → 몬스터 표정. 경계는 별점과 같다(★4 이상 happy · 통과선 미만 sad).

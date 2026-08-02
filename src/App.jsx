@@ -54,6 +54,15 @@ export default function App() {
     setScreen("RESULT");
   }
 
+  // 개발용: 스테이지 점프 — 순차 진행 없이 특정 손님으로 바로
+  function jumpTo(i) {
+    setOrderIndex(i);
+    setCake(emptyCake());
+    setResult(null);
+    setTurns(0);
+    setScreen("PLAYING");
+  }
+
   function next() {
     const ni = orderIndex + 1;
     if (ni >= orders.length) {
@@ -131,6 +140,22 @@ export default function App() {
         >
           BG: {BG_LABELS[BG_MODES[bgMode]]}
         </button>
+      )}
+
+      {/* 개발용 스테이지 점프 — 번호 클릭으로 해당 손님 바로 시작 */}
+      {import.meta.env.DEV && (
+        <div className="dev-stage-jump">
+          {orders.map((o, i) => (
+            <button
+              key={o.id}
+              className={i === orderIndex && screen !== "TITLE" ? "on" : ""}
+              title={o.id + " · " + o.monster}
+              onClick={() => jumpTo(i)}
+            >
+              {i === 0 ? "T" : i}
+            </button>
+          ))}
+        </div>
       )}
     </div>
   );

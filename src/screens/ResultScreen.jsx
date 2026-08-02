@@ -34,6 +34,13 @@ export default function ResultScreen({ result, order, cake, onNext }) {
               </span>
             </div>
           ))}
+          {/* 대화 비용 — 안 보여주면 "다 맞았는데 왜 90점?" 이 된다(실플레이 제보) */}
+          {result.penalty > 0 && (
+            <div className="spec-line">
+              💬 질문 {result.turns}번{" "}
+              <span className="muted">−{result.penalty}점</span>
+            </div>
+          )}
         </div>
       )}
 

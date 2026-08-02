@@ -1,4 +1,10 @@
 import { SHEET_BASE, BASIC_BASE, COLORS, TOPPINGS, DECO } from "../data/ingredients.js";
+import { pickToppingSlot, TOPPING_SLOTS, MAX_CANDLES } from "./CakeView.jsx";
+import layout from "../data/cakeLayout.json";
+
+const CANDLE_TYPES = Object.keys(layout.candle.size);
+const CREAM_SLOTS = layout.cream.slots.length;
+const SPRINKLE_MAX_CLICKS = layout.sprinkle.max_clicks;
 
 // 재료 만들기 단계 (화살표로 이동, 상태는 OrderScreen이 소유)
 export const STEPS = [
@@ -17,25 +23,25 @@ export default function IngredientPalette({ step, cake, setCake }) {
   const toggleBase = (id) =>
     set({ base: cake.base.includes(id) ? cake.base.filter((b) => b !== id) : [...cake.base, id] });
 
-  // 케이크 윗면(아이싱) 타원 둘레에 둥글게 채우기 — 가장자리 링부터 안쪽으로.
-  const ringPos = (n, rx, ry, per) => {
-    const ring = Math.floor(n / per);
-    const idx = n % per;
-    const ang = (idx / per) * 2 * Math.PI + ring * 0.5 - Math.PI / 2;
-    const s = Math.max(0.2, 1 - ring * 0.32);
-    return {
-      x: Math.round(50 + Math.cos(ang) * rx * s),
-      y: Math.round(34 + Math.sin(ang) * ry * s),
-    };
+  // 자리는 cakeLayout.json 에 미리 계산돼 있다 — 여기서는 '몇 개째'만 정한다.
+  // 토핑은 add 시점에 자리를 뽑아 고정하므로, 뒤에 더 올려도 앞엣것이 안 움직인다.
+  const addTopping = (type) => {
+    if (cake.toppings.length >= TOPPING_SLOTS) return;
+    const slot = pickToppingSlot(cake.toppings.map((t) => t.slot));
+    set({ toppings: [...cake.toppings, { type, slot }] });
   };
-  // 토핑: 가장자리부터 / 초(데코): 살짝 안쪽 / 크림: 맨 바깥 테두리
-  const addTopping = (type) =>
-    set({ toppings: [...cake.toppings, { type, ...ringPos(cake.toppings.length, 24, 9, 9) }] });
-  const addDeco = (type) =>
-    set({ deco: [...cake.deco, { type, ...ringPos(cake.deco.length, 16, 6, 7) }] });
+  // 초는 개수마다 배치가 통째로 바뀌고, 스프링클은 한 번에 여러 알이 올라간다 → 좌표를 안 갖는다
+  const addDeco = (type) => {
+    const isCandle = CANDLE_TYPES.includes(type);
+    const same = cake.deco.filter((d) => d.type === type).length;
+    if (isCandle && cake.deco.filter((d) => CANDLE_TYPES.includes(d.type)).length >= MAX_CANDLES) return;
+    if (type === "sprinkle" && same >= SPRINKLE_MAX_CLICKS) return;
+    set({ deco: [...cake.deco, { type }] });
+  };
   const addCream = (colorId) => {
     const dollops = cake.cream?.dollops ?? [];
-    set({ cream: { color: colorId, dollops: [...dollops, ringPos(dollops.length, 18, 8, 8)] } });
+    if (dollops.length >= CREAM_SLOTS) return;
+    set({ cream: { color: colorId, dollops: [...dollops, {}] } });
   };
 
   const cur = STEPS[step] ?? STEPS[0];
@@ -48,7 +54,7 @@ export default function IngredientPalette({ step, cake, setCake }) {
       {id === "vanilla" ? (
         <span className="color-dot" style={{ background: "#fff2cc" }} />
       ) : (
-        <img className="ing-img" src={`/assets/ing_${id}.png`} alt="" />
+        <img className="ing-img" src={`/assets/ing_${id}.webp`} alt="" />
       )}
     </button>
   );

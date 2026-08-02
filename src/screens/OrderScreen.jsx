@@ -5,7 +5,7 @@ import ChatBox from "../components/ChatBox.jsx";
 import { MONSTERS, sheetType } from "../data/ingredients.js";
 
 export default function OrderScreen({ order, index, total, money, cake, setCake, onSubmit, busy }) {
-  const monster = MONSTERS[order.monster] ?? MONSTERS.ghost;
+  const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
   const [step, setStep] = useState(0);
   const [made, setMade] = useState(false);   // 시트가 케이크로 구워졌는가
   const [making, setMaking] = useState(false); // 굽는 중(1초 연출)
@@ -44,12 +44,6 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
     setStep(Math.min(step + 1, lastStep));
   }
 
-  // 케이크 위 클릭 → 선택된 토핑/데코를 그 좌표에 배치 (드래그 대신 좌표 클릭)
-  function place(placing, x, y) {
-    const item = { type: placing.type, x, y };
-    if (placing.kind === "deco") setCake({ ...cake, deco: [...cake.deco, item] });
-    else setCake({ ...cake, toppings: [...cake.toppings, item] });
-  }
   const sheetReady = cake.base.length > 0 && cake.sheetColor;
   const clearBoard = () => setCake({ ...cake, toppings: [], deco: [], cream: null });
   const resetAll = () => {
@@ -74,7 +68,7 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
       {warn && step === 0 && (
         <div className="warn-bubble">시트가 뭔가 이상해! 다시 보자</div>
       )}
-      <CakeView cake={cake} preview={preview} onPlace={place} />
+      <CakeView cake={cake} preview={preview} />
 
       <IngredientPalette step={step} cake={cake} setCake={setCake} />
 

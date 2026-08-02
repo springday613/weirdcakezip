@@ -80,6 +80,8 @@ body {
 /* ── 3. 앱 셸 — 390px 고정폭 + 4층 레이어 ───────────────── */
 .app-shell {
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: 390px;
   max-width: 100vw;
   min-height: 100dvh;
@@ -388,7 +390,9 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .cake {
   position: relative;
   width: 288px;
-  height: 288px;
+  /* cakeLayout.json 의 캔버스 비율과 같아야 한다 — 슬롯 좌표가 이 상자 기준 %라서,
+     비율이 어긋나면 그림이 레터박스되며 토핑이 전부 밀린다. */
+  aspect-ratio: 961 / 1086;
   border: none;
   border-radius: 0;
   box-shadow: none;
@@ -409,20 +413,19 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   opacity: .45;
   pointer-events: none;
 }
-.cream-dollop {
+/* 케이크 위 스프라이트 — 위치·크기·회전은 cakeLayout.json 값으로 인라인 지정된다.
+   여기서는 배치 방식만 정한다. */
+.cake-item {
   position: absolute;
-  width: 17%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: 0;
-}
-.topping {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  width: 15%;
   height: auto;
   pointer-events: none;
   z-index: 1;
+}
+/* 초처럼 세워 꽂는 것은 기준점이 중심이 아니라 바닥이다 */
+.cake-item--stand {
+  transform: translate(-50%, -100%);
+  transform-origin: center bottom;
+  z-index: 3;
 }
 .lettering {
   position: absolute;
@@ -607,13 +610,17 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px var(--pad-screen) 0;
+  justify-content: flex-end;
+  flex: 1;
+  padding: 0 var(--pad-screen);
 }
-.title-logo            { width: 340px; aspect-ratio: 720 / 720; }
+.title-logo            { width: 300px; aspect-ratio: 720 / 674; }
 .title-ui {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
+  flex: 1;
   gap: 0;
   padding: calc(var(--gap) * 2) var(--pad-screen) calc(var(--gap) * 4);
 }
@@ -622,6 +629,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   color: var(--text);
   margin: 0 0 calc(var(--gap) * 3.2);
   line-height: 1.9;
+  text-align: center;
 }
 .title-ui .btn-primary { margin-bottom: calc(var(--gap) * 1.2); }
 .title-caption {

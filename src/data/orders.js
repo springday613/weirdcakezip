@@ -15,7 +15,7 @@ export const orders = [
     id: "order-000",
     // 첫 대사에서 이미 밝힌 값 — intent 가 첫 턴부터 이걸 물고 시작한다
     disclosed: { sheetColor: "vanilla", cream: "cherry", toppings: ["peach"] },
-    monster: "ghost",
+    monster: "pink",   // 개구쟁이 — 튜토리얼 대본의 '히히' 톤과 일치
     dialogue: "바닐라 맛 케이크에 체리 생크림 부탁해! 토핑은 복숭아랑... 뭐였더라? 하나가 기억이 안 나~",
     hidden: {
       intent: "바닐라 시트 + 체리 생크림(가득) + 복숭아·체리 토핑. 기억 안 나는 토핑 하나 = 체리 — 헤매면 사다리로 하나씩(튜토리얼이라 후하게).",
@@ -52,7 +52,7 @@ export const orders = [
     // 새 대사가 직접 밝히는 건 '딸기 케이크'(시트)뿐. 크림·토핑·레터링은 힌트
     // "전부 딸기였으면 좋겠어" 로 유도한다 — ★1에서 ★2쯤으로 올라간 셈.
     disclosed: { sheetColor: "strawberry" },
-    monster: "ghost",
+    monster: "pink",
     dialogue: "내가 세상에서 제일 좋아하는 딸기 케이크 부탁해!",
     hidden: {
       intent: "시트·토핑·생크림·레터링 전부 딸기. 대사는 '딸기 케이크'만 말하고, 나머지는 힌트(전부 딸기)로 유도.",
@@ -66,7 +66,7 @@ export const orders = [
   {
     id: "order-004",
     disclosed: { sheetColor: "blueberry", lettering: "none" },
-    monster: "pink",
+    monster: "cherry",
     dialogue: "블루베리 케이크! 레터링은 필요없어요",
     hidden: {
       intent: "블루베리 시트 케이크. 레터링은 없음(필요없음).",
@@ -79,7 +79,7 @@ export const orders = [
   {
     id: "order-002",
     disclosed: { sheetColor: "chocolate", cream: "chocolate", toppings: ["chocolate"], deco: "none", lettering: "필요없음" },
-    monster: "pink",
+    monster: "robot",
     dialogue: "시트: 초콜릿, 생크림: 초콜릿, 토핑: 초콜릿, 데코: 필요없음, 레터링: 필요없음.",
     hidden: {
       intent: "같은 '필요없음'이 두 항목에서 다르게 쓰였다. 데코는 진짜로 없는 것이고, 레터링은 그 글자를 그대로 써달라는 뜻(생략 아님). 케이크는 초콜릿 시트+초콜릿 생크림+초콜릿 토핑.",
@@ -103,7 +103,7 @@ export const orders = [
   {
     id: "order-001",
     disclosed: {},
-    monster: "ghost",
+    monster: "dust",
     dialogue: "바다가 그리운데.. 바다 생각나는 케이크 없을까요?",
     hidden: {
       intent: "예전에 바다에서 먹었던 딸기케이크(하얀 생크림)를 다시 먹고 싶은 것. '바다'는 추억일 뿐 실제로는 딸기+하얀 크림 케이크.",

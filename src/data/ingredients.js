@@ -105,32 +105,28 @@ export function describeCake(cake) {
 
 // 괴물 손님 — 직접 만든 그림(표정 3종: normal/happy/sad)
 //
-// character 는 '종'의 것이고, orders.js 의 persona 는 '이 주문에서의 화법'이다.
-// 한 스프라이트가 여러 주문을 맡을 수 있어서 둘을 섞지 않는다 — 프롬프트에서도
-// 배경(character)과 성격(persona)을 다른 절로 넣는다.
+// character 는 '종'의 것이다. 성격(personality)이 화법을 정하고, 좋아함·배경은 양념.
+// S15 의 9종 로스터 + S8 의 character 구조를 합쳤다 — trait 초안이 personality 로 승격.
+// 어금니는 흑백 라인만 있어 아직 없다 → 위키 캐릭터 도감 참조.
+const face = (id) => ({
+  normal: `/assets/${id}.webp`, happy: `/assets/${id}_happy.webp`, sad: `/assets/${id}_sad.webp`,
+});
+// 표정이 normal 하나뿐인 종 — 세 표정이 같은 그림이라 점수가 표정에 안 드러난다.
+// 그림이 나오면 face() 로 바꾼다.
+const oneFace = (id) => ({ normal: `/assets/${id}.webp`, happy: `/assets/${id}.webp`, sad: `/assets/${id}.webp` });
+
+const M = (name, personality, img) => ({ name, character: { personality }, img });
+
 export const MONSTERS = {
-  ghost: {
-    img: { normal: "/assets/ghost.webp", happy: "/assets/ghost_happy.webp", sad: "/assets/ghost_sad.webp" },
-    character: {
-      // ⚠ 스프라이트가 2종뿐이라 한 몬스터가 주문 둘을 맡는다. 성격은 몬스터의 것이므로
-      // order-003(개구쟁이)을 이 종의 성격으로 삼았다 — order-001 도 이 말투로 말한다.
-      // 9종으로 갈라지는 S15 가 머지되면 주문마다 제 성격을 갖는다.
-      personality: "활발하고 신난 개구쟁이. 딸기를 세상에서 제일 좋아해서 들떠 있다. 감탄사('우와!', '히히!')가 많고 말이 빠르다.",
-      favorite: "하얀 것, 폭신한 것",
-      dislike: "재촉당하는 것",
-      background: "가게에 제일 오래 다닌 단골. 먹은 케이크는 다 기억하는데 언제 먹었는지는 잘 못 떠올린다.",
-    },
-  },
-  pink: {
-    img: { normal: "/assets/pink.webp", happy: "/assets/pink_happy.webp", sad: "/assets/pink_sad.webp" },
-    character: {
-      // order-002(고집불통)의 화법을 이 종의 성격으로 — '필요없음' 함정이 이 말투에 걸려 있다.
-      personality: "고집 세고 직설적. 살짝 툴툴대며 말한다. 오해받는 걸 싫어하고, 자기 말이 문자 그대로 진심이라고 우긴다.",
-      favorite: "분홍색 물건, 자기 말을 끝까지 들어주는 것",
-      dislike: "오해받는 것, 말을 대충 흘려듣는 것",
-      background: "가게 근처에 사는 단골. 주인장이 자기 말을 제대로 알아듣는지 늘 시험한다.",
-    },
-  },
+  pink:   M("핑크",   "활발하고 신난 개구쟁이. 감탄사('우와!', '히히!')가 많고 말이 빠르다. 신나서 앞서 말한다.", face("pink")),
+  cherry: M("체리",   "공손하고 또박또박. 정중한 나머지 원하는 걸 에둘러 말한다.", face("cherry")),
+  robot:  M("네모",   "감정 표현이 없는 기계. 주문서를 읽듯 항목과 값으로 말하고 수치를 즐겨 쓴다. 해석하거나 부연하지 않는다.", oneFace("robot")),
+  dust:   M("먼지",   "수줍고 몽환적. 추억에 잠겨 말끝을 흐리고, '음…', '헤헤…' 같은 여린 감탄사를 쓴다.", face("dust")),
+  spike:  M("별사탕", "감정이 크고 시끄럽다. 좋으면 폭발하고 싫으면 대성통곡한다.", face("spike")),
+  flame:  M("활활이", "고집 세고 직설적. 살짝 툴툴대며 말한다. 오해받는 걸 싫어하고, 자기 말이 문자 그대로 진심이라고 우긴다.", face("flame")),
+  bean:   M("젤리콩", "말랑하게 늘어진다. 기분 따라 녹아서 기복이 크다.", face("bean")),
+  cat:    M("나비",   "도도한 미식가. 칭찬에 인색하고 '알아서 해줘'라고 던진다.", face("cat")),
+  marsh:  M("모찌",   "순하지만 우유부단하다. 말을 계속 바꾼다.", face("marsh")),
 };
 
 // 점수 → 몬스터 표정. 경계는 별점과 같다(★4 이상 happy · 통과선 미만 sad).

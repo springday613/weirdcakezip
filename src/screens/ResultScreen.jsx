@@ -4,7 +4,7 @@ import CakeView from "../components/CakeView.jsx";
 
 export default function ResultScreen({ result, order, cake, onNext }) {
   const good = result.passed;
-  const monster = MONSTERS[order.monster] ?? MONSTERS.ghost;
+  const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
   const mood = moodOf(result.score);
   const label = mood === "happy" ? "만족!" : mood === "sad" ? "이상해요" : "애매해요";
   return (

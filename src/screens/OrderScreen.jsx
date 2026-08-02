@@ -5,7 +5,7 @@ import ChatBox from "../components/ChatBox.jsx";
 import { MONSTERS, sheetType } from "../data/ingredients.js";
 
 export default function OrderScreen({ order, index, total, money, cake, setCake, onSubmit, busy, turns, onAsk }) {
-  const monster = MONSTERS[order.monster] ?? MONSTERS.ghost;
+  const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
   const [step, setStep] = useState(0);
   const [made, setMade] = useState(false);   // 시트가 케이크로 구워졌는가
   const [making, setMaking] = useState(false); // 굽는 중(1초 연출)

@@ -10,7 +10,7 @@ import { TURN_BUDGET, TURN_PENALTY } from "../scoreCake.js";
 // 예산을 다 쓰면 여기서 막는다. 스펙상 11~15턴은 코인으로 사지만 구매는 아직 미구현이라,
 // 막지 않으면 11턴부터 공짜 질문이 되어버린다.
 export default function ChatBox({ order, turns = 0, onAsk }) {
-  const monster = MONSTERS[order.monster] ?? MONSTERS.ghost;
+  const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
   const [messages, setMessages] = useState([{ id: 0, role: "monster", content: order.dialogue }]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);

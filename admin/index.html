@@ -187,7 +187,7 @@ function renderNav() {
     </button>`).join("");
   $("#orderNav").innerHTML = S.orders.map((o) => `
     <button data-view="order" data-id="${o.id}">
-      <span class="who">${o.seq}. ${esc(o.monster)}${o.edited ? ' <span class="dot">●</span>' : ""}</span>
+      <span class="who">${o.seq}. ${esc(o.monster)}${o.scripted ? " 📜" : ""}${o.edited ? ' <span class="dot">●</span>' : ""}</span>
       <span class="sub">${o.id}</span>
     </button>`).join("");
   document.querySelectorAll("nav button").forEach((b) => {
@@ -334,6 +334,9 @@ function tabWants(o) {
     </div>
     <label>hidden.wants — 원본 그대로 편집</label>
     <textarea id="wantsRaw" rows="20">${esc(JSON.stringify(o.wants, null, 2))}</textarea>
+    <label>disclosed — 첫 대사에서 이미 밝힌 값 (첫 턴부터 intent 에 반영됨)</label>
+    <textarea id="disclosedRaw" rows="4">${esc(JSON.stringify(o.disclosed, null, 2))}</textarea>
+    <p class="why">대사를 바꾸면 여기도 맞춰야 합니다 — 대사에 없는 걸 밝힘 처리하면 손님이 안 한 말을 한 셈이 됩니다.</p>
     <label>프롬프트에 들어가는 정답 — 손님이 출력할 intent 와 같은 모양</label>
     <pre class="preview" id="answerJson" style="max-height:none">${esc(JSON.stringify(o.answer, null, 2))}</pre>
     <p class="why"><code>"dont care"</code> 상관없음 · <code>"none"</code> 없어야 함 · 그 외 정답 값.
@@ -344,14 +347,15 @@ function tabWants(o) {
       <span class="status" id="msg"></span>
     </div>`;
   $("#save").onclick = () => {
-    let wants;
+    let wants, disclosed;
     try {
       wants = JSON.parse($("#wantsRaw").value);
+      disclosed = JSON.parse($("#disclosedRaw").value);
     } catch (e) {
       const m = $("#msg"); m.textContent = "JSON 문법 오류: " + e.message; m.className = "status warn";
       return;
     }
-    save({ orderId: o.id, fields: { wants } });
+    save({ orderId: o.id, fields: { wants, disclosed } });
   };
   $("#reset").onclick = () => resetOrder(o);
 }

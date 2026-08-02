@@ -24,7 +24,7 @@ const LOG = join(HERE, "..", "docs", "prompt-engineering-log.md");
 // 주문별로 편집할 수 있는 필드. wants 는 프롬프트와 채점 양쪽에 쓰인다.
 // 성격(화법)은 몬스터의 것이라 여기 없다 → MONSTERS[].character
 // intent(원하는 것 서술)는 콘솔에서 안 고친다 — 출력의 intent(슬롯 상태)와 헷갈린다.
-const FIELDS = ["dialogue", "hints", "wants"];
+const FIELDS = ["dialogue", "hints", "wants", "disclosed"];
 
 const clone = (x) => JSON.parse(JSON.stringify(x));
 const ids = (list) => new Set(list.map((x) => x.id));
@@ -60,7 +60,7 @@ function validateWants(w) {
 }
 
 const base = new Map(
-  orders.map((o) => [o.id, { dialogue: o.dialogue,
+  orders.map((o) => [o.id, { dialogue: o.dialogue, disclosed: clone(o.disclosed ?? {}),
                              intent: o.hidden.intent, hints: [...(o.hints ?? [])],
                              wants: clone(o.hidden.wants ?? {}) }])
 );
@@ -91,6 +91,7 @@ export function apply(ov = read()) {
     o.hidden.intent = e.intent ?? b.intent;
     o.hints = e.hints ?? [...b.hints];
     o.hidden.wants = e.wants ? clone(e.wants) : clone(b.wants);
+    o.disclosed = e.disclosed ? clone(e.disclosed) : clone(b.disclosed);
   }
   for (const [id, m] of Object.entries(MONSTERS)) {
     m.character = { ...baseChar.get(id), ...(ov.monsters?.[id] ?? {}) };
@@ -118,6 +119,8 @@ function state() {
       dialogue: o.dialogue,
       hints: o.hints ?? [],
       wants: o.hidden.wants,
+      disclosed: o.disclosed ?? {},
+      scripted: Boolean(o.script),
       answer: answerMap(o),   // 프롬프트에 들어가는 구조화된 정답 그대로
       parts: promptParts(o),
       prompt: buildMonsterSystem(o),

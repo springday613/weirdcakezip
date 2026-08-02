@@ -13,6 +13,8 @@ export const orders = [
   // 레터링·데코는 언급 안 함 = don't-care 를 처음부터 체험. (2026-08-02 결정, Papa's 첫 주문 패턴)
   {
     id: "order-000",
+    // 첫 대사에서 이미 밝힌 값 — intent 가 첫 턴부터 이걸 물고 시작한다
+    disclosed: { sheetColor: "vanilla", cream: "cherry", toppings: ["peach"] },
     monster: "ghost",
     dialogue: "바닐라 맛 케이크에 체리 생크림 부탁해! 토핑은 복숭아랑... 뭐였더라? 하나가 기억이 안 나~",
     hidden: {
@@ -33,6 +35,7 @@ export const orders = [
   // ── 1번째: 기본(딸기) ────────────────────────
   {
     id: "order-003",
+    disclosed: { sheetColor: "strawberry", cream: "strawberry", toppings: ["strawberry"], lettering: "딸기" },
     monster: "ghost",
     dialogue: "모든 걸 딸기로 해주세요! 레터링도 '딸기'!",
     hidden: {
@@ -46,6 +49,7 @@ export const orders = [
   // ── 2번째: 블루베리 케이크, 레터링 없음 ─────────
   {
     id: "order-004",
+    disclosed: { sheetColor: "blueberry", lettering: "none" },
     monster: "pink",
     dialogue: "블루베리 케이크! 레터링은 필요없어요",
     hidden: {
@@ -58,6 +62,7 @@ export const orders = [
   // ── 3번째: 애매(레터링 '필요없음' + 초콜릿) ──────
   {
     id: "order-002",
+    disclosed: { sheetColor: "chocolate", cream: "chocolate", toppings: ["chocolate"], deco: "none", lettering: "필요없음" },
     monster: "pink",
     dialogue: "시트: 초콜릿, 생크림: 초콜릿, 토핑: 초콜릿, 데코: 필요없음, 레터링: 필요없음.",
     hidden: {
@@ -81,6 +86,7 @@ export const orders = [
   // ── 4번째: 애매(바다 → 딸기케이크) ──────────────
   {
     id: "order-001",
+    disclosed: {},
     monster: "ghost",
     dialogue: "바다가 그리운데.. 바다 생각나는 케이크 없을까요?",
     hidden: {

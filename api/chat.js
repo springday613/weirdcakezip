@@ -154,6 +154,14 @@ export function checkIntent(order, intent) {
     const got = intent[k];
     if (got === undefined) { bad[k] = `빠짐 (정답 ${want})`; continue; }
     if (got === "unknown") { if (want === "dont care") bad[k] = "상관없는 슬롯인데 unknown"; continue; }
+    // 값이 여러 개인 슬롯(toppings)은 '지금까지 밝혀진 부분집합'이면 정상
+    if (k === "toppings" && got !== want) {
+      // "peach,unknown" 처럼 미상 자리를 표시하는 건 모델의 자연스러운 확장 — 허용
+      const g = String(got).split(",").map((x) => x.trim()).filter((x) => x && x !== "unknown");
+      const w = new Set(String(want).split(","));
+      if (!g.every((x) => w.has(x))) bad[k] = `${got} → 정답 밖 항목 (정답 ${want})`;
+      continue;
+    }
     if (got !== want) bad[k] = `${got} → 정답은 ${want}`;
   }
   return Object.keys(bad).length ? bad : null;

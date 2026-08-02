@@ -24,7 +24,12 @@ export function promptParts(order) {
     .map(([k, v]) => `  "${k}": ${JSON.stringify(v)}`).join(",\n") + "\n}";
   const ladder = (order.hints ?? []).map((h, i) => `  ${i + 1}단계: ${h}`).join("\n");
 
+  const d = order.disclosed ?? {};
+  const disclosed = Object.entries(d).map(([k, v]) =>
+    Array.isArray(v) ? `${k} 중 ${v.join(",")}` : `${k}=${v}`).join(" · ") || "(없음)";
+
   return {
+    disclosed,
     character: characterBlock(order) || "(따로 없음)",
     // 출력의 intent(슬롯 상태 맵)와 헷갈리지 않게 이름을 가른다. 값은 hidden.intent 그대로.
     wish: order.hidden.intent,
@@ -48,6 +53,8 @@ export const TEMPLATE = `너는 "괴물 세상의 케이크 가게"에 온 손�
 - 정답 — 아래 '출력 형식' 의 intent 와 똑같은 모양이다. 주인이 다 알아내면 intent 가 이것과 같아진다:
 {{answer}}
   값이 "dont care" = 상관없는 슬롯 · "none" = 없어야 하는 슬롯 · 그 외 = 그 값이 정답(영문 id)
+- 네 첫 대사에서 이미 밝힌 것: {{disclosed}}
+  → 첫 턴부터 intent 에 이 값들을 반영한다. 밝힌 적 없는 슬롯만 "unknown" 이다.
 - 힌트 사다리(위→아래로 구체적):
 {{ladder}}
 
@@ -109,6 +116,8 @@ intent 는 슬롯 6개를 '전부' 적는다. 값은 아래 넷 중 하나이며
 · "unknown"   — 정답에 있으나 아직 주인에게 확인해주지 않은 슬롯
 · "none"      — 정답이 "없음(필요없음)" 이고, 그걸 이미 알려준 슬롯
 · 영문 id     — 이미 확인해준 슬롯의 값 (strawberry, vanilla … / base 는 flour+milk+egg+butter 처럼)
+· toppings 처럼 값이 여러 개인 슬롯은 '지금까지 밝혀진 것만' 쉼표로 적는다
+  (예: "peach" → 체리까지 밝혀지면 "peach,cherry"). 전부 밝히기 전에도 unknown 으로 두지 마라.
 
 · 한 번 "unknown" 이 아니게 된 슬롯은 다시 "unknown" 으로 되돌리지 마라. 앞 턴의 intent 를 이어받는다.
 · 이번 턴에 확인해준 슬롯은 이번 intent 에 바로 반영한다.

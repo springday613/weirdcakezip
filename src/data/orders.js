@@ -49,11 +49,13 @@ export const orders = [
   // ── 1번째: 기본(딸기) ────────────────────────
   {
     id: "order-003",
-    disclosed: { sheetColor: "strawberry", cream: "strawberry", toppings: ["strawberry"], lettering: "딸기" },
+    // 새 대사가 직접 밝히는 건 '딸기 케이크'(시트)뿐. 크림·토핑·레터링은 힌트
+    // "전부 딸기였으면 좋겠어" 로 유도한다 — ★1에서 ★2쯤으로 올라간 셈.
+    disclosed: { sheetColor: "strawberry" },
     monster: "ghost",
-    dialogue: "모든 걸 딸기로 해주세요! 레터링도 '딸기'!",
+    dialogue: "내가 세상에서 제일 좋아하는 딸기 케이크 부탁해!",
     hidden: {
-      intent: "시트·토핑·레터링 전부 딸기.",
+      intent: "시트·토핑·생크림·레터링 전부 딸기. 대사는 '딸기 케이크'만 말하고, 나머지는 힌트(전부 딸기)로 유도.",
       wants: { base: BASIC_BASE, sheetColor: "strawberry", toppings: ["strawberry"],
                cream: { color: "strawberry", amount: "full" }, lettering: { text: "딸기", color: null } },
     },

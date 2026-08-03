@@ -1,27 +1,68 @@
 import { useEffect, useState } from "react";
+import { fillLine } from "../data/story.js";
 
-// 스토리 화면 (S19) — 컷을 한 장씩 넘겨 본다. 화면 아무 데나 탭하면 다음, 건너뛰기 가능.
-export default function StoryScreen({ cuts, onDone }) {
-  const [i, setI] = useState(0);
+// 스토리 화면 (S19) — 컷 위에 말풍선 대사가 한 줄씩 나온다.
+// 탭/≫ 는 대사 한 줄씩, 대사가 끝나면 다음 컷. ←/다음은 컷 단위 이동, 건너뛰기는 종료.
+export default function StoryScreen({ cuts, name = "", onDone }) {
+  const [i, setI] = useState(0);   // 컷 번호
+  const [li, setLi] = useState(0); // 컷 안 대사 번호
+  const cut = cuts[i];
+  const lines = cut.lines ?? [];
+  const line = lines[li];
 
   // 다음 컷 미리 받기 — 탭한 순간에 처음 받으면 넘김이 굼떠진다
   useEffect(() => {
     if (i + 1 < cuts.length) {
       const im = new Image();
-      im.src = cuts[i + 1];
+      im.src = cuts[i + 1].img;
     }
   }, [i, cuts]);
 
-  const next = () => (i + 1 < cuts.length ? setI(i + 1) : onDone());
+  const nextCut = () => {
+    if (i + 1 < cuts.length) {
+      setI(i + 1);
+      setLi(0);
+    } else onDone();
+  };
+  const prevCut = () => {
+    if (i > 0) {
+      setI(i - 1);
+      setLi(0);
+    }
+  };
+  // 대사 한 줄 진행 — 이 컷의 대사가 끝났으면 다음 컷
+  const advance = () => (li + 1 < lines.length ? setLi(li + 1) : nextCut());
 
   return (
-    <div className="story" onClick={next}>
-      <img className="story-cut" src={cuts[i]} alt={`스토리 컷 ${i + 1}`} />
+    <div className="story" onClick={advance}>
+      <img className="story-cut" src={cut.img} alt={`스토리 컷 ${i + 1}`} />
+
+      {line && (
+        <div className="story-bubble stk">
+          <span className="story-who">{fillLine(line.who, name)}</span>
+          <p className="story-line">{fillLine(line.text, name)}</p>
+          <button
+            className="story-adv"
+            aria-label="다음 대사"
+            onClick={(e) => { e.stopPropagation(); advance(); }}
+          >
+            ≫
+          </button>
+        </div>
+      )}
+
       <div className="story-nav">
+        <button
+          className="chip ghost story-prev"
+          disabled={i === 0}
+          onClick={(e) => { e.stopPropagation(); prevCut(); }}
+        >
+          ←
+        </button>
         <span className="story-progress">{i + 1} / {cuts.length}</span>
         <button
           className="chip ghost story-next"
-          onClick={(e) => { e.stopPropagation(); next(); }}
+          onClick={(e) => { e.stopPropagation(); nextCut(); }}
         >
           다음
         </button>

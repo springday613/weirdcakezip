@@ -3,6 +3,7 @@ import { orders } from "./data/orders.js";
 import { judge } from "./judgeClient.js";
 import { coinsFor, EXTRA_TURN_BUNDLE, extraTurnPrice } from "./scoreCake.js";
 import TitleScreen from "./screens/TitleScreen.jsx";
+import NameScreen from "./screens/NameScreen.jsx";
 import StoryScreen from "./screens/StoryScreen.jsx";
 import OrderScreen from "./screens/OrderScreen.jsx";
 import ResultScreen from "./screens/ResultScreen.jsx";
@@ -24,7 +25,8 @@ const BG_MODES = ["solid", "day", "night"];
 const BG_LABELS = { solid: "단색", day: "낮", night: "밤" };
 
 export default function App() {
-  const [screen, setScreen] = useState("TITLE"); // TITLE | INTRO | PLAYING | RESULT | ENDING | END
+  const [screen, setScreen] = useState("TITLE"); // TITLE | NAME | INTRO | PLAYING | RESULT | ENDING | END
+  const [playerName, setPlayerName] = useState(""); // 스토리 주인공 이름 (NAME 화면에서 받는다)
   const [orderIndex, setOrderIndex] = useState(0);
   const [cake, setCake] = useState(emptyCake());
   const [result, setResult] = useState(null);
@@ -44,7 +46,7 @@ export default function App() {
     setMoney(0);
     setTurns(0);
     setExtraTurns(0);
-    setScreen("INTRO"); // 인트로 스토리부터 — 건너뛰기 가능
+    setScreen("NAME"); // 이름부터 받고 인트로 스토리로 — 스토리는 건너뛰기 가능
   }
 
   async function submit() {
@@ -92,17 +94,28 @@ export default function App() {
       {/* 배경 위 베일 — 어두운 배경에서도 UI가 읽히게 */}
       <div className="layer-veil" />
 
-      {/* HUD — 타이틀·스토리 이외 화면에 상주하는 크롬 */}
-      {!["TITLE", "INTRO", "ENDING"].includes(screen) && (
+      {/* HUD — 타이틀·이름·스토리 이외 화면에 상주하는 크롬 */}
+      {!["TITLE", "NAME", "INTRO", "ENDING"].includes(screen) && (
         <div className="layer-ui"><Hud coins={money} /></div>
       )}
 
       {/* 화면이 필요한 층을 직접 렌더한다 (§2) */}
       {screen === "TITLE" && <TitleScreen onStart={start} />}
 
+      {screen === "NAME" && (
+        <div className="layer-ui story-layer">
+          <NameScreen
+            onDone={(n) => {
+              setPlayerName(n);
+              setScreen("INTRO");
+            }}
+          />
+        </div>
+      )}
+
       {screen === "INTRO" && (
         <div className="layer-ui story-layer">
-          <StoryScreen cuts={STORY.begin} onDone={() => setScreen("PLAYING")} />
+          <StoryScreen cuts={STORY.begin} name={playerName} onDone={() => setScreen("PLAYING")} />
         </div>
       )}
 
@@ -110,6 +123,7 @@ export default function App() {
         <div className="layer-ui story-layer">
           <StoryScreen
             cuts={money >= GOOD_ENDING_COINS ? STORY.endGood : STORY.endBad}
+            name={playerName}
             onDone={() => setScreen("END")}
           />
         </div>

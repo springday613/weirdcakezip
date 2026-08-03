@@ -742,3 +742,68 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   background: url("/assets/bg_default.webp") center / cover no-repeat;
   pointer-events: none;
 }
+
+/* 말풍선 대사 — 컷 하단에 얹힌다. ≫ 로 한 줄씩 */
+.story-bubble {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 64px;
+  border-radius: 14px;
+  padding: 8px 40px 8px 14px;
+  text-align: left;
+}
+.story-who {
+  display: block;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.story-line {
+  margin: 2px 0 0;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  word-break: keep-all;
+}
+.story-adv {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  background: none;
+  border: none;
+  font-family: var(--font);
+  font-size: var(--fs-title);
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text);
+}
+
+/* 이름 입력 화면 */
+.name-screen {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.name-card {
+  width: min(100%, 300px);
+  border-radius: var(--r-card);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+}
+.name-title {
+  margin: 0;
+  font-size: var(--fs-title);
+  font-weight: 700;
+}
+.name-input { width: 100%; }
+.name-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}

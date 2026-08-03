@@ -44,8 +44,8 @@ export const CREAM_FULL = 19;
 function creamFrac(want, made) {
   if (want == null) return made ? 0 : 1; // 크림 없어야 함
   if (!made || made.color !== want.color) return 0;
-  // amount 미지정 주문은 예전처럼 색만 본다(과거 호환). "full" 은 채운 만큼 비례.
-  if (want.amount === "full") return Math.min(1, (made.dollops?.length ?? 0) / CREAM_FULL);
+  // 양은 묻지 않는다 — 원하는 맛이 올라가 있으면 만점 (2026-08-04 결정, amount 는 채점에서 무시).
+  // 양까지 요구하는 주문이 생기면 그때 wants 스펙과 함께 여기서 나눈다.
   return 1;
 }
 function counts(list) {

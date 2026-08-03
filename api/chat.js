@@ -74,9 +74,19 @@ export default async function handler(req, res) {
     const roleFlip = (r) => flipRe.test(r);
     if (roleFlip(out.reply ?? "")) critical.push("roleflip");
 
+    // 메아리 가드 — 자기 첫 주문 대사를 그대로 응답으로 뱉는 경우(측정에서 2~3/360 관측).
+    // 첫 대사 앞 20자가 응답에 통째로 들어 있으면 메아리로 본다.
+    const echoOf = (r) => {
+      const d = (order.dialogue ?? "").slice(0, 20);
+      return d.length >= 10 && (r ?? "").includes(d);
+    };
+    if (echoOf(out.reply)) critical.push("echo");
+
     if (critical.length || !out.intent) {
       const note = !out.intent
         ? "방금 출력이 형식을 어겼다. '출력 형식' 절의 JSON 하나로 다시 답해라. 대사 내용은 그대로."
+        : critical.includes("echo")
+        ? "방금 응답이 너의 첫 주문 대사를 그대로 반복했다. 첫 대사를 되풀이하지 말고, 주인의 마지막 질문에 새로 답해라."
         : critical.includes("roleflip")
         ? "너는 손님이다 — 주인에게 뭘 원하는지·어떤 색이 좋은지 묻지 마라. 네가 원하는 건 이미 정답에 " +
           "정해져 있다. 방금 질문에만 답하고, 질문·제안 없이 끝내라."
@@ -102,7 +112,8 @@ export default async function handler(req, res) {
         (check && Object.keys(retryCheck).length <= Object.keys(check).length));
       const clashFixed = !topicClash || !clashOf(retry.reply ?? "");
       const flipFixed = !critical.includes("roleflip") || !roleFlip(retry.reply ?? "");
-      if (intentOk && clashFixed && flipFixed) { out = retry; check = retryCheck; out.retried = true; }
+      const echoFixed = !critical.includes("echo") || !echoOf(retry.reply ?? "");
+      if (intentOk && clashFixed && flipFixed && echoFixed) { out = retry; check = retryCheck; out.retried = true; }
     }
 
     return res.json({ reply: out.reply, intent: out.intent, raw: out.raw,

@@ -38,7 +38,7 @@ export function sheetType(base) {
   return null;
 }
 
-// ② 케이크 맛: 시트·레터링·생크림의 맛을 결정 (색이 아니라 '재료'로 고른다 — 맛이 곧 색)
+// ② 케이크 베이스: 시트·레터링·생크림의 맛/색을 결정 (색이 아니라 '재료'로 고른다 — 맛이 곧 색)
 export const COLORS = [
   { id: "vanilla", label: "바닐라", emoji: "🍦", hex: "#fff2cc" },
   { id: "strawberry", label: "딸기", emoji: "🍓", hex: "#ffd1dc" },

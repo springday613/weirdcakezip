@@ -57,7 +57,7 @@ export function scoreCake(order, cake) {
   const w = order.hidden.wants;
   const raw = [];
   if ("base" in w) raw.push({ key: "시트 반죽", wk: "base", frac: sameSet(w.base, cake.base) ? 1 : 0 });
-  if ("sheetColor" in w) raw.push({ key: "시트 맛", wk: "sheetColor", frac: cake.sheetColor === w.sheetColor ? 1 : 0 });
+  if ("sheetColor" in w) raw.push({ key: "케이크 베이스", wk: "sheetColor", frac: cake.sheetColor === w.sheetColor ? 1 : 0 });
   if ("toppings" in w) raw.push({ key: "토핑", wk: "toppings", frac: toppingFrac(w.toppings, cake.toppings) });
   if ("lettering" in w) raw.push({ key: "레터링", wk: "lettering", frac: norm(cake.lettering?.text) === norm(w.lettering?.text) ? 1 : 0 });
   if ("cream" in w) raw.push({ key: "생크림", wk: "cream", frac: creamFrac(w.cream, cake.cream) });

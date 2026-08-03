@@ -29,7 +29,7 @@ const BG_MODES = ["solid", "day", "night"];
 const BG_LABELS = { solid: "단색", day: "낮", night: "밤" };
 
 export default function App() {
-  const [screen, setScreen] = useState("TITLE"); // TITLE | NAME | INTRO | CHAT | BUILD | RESULT | ENDING | END
+  const [screen, setScreen] = useState("TITLE"); // TITLE | NAME | INTRO | CHAT | BUILD | RESULT | END(정산) | ENDING(아웃트로) | CREDITS
   const [playerName, setPlayerName] = useState(""); // 스토리 주인공 이름 (NAME 화면에서 받는다)
   const [orderIndex, setOrderIndex] = useState(0);
   const [cake, setCake] = useState(emptyCake());
@@ -41,6 +41,7 @@ export default function App() {
   const [extraTurns, setExtraTurns] = useState(0); // 코인으로 산 추가 질문(감점 없음, 상한 5)
   const [bgMode, setBgMode] = useState(0); // 개발용 배경 토글
   const [devEnding, setDevEnding] = useState(null); // 개발용 엔딩 강제("good"|"bad") — 실플레이는 null
+  const [cheered, setCheered] = useState(false); // 크레딧 CTA(합격시키기) 눌렀는가
   const [messages, setMessages] = useState([]); // 대화 기록 — 화면 전환에도 유지
   const [scriptIdx, setScriptIdx] = useState(0); // 대본 진행도 — ChatBox 와 동기
   const [chatPopupOpen, setChatPopupOpen] = useState(false);
@@ -63,6 +64,7 @@ export default function App() {
     setMoney(0);
     setTurns(0);
     setExtraTurns(0);
+    setCheered(false);
     seedMessages(orders[0]);
     setScreen("NAME"); // 이름 → 인트로 스토리 → 첫 주문(CHAT). 스토리는 건너뛰기 가능
   }
@@ -118,7 +120,7 @@ export default function App() {
     const ni = orderIndex + 1;
     if (ni >= orders.length) {
       setDevEnding(null); // 실플레이 엔딩은 코인으로만 가른다
-      setScreen("ENDING"); // 영업 종료 → 성과에 따른 엔딩 스토리 → 정산(END)
+      setScreen("END"); // 영업 종료(정산) → 아웃트로 스토리 → 엔딩 화면
       return;
     }
     setOrderIndex(ni);
@@ -149,7 +151,7 @@ export default function App() {
       <div className="layer-veil" />
 
       {/* HUD — 타이틀·이름·스토리 이외 화면에 상주하는 크롬 */}
-      {!["TITLE", "NAME", "INTRO", "ENDING"].includes(screen) && (
+      {!["TITLE", "NAME", "INTRO", "ENDING", "CREDITS"].includes(screen) && (
         <div className="layer-ui">
           <Hud coins={money}>
             {screen === "BUILD" && (
@@ -192,7 +194,7 @@ export default function App() {
             }
             name={playerName}
             nav
-            onDone={() => setScreen("END")}
+            onDone={() => setScreen("CREDITS")}
           />
         </div>
       )}
@@ -259,9 +261,27 @@ export default function App() {
             <h1>영업 종료</h1>
             <p className="big">오늘 매출 {money.toLocaleString()}코인</p>
             <p className="hint">총점 {totalScore}점</p>
-            <button className="btn" onClick={start}>
-              다시 하기
+            <button className="btn" onClick={() => setScreen("ENDING")}>
+              이야기 계속하기
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* 엔딩 크레딧 — 아웃트로 뒤, 배경 위에 주인공과 CTA */}
+      {screen === "CREDITS" && (
+        <div className="layer-ui story-layer">
+          <div className="credits">
+            <img className="credits-char" src="/assets/story_user_full.webp" alt="주인공" />
+            <p className="credits-q">{playerName || "주인공"}의 앞으로의 여정이 궁금하다면?</p>
+            {cheered ? (
+              <p className="credits-thanks">감사합니다! 뭉게뭉게 마을에서 기다릴게요 🍰</p>
+            ) : (
+              <button className="btn" onClick={() => setCheered(true)}>
+                프롬프트 파티시에 팀 합격시키기
+              </button>
+            )}
+            <button className="chip ghost" onClick={start}>처음부터 다시 하기</button>
           </div>
         </div>
       )}

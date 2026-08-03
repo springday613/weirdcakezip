@@ -975,3 +975,26 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 
 /* HUD 대화 버튼 속 손님 바스트샷 */
 .chat-trigger-face { width: 24px; height: 24px; }
+
+/* 엔딩 크레딧 (S19) — 배경 위 주인공 + CTA */
+.credits {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+}
+.credits-char { width: min(62%, 240px); border-radius: var(--r-card); }
+.credits-q {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  word-break: keep-all;
+}
+.credits-thanks {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 700;
+}

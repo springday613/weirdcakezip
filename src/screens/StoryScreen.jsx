@@ -3,10 +3,11 @@ import { fillLine } from "../data/story.js";
 
 // 문장이 끝나는 자리(.·!·?·…·~ 뒤 공백)마다 줄을 바꿔 호흡을 만든다.
 // 단, 짧은 문장끼리는 한 줄로 병합 — 줄이 너무 잘게 쪼개지지 않게.
+// 대본에서 특정 지점을 강제로 붙이고 싶으면 공백 대신  (줄바꿈 금지 공백)을 쓴다.
 const BREATH_MAX = 22; // 병합해도 이 글자수를 넘지 않을 때만 같은 줄
 const breath = (text) => {
   const lines = [];
-  for (const p of text.split(/(?<=[.!?…~])\s+/)) {
+  for (const p of text.split(/(?<=[.!?…~]) +/)) {
     const last = lines[lines.length - 1];
     if (last != null && (last + " " + p).length <= BREATH_MAX) {
       lines[lines.length - 1] = last + " " + p;

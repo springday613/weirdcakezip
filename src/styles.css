@@ -519,11 +519,11 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   left: 50%;
   bottom: calc(100% + 6px);
   transform: translateX(-50%);
-  background: var(--paper);
-  border: var(--ink-line-thin) solid var(--ink);
+  background: #4A4A4A; /* 진회색 — 팔레트 위에서 또렷하게 */
+  color: var(--text-on-ink);
   border-radius: var(--r-pill);
-  padding: 3px 10px;
-  font-size: var(--fs-note);
+  padding: 6px 14px;
+  font-size: 10px;
   font-weight: 700;
   white-space: nowrap;
   pointer-events: none;

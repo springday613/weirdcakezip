@@ -888,12 +888,15 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   display: flex;
   flex-direction: column;
   background: url("/assets/bg_cake_shop.webp") center top / cover no-repeat;
-  padding-bottom: 6px;
-  /* HUD(위 형제, z3) 뒤로 배경을 밀어 올려 화면 위쪽 끝까지 가게가 이어지게 */
-  margin-top: -56px;
-  padding-top: 56px;
+  padding-bottom: 10px;
+  /* HUD(위 형제, z3) 뒤로 배경을 밀어 올려 화면 위쪽 끝까지 가게가 이어지게.
+     넉넉히 올려도 app-shell overflow 로 잘려서 안전하다 */
+  margin-top: -100px;
+  padding-top: 100px;
 }
 .chat-order-wrap { padding-top: 0; }
+/* 채팅창이 가게 배경 끝에 바로 붙게 — 사이 하늘 틈 제거 */
+.chat-ui { padding-top: 0; }
 
 /* 말풍선 대사 — 컷 하단에 얹힌다. ≫ 로 한 줄씩 */
 .story-bubble {

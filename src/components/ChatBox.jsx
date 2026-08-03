@@ -7,7 +7,8 @@ import { TURN_BUDGET, TURN_PENALTY, EXTRA_TURN_BUNDLE, extraTurnPrice } from "..
 //
 // 질문 수(turns)는 App 이 들고 있다 — 점수에서 지불하는 값이라 채점까지 가야 한다.
 // 예산을 다 쓰면 여기서 막는다.
-export default function ChatBox({ order, messages = [], onSend, busy = false, turns = 0, extraTurns = 0, money = 0, onAsk, onBuyTurn, scriptIdx = 0, onAdvanceScript }) {
+// dimmed: 튜토리얼 가이드 중 통째로 어둡게. tutFocus="script": 대본 줄만 밝히고 확인을 강조.
+export default function ChatBox({ order, messages = [], onSend, busy = false, turns = 0, extraTurns = 0, money = 0, onAsk, onBuyTurn, scriptIdx = 0, onAdvanceScript, dimmed = false, tutFocus = null }) {
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
   const [input, setInput] = useState("");
   const listRef = useRef(null);
@@ -36,8 +37,8 @@ export default function ChatBox({ order, messages = [], onSend, busy = false, tu
   }
 
   return (
-    <div className="chat">
-      <div className="chat-list" ref={listRef}>
+    <div className={"chat" + (dimmed ? " tut-dim-el" : "")}>
+      <div className={"chat-list" + (tutFocus === "script" ? " tut-dim-el" : "")} ref={listRef}>
         {messages.map((m) => (
           <div key={m.id} className={"bubble " + m.role}>
             {m.role === "monster" && <img className="bubble-face" src={monster.img.normal} alt="" />}
@@ -56,17 +57,25 @@ export default function ChatBox({ order, messages = [], onSend, busy = false, tu
         {busy && <div className="bubble monster"><span className="bubble-text">…</span></div>}
       </div>
       {script ? (
-        <div className="chat-input chat-scripted">
-          {scriptDone ? (
-            <span className="script-done">좋아, 주문은 다 들었다! 이제 케이크를 만들어보자 🍰</span>
-          ) : (
-            <>
-              <span className="script-ask">{script[scriptIdx].ask}</span>
-              <button className="btn small" onClick={onAdvanceScript}>확인</button>
-            </>
-          )}
-          <span className="script-badge">무료 · 턴 ✕</span>
-        </div>
+        <>
+          {/* 예산 자리(일반 손님의 '질문 N번 남음' 위치)에 무료 안내 */}
+          {!scriptDone && <div className="chat-budget">무료 · 턴 ✕</div>}
+          <div className="chat-input chat-scripted">
+            {scriptDone ? (
+              <span className="script-done">좋아, 주문은 다 들었다! 이제 케이크를 만들어보자 🍰</span>
+            ) : (
+              <>
+                <span className="script-ask">{script[scriptIdx].ask}</span>
+                <button
+                  className={"btn small" + (tutFocus === "script" ? " tut-pulse" : "")}
+                  onClick={onAdvanceScript}
+                >
+                  확인
+                </button>
+              </>
+            )}
+          </div>
+        </>
       ) : (<>
       <div className="chat-budget">
         {spent

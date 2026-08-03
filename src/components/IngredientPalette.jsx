@@ -17,7 +17,8 @@ export const STEPS = [
 ];
 
 // 재료 팔레트 — 한 단계씩만 보여준다.
-export default function IngredientPalette({ step, cake, setCake }) {
+// tutBasic/tutChips: 튜토리얼 하이라이트 — 기본 시트 버튼 / 정답 재료 id 목록 (S21)
+export default function IngredientPalette({ step, cake, setCake, tutBasic = false, tutChips = null }) {
   const set = (patch) => setCake({ ...cake, ...patch });
 
   const toggleBase = (id) =>
@@ -50,7 +51,11 @@ export default function IngredientPalette({ step, cake, setCake }) {
 
   // 재료 이미지 칩 (이모지·글자 대신 그림)
   const ImgChip = ({ id, on, onClick }) => (
-    <button className={"chip img-chip" + (on ? " on" : "")} onClick={onClick} title={id}>
+    <button
+      className={"chip img-chip" + (on ? " on" : "") + (tutChips?.includes(id) ? " tut-pulse" : "")}
+      onClick={onClick}
+      title={id}
+    >
       {id === "vanilla" ? (
         <span className="color-dot" style={{ background: "#fff2cc" }} />
       ) : (
@@ -72,7 +77,7 @@ export default function IngredientPalette({ step, cake, setCake }) {
           <div className="palette-row">
             <span className="palette-label">섞기</span>
             <button
-              className={"chip" + (isBasic ? " on" : "")}
+              className={"chip" + (isBasic ? " on" : "") + (tutBasic ? " tut-pulse" : "")}
               onClick={() => set({ base: isBasic ? [] : [...BASIC_BASE] })}
             >
               기본 시트

@@ -933,3 +933,29 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   0%, 100% { box-shadow: 0 0 0 0 rgba(245, 213, 99, .95); }
   50% { box-shadow: 0 0 0 7px rgba(245, 213, 99, .3); }
 }
+
+/* 치트 시트 (S21) — 튜토리얼 정답 쪽지, 케이크 왼편 */
+.cake-wrap { position: relative; }
+.tut-cheat {
+  position: absolute;
+  left: 2px;
+  top: 6%;
+  width: 128px;
+  z-index: 4;
+  transform: rotate(-5deg); /* 슥 붙여둔 느낌 */
+}
+.tut-cheat img { width: 100%; display: block; }
+.tut-cheat-lines {
+  position: absolute;
+  left: 13%;
+  right: 9%;
+  top: 20%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.55;
+  color: #7B4A26; /* 쪽지 크레용 톤 */
+  word-break: keep-all;
+}

@@ -40,6 +40,7 @@ export default function App() {
   const [turns, setTurns] = useState(0); // 이번 손님에게 던진 질문 수 — 점수에서 지불한다
   const [extraTurns, setExtraTurns] = useState(0); // 코인으로 산 추가 질문(감점 없음, 상한 5)
   const [bgMode, setBgMode] = useState(0); // 개발용 배경 토글
+  const [devEnding, setDevEnding] = useState(null); // 개발용 엔딩 강제("good"|"bad") — 실플레이는 null
   const [messages, setMessages] = useState([]); // 대화 기록 — 화면 전환에도 유지
   const [scriptIdx, setScriptIdx] = useState(0); // 대본 진행도 — ChatBox 와 동기
   const [chatPopupOpen, setChatPopupOpen] = useState(false);
@@ -116,6 +117,7 @@ export default function App() {
   function next() {
     const ni = orderIndex + 1;
     if (ni >= orders.length) {
+      setDevEnding(null); // 실플레이 엔딩은 코인으로만 가른다
       setScreen("ENDING"); // 영업 종료 → 성과에 따른 엔딩 스토리 → 정산(END)
       return;
     }
@@ -183,7 +185,11 @@ export default function App() {
       {screen === "ENDING" && (
         <div className="layer-ui story-layer">
           <StoryScreen
-            cuts={money >= GOOD_ENDING_COINS ? STORY.endGood : STORY.endBad}
+            cuts={
+              (devEnding ?? (money >= GOOD_ENDING_COINS ? "good" : "bad")) === "good"
+                ? STORY.endGood
+                : STORY.endBad
+            }
             name={playerName}
             nav
             onDone={() => setScreen("END")}
@@ -294,14 +300,26 @@ export default function App() {
             </button>
           ))}
           <button
-            className={screen === "ENDING" ? "on" : ""}
-            title="아웃트로 스토리 (현재 코인 기준 굿/배드)"
+            className={screen === "ENDING" && devEnding === "good" ? "on" : ""}
+            title="굿 엔딩 스토리"
             onClick={() => {
               if (!playerName) setPlayerName("달콤한체리");
+              setDevEnding("good");
               setScreen("ENDING");
             }}
           >
-            out
+            굿
+          </button>
+          <button
+            className={screen === "ENDING" && devEnding === "bad" ? "on" : ""}
+            title="배드 엔딩 스토리"
+            onClick={() => {
+              if (!playerName) setPlayerName("달콤한체리");
+              setDevEnding("bad");
+              setScreen("ENDING");
+            }}
+          >
+            배드
           </button>
         </div>
       )}

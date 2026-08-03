@@ -33,7 +33,8 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [totalScore, setTotalScore] = useState(0);
   const [money, setMoney] = useState(0);
-  const [busy, setBusy] = useState(false);
+  const [chatBusy, setChatBusy] = useState(false);
+  const [judgeBusy, setJudgeBusy] = useState(false);
   const [turns, setTurns] = useState(0);
   const [extraTurns, setExtraTurns] = useState(0);
   const [bgMode, setBgMode] = useState(0);
@@ -41,6 +42,7 @@ export default function App() {
   const [scriptIdx, setScriptIdx] = useState(0); // 대본 진행도 — ChatBox 와 동기
   const [chatPopupOpen, setChatPopupOpen] = useState(false);
   const nextMsgId = useRef(1);
+  const scriptAdvancing = useRef(false); // 대본 연타 가드
 
   // 손님별 최고 별점. 인덱스 = orders 배열 순서. 0 = 아직 안 함
   const [stars, setStars] = useState(() => orders.map(() => 0));
@@ -83,9 +85,9 @@ export default function App() {
 
   async function submit() {
     await withLoading("케이크 채점 중…", async () => {
-      setBusy(true);
+      setJudgeBusy(true);
       const r = await judge(order.id, cake, turns);
-      setBusy(false);
+      setJudgeBusy(false);
       const earned = coinsFor(r.score);
       setResult({ ...r, earned });
       setTotalScore((s) => s + r.score);
@@ -101,10 +103,12 @@ export default function App() {
     setScreen("RESULT");
   }
 
-  // 대본 진행 — ChatBox 에서 호출
+  // 대본 진행 — ChatBox 에서 호출. 연타 가드로 같은 대사 중복 방지.
   function advanceScript() {
     const script = order.script;
     if (!script || scriptIdx >= script.length) return;
+    if (scriptAdvancing.current) return; // 연타 방어
+    scriptAdvancing.current = true;
     const { ask, reply } = script[scriptIdx];
     setMessages((m) => [
       ...m,
@@ -112,16 +116,18 @@ export default function App() {
       { id: nextMsgId.current++, role: "monster", content: reply },
     ]);
     setScriptIdx((n) => n + 1);
+    // 다음 렌더 후 해제
+    requestAnimationFrame(() => { scriptAdvancing.current = false; });
   }
 
-  // 대화 보내기 — ChatBox 에서 호출. 일반 대화만
+  // 대화 보내기 — ChatBox 에서 호출. 일반 대화만 (chatBusy)
   async function handleSend(text) {
     const userMsg = { id: nextMsgId.current++, role: "user", content: text };
     const next = [...messages, userMsg];
     setMessages(next);
-    setBusy(true);
+    setChatBusy(true);
     const { reply, raw } = await chat(order.id, next);
-    setBusy(false);
+    setChatBusy(false);
     setMessages((m) => [...m, { id: nextMsgId.current++, role: "monster", content: reply, raw }]);
   }
 
@@ -181,7 +187,7 @@ export default function App() {
           order={order}
           messages={messages}
           onSend={handleSend}
-          busy={busy}
+          busy={chatBusy}
           turns={turns}
           extraTurns={extraTurns}
           money={money}
@@ -204,14 +210,14 @@ export default function App() {
             cake={cake}
             setCake={setCake}
             onSubmit={submit}
-            busy={busy}
+            busy={judgeBusy}
           />
           {chatPopupOpen && (
             <ChatPopup
               order={order}
               messages={messages}
               onSend={handleSend}
-              busy={busy}
+              busy={chatBusy}
               turns={turns}
               extraTurns={extraTurns}
               money={money}

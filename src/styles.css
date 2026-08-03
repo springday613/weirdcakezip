@@ -959,3 +959,34 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   color: #7B4A26; /* 쪽지 크레용 톤 */
   word-break: keep-all;
 }
+
+/* 튜토리얼 에필로그 (S21) — 디폴트 배경 위 케이크샵 컷 + 나는 물범 */
+.tutend-layer {
+  flex: 1;
+  display: flex;
+  padding: 0;
+  background: url("/assets/bg_default.webp") center / cover no-repeat;
+}
+.tutend {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.tutend-shop { position: relative; width: 100%; }
+.tutend-shop-img { width: 100%; display: block; }
+.tutend-seal {
+  position: absolute;
+  left: 8%;
+  top: 5%;
+  width: 26%;
+  animation: seal-fly 3.2s ease-in-out infinite;
+}
+@keyframes seal-fly {
+  0%, 100% { transform: translate(0, 0) rotate(-6deg); }
+  50% { transform: translate(16px, -18px) rotate(6deg); }
+}
+/* 에필로그의 물범 말풍선은 아래쪽에 */
+.tutend .tut-guide { top: auto; bottom: 10%; }

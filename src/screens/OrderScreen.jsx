@@ -13,6 +13,7 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
   // 튜토리얼(첫 주문) — 물범 인사 두 마디 뒤 치트 시트를 케이크 왼편에 붙인다
   const tut = order.id === TUTORIAL_GUIDE.orderId;
   const [tutIntro, setTutIntro] = useState(tut ? 0 : null); // 0·1 대사 인덱스, null 끝
+  const [tutWarn, setTutWarn] = useState(false); // 오답 선택 → "다시 확인해보자"
 
   // 섞기 재료(base)가 바뀌면 케이크 해제 → 다시 보울부터. 경고도 해제.
   const baseKey = cake.base.join(",");
@@ -28,8 +29,44 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
 
   const lastStep = STEPS.length - 1;
 
+  // 튜토리얼 오답 차단 — 치트 시트와 다른 선택은 적용하지 않고 물범이 되짚어 준다
+  const isBasicOf = (base) =>
+    BASIC_BASE.length === base.length && BASIC_BASE.every((b) => base.includes(b));
+  function tutAllows(nc) {
+    if (nc.base !== cake.base) return nc.base.every((b) => BASIC_BASE.includes(b));
+    if (nc.cakeBase !== cake.cakeBase) return nc.cakeBase === TUTORIAL_GUIDE.picks.color;
+    if (nc.cream !== cake.cream) return nc.cream?.color === TUTORIAL_GUIDE.picks.cream;
+    if (nc.toppings !== cake.toppings) {
+      const added = nc.toppings[nc.toppings.length - 1];
+      return TUTORIAL_GUIDE.picks.topping.includes(added?.type);
+    }
+    return true; // 데코·쪽지는 마음대로
+  }
+  const guardedSetCake = (nc) => {
+    if (tut && tutIntro == null && !tutAllows(nc)) {
+      setTutWarn(true);
+      return;
+    }
+    setTutWarn(false);
+    setCake(nc);
+  };
+  // 튜토리얼에서 이 단계가 아직 정답이 아니면 → 로 못 넘어간다
+  function tutStepDone() {
+    const id = STEPS[step]?.id;
+    if (id === "sheet") return isBasicOf(cake.base);
+    if (id === "color") return cake.cakeBase === TUTORIAL_GUIDE.picks.color;
+    if (id === "cream") return cake.cream?.color === TUTORIAL_GUIDE.picks.cream;
+    if (id === "topping")
+      return TUTORIAL_GUIDE.picks.topping.every((t) => cake.toppings.some((x) => x.type === t));
+    return true;
+  }
+
   // 시트 단계에서 '다음' → 조합 검증 후 굽기(1초) or 경고
   function goNext() {
+    if (tut && tutIntro == null && !tutStepDone()) {
+      setTutWarn(true);
+      return;
+    }
     if (step === 0 && !made) {
       if (sheetType(cake.base)) {
         setWarn(false);
@@ -110,7 +147,7 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
         <CakeView cake={cake} preview={preview} />
       </div>
 
-      <IngredientPalette step={step} cake={cake} setCake={setCake} tutBasic={tutBasic} tutChips={tutChips} />
+      <IngredientPalette step={step} cake={cake} setCake={guardedSetCake} tutBasic={tutBasic} tutChips={tutChips} />
 
       <div className="make-nav">
         <button className="arrow" disabled={step === 0 || making} onClick={() => setStep(step - 1)}>
@@ -136,6 +173,18 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
         <button className="chip ghost" onClick={clearBoard}>케이크 위 지우기</button>
         <button className="chip ghost" onClick={resetAll}>처음부터 만들기</button>
       </div>
+
+      {/* 오답 선택 — 물범이 치트 시트를 다시 보게 한다 */}
+      {tutWarn && (
+        <div className="tut-guide stk" onClick={() => setTutWarn(false)}>
+          <span className="tut-guide-face">
+            <img src="/assets/story_face_assistant.webp" alt="" />
+            <span className="tut-guide-name">커스터드물범</span>
+          </span>
+          <p className="tut-guide-line">다시 확인해보자! 치트 시트를 봐봐~</p>
+          <span className="tut-guide-adv">≫</span>
+        </div>
+      )}
 
       {/* 물범 인사 — 치트 시트를 꺼내기 전 두 마디 */}
       {tut && tutIntro != null && (

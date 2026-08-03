@@ -8,6 +8,7 @@ import TitleScreen from "./screens/TitleScreen.jsx";
 import ChatScreen from "./screens/ChatScreen.jsx";
 import OrderScreen from "./screens/OrderScreen.jsx";
 import ResultScreen from "./screens/ResultScreen.jsx";
+import TutorialEndScreen from "./screens/TutorialEndScreen.jsx";
 import Hud from "./components/Hud.jsx";
 import ChatPopup from "./components/ChatPopup.jsx";
 
@@ -26,7 +27,7 @@ const BG_MODES = ["solid", "day", "night"];
 const BG_LABELS = { solid: "단색", day: "낮", night: "밤" };
 
 export default function App() {
-  const [screen, setScreen] = useState("TITLE"); // TITLE | CHAT | BUILD | RESULT | END
+  const [screen, setScreen] = useState("TITLE"); // TITLE | CHAT | BUILD | RESULT | TUTEND(튜토리얼 에필로그) | END
   const [orderIndex, setOrderIndex] = useState(0);
   const [cake, setCake] = useState(emptyCake());
   const [result, setResult] = useState(null);
@@ -145,8 +146,8 @@ export default function App() {
       {/* 게임 진행 화면들도 기본 배경(구름 하늘)을 깐다 — CHAT 상단은 ChatScreen 이 가게 배경을 얹는다 */}
       {["CHAT", "BUILD", "RESULT", "END"].includes(screen) && <div className="screen-bg" />}
 
-      {/* HUD — 타이틀 이외 화면에 상주하는 크롬 */}
-      {screen !== "TITLE" && (
+      {/* HUD — 타이틀·에필로그 이외 화면에 상주하는 크롬 */}
+      {!["TITLE", "TUTEND"].includes(screen) && (
         <div className="layer-ui">
           <Hud coins={money}>
             {screen === "BUILD" && (
@@ -214,7 +215,19 @@ export default function App() {
 
       {screen === "RESULT" && (
         <div className="layer-ui layer-ui--grow">
-          <ResultScreen result={result} order={order} cake={cake} onNext={next} />
+          <ResultScreen
+            result={result}
+            order={order}
+            cake={cake}
+            onNext={order.script ? () => setScreen("TUTEND") : next}
+          />
+        </div>
+      )}
+
+      {/* 튜토리얼 에필로그 — 물범이 감점 제도를 알려주고 다음 손님으로 */}
+      {screen === "TUTEND" && (
+        <div className="layer-ui tutend-layer">
+          <TutorialEndScreen onDone={next} />
         </div>
       )}
 

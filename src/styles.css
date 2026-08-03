@@ -696,3 +696,43 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   color: var(--text-muted);
   margin: calc(var(--gap) * 1.8) 0 0;
 }
+
+/* ── 스토리 화면 (S19) — 컷 한 장씩, 탭으로 진행 ─────────── */
+.story-layer {
+  flex: 1;
+  display: flex;
+  background: url("/assets/story_bg.webp") center / cover no-repeat;
+}
+.story {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.story-cut {
+  width: 100%;
+  display: block;
+  background: var(--paper);
+  border: var(--ink-line) solid var(--ink);
+  border-radius: var(--r-card);
+}
+.story-nav {
+  position: absolute;
+  bottom: 18px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+.story-progress {
+  background: rgba(26, 26, 26, .55);
+  color: var(--text-on-ink);
+  border-radius: var(--r-pill);
+  padding: 2px 10px;
+  font-size: var(--fs-note);
+  font-weight: 700;
+}

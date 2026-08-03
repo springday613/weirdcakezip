@@ -3,12 +3,14 @@ import { orders } from "./data/orders.js";
 import { judge } from "./judgeClient.js";
 import { coinsFor, EXTRA_TURN_BUNDLE, extraTurnPrice } from "./scoreCake.js";
 import TitleScreen from "./screens/TitleScreen.jsx";
+import StoryScreen from "./screens/StoryScreen.jsx";
 import OrderScreen from "./screens/OrderScreen.jsx";
 import ResultScreen from "./screens/ResultScreen.jsx";
 import Hud from "./components/Hud.jsx";
+import { STORY, GOOD_ENDING_COINS } from "./data/story.js";
 
 // 게임 루프 = 상태머신 (척추 = 이 하나의 상태 객체)
-//   TITLE → PLAYING(orderIndex) → RESULT(orderIndex) → 다음 or END
+//   TITLE → INTRO(스토리) → PLAYING(orderIndex) → RESULT(orderIndex) → 다음 or ENDING(스토리) → END
 const emptyCake = () => ({
   base: [],
   cakeBase: null,
@@ -22,7 +24,7 @@ const BG_MODES = ["solid", "day", "night"];
 const BG_LABELS = { solid: "단색", day: "낮", night: "밤" };
 
 export default function App() {
-  const [screen, setScreen] = useState("TITLE"); // TITLE | PLAYING | RESULT | END
+  const [screen, setScreen] = useState("TITLE"); // TITLE | INTRO | PLAYING | RESULT | ENDING | END
   const [orderIndex, setOrderIndex] = useState(0);
   const [cake, setCake] = useState(emptyCake());
   const [result, setResult] = useState(null);
@@ -42,7 +44,7 @@ export default function App() {
     setMoney(0);
     setTurns(0);
     setExtraTurns(0);
-    setScreen("PLAYING");
+    setScreen("INTRO"); // 인트로 스토리부터 — 건너뛰기 가능
   }
 
   async function submit() {
@@ -69,7 +71,7 @@ export default function App() {
   function next() {
     const ni = orderIndex + 1;
     if (ni >= orders.length) {
-      setScreen("END");
+      setScreen("ENDING"); // 영업 종료 → 성과에 따른 엔딩 스토리 → 정산(END)
       return;
     }
     setOrderIndex(ni);
@@ -90,13 +92,28 @@ export default function App() {
       {/* 배경 위 베일 — 어두운 배경에서도 UI가 읽히게 */}
       <div className="layer-veil" />
 
-      {/* HUD — 타이틀 이외 화면에 상주하는 크롬 */}
-      {screen !== "TITLE" && (
+      {/* HUD — 타이틀·스토리 이외 화면에 상주하는 크롬 */}
+      {!["TITLE", "INTRO", "ENDING"].includes(screen) && (
         <div className="layer-ui"><Hud coins={money} /></div>
       )}
 
       {/* 화면이 필요한 층을 직접 렌더한다 (§2) */}
       {screen === "TITLE" && <TitleScreen onStart={start} />}
+
+      {screen === "INTRO" && (
+        <div className="layer-ui story-layer">
+          <StoryScreen cuts={STORY.begin} onDone={() => setScreen("PLAYING")} />
+        </div>
+      )}
+
+      {screen === "ENDING" && (
+        <div className="layer-ui story-layer">
+          <StoryScreen
+            cuts={money >= GOOD_ENDING_COINS ? STORY.endGood : STORY.endBad}
+            onDone={() => setScreen("END")}
+          />
+        </div>
+      )}
 
       {screen === "PLAYING" && (
         <div className="layer-ui">

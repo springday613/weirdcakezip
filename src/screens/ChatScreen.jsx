@@ -26,7 +26,7 @@ export default function ChatScreen({
           alt={monster.name}
         />
       </div>
-      <div className="layer-ui chat-ui">
+      <div className="layer-ui layer-ui--grow chat-ui">
         {/* 주문 카드 — 상단 고정 */}
         <div className="order-card stk">
           <span className="order-badge">주문</span>

@@ -59,11 +59,12 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
         <span className="money">매출 {(money ?? 0).toLocaleString()}원</span>
       </div>
 
-      <img className="monster-big" src={monster.img.normal} alt="손님 괴물" />
-
-      {warn && step === 0 && (
-        <div className="warn-bubble">시트가 뭔가 이상해! 다시 보자</div>
-      )}
+      <div className="monster-row">
+        <img className="monster-big" src={monster.img.normal} alt="손님 괴물" />
+        {warn && step === 0 && (
+          <div className="warn-bubble">시트가 뭔가 이상해! 다시 보자</div>
+        )}
+      </div>
       <CakeView cake={cake} preview={preview} />
 
       <IngredientPalette step={step} cake={cake} setCake={setCake} />

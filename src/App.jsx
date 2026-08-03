@@ -8,6 +8,7 @@ import ChatScreen from "./screens/ChatScreen.jsx";
 import OrderScreen from "./screens/OrderScreen.jsx";
 import ResultScreen from "./screens/ResultScreen.jsx";
 import Hud from "./components/Hud.jsx";
+import ChatPopup from "./components/ChatPopup.jsx";
 
 // 게임 루프 = 상태머신 (척추 = 이 하나의 상태 객체)
 //   TITLE → CHAT → BUILD → RESULT → 다음 or END
@@ -35,6 +36,7 @@ export default function App() {
   const [extraTurns, setExtraTurns] = useState(0); // 코인으로 산 추가 질문(감점 없음, 상한 5)
   const [bgMode, setBgMode] = useState(0); // 개발용 배경 토글
   const [messages, setMessages] = useState([]); // 대화 기록 — 화면 전환에도 유지
+  const [chatPopupOpen, setChatPopupOpen] = useState(false);
   const nextMsgId = useRef(1); // 메시지별 안정적 key
 
   const order = orders[orderIndex];
@@ -134,7 +136,15 @@ export default function App() {
 
       {/* HUD — 타이틀 이외 화면에 상주하는 크롬 */}
       {screen !== "TITLE" && (
-        <div className="layer-ui"><Hud coins={money} /></div>
+        <div className="layer-ui">
+          <Hud coins={money}>
+            {screen === "BUILD" && (
+              <button className="btn-ghost chat-popup-trigger" onClick={() => setChatPopupOpen(true)}>
+                ··· 대화
+              </button>
+            )}
+          </Hud>
+        </div>
       )}
 
       {/* 화면이 필요한 층을 직접 렌더한다 (§2) */}
@@ -157,7 +167,7 @@ export default function App() {
       )}
 
       {screen === "BUILD" && (
-        <div className="layer-ui">
+        <div className="layer-ui layer-ui--grow">
           <OrderScreen
             key={order.id}
             order={order}
@@ -169,17 +179,31 @@ export default function App() {
             onSubmit={submit}
             busy={busy}
           />
+          {chatPopupOpen && (
+            <ChatPopup
+              order={order}
+              messages={messages}
+              onSend={handleSend}
+              busy={busy}
+              turns={turns}
+              extraTurns={extraTurns}
+              money={money}
+              onAsk={() => setTurns((n) => n + 1)}
+              onBuyTurn={buyTurn}
+              onClose={() => setChatPopupOpen(false)}
+            />
+          )}
         </div>
       )}
 
       {screen === "RESULT" && (
-        <div className="layer-ui">
+        <div className="layer-ui layer-ui--grow">
           <ResultScreen result={result} order={order} cake={cake} onNext={next} />
         </div>
       )}
 
       {screen === "END" && (
-        <div className="layer-ui">
+        <div className="layer-ui layer-ui--grow">
           <div className="screen center">
             <h1>영업 종료</h1>
             <p className="big">오늘 매출 {money.toLocaleString()}코인</p>

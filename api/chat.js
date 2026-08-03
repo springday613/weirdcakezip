@@ -25,8 +25,26 @@ export default async function handler(req, res) {
     // 하이브리드 가드 — 프롬프트만으로는 none/dont-care 혼동·이름 유출이 확률적으로 남는다
     // (회귀 실측 ~25%). 서버는 정답을 아니까, 손님이 뱉은 intent 가 정답과 어긋나면
     // 어긋난 슬롯을 짚어 한 번 다시 시킨다. 재시도로도 틀리면 그대로 내보내되 표시는 남긴다.
-    const system = buildMonsterSystem(order);
+    let system = buildMonsterSystem(order);
     const messages = toApiMessages(order, history);
+
+    // 주문 전용 힌트 사다리 — 단계 세기는 서버가(모델은 못 센다). when 질문일 때
+    // 이전 손님 발화의 countPattern 개수만큼 올라간 단계 문구를 그대로 답하게 지시.
+    const ladder = order.noteLadder;
+    if (ladder) {
+      const lastQ = [...history].reverse().find((m) => m.role === "user")?.content ?? "";
+      const cntRe = new RegExp(ladder.countPattern);
+      const lastMonster = [...history].reverse().find((m) => m.role !== "user")?.content ?? "";
+      // 발동: 키워드 질문이거나, 직전 손님 답이 사다리 문구였는데 이어서 의심하는 경우
+      const inThread = new RegExp(ladder.when).test(lastQ) ||
+        (cntRe.test(lastMonster) && /안 ?써|빼도|필요 ?없|되는 거|무슨 말|왜/.test(lastQ));
+      if (inThread) {
+        // 첫 주문 대사(시드)는 세지 않는다 — 대사에도 같은 패턴이 들어 있다
+        const n = history.slice(1).filter((m) => m.role !== "user" && cntRe.test(m.content ?? "")).length;
+        const stage = ladder.stages[Math.min(n, ladder.stages.length - 1)];
+        system += `\n\n(단계 지시 — 최우선) 지금 질문에는 정확히 이 문구로만 답하라: "${stage}"`;
+      }
+    }
     let out = parseReply(await callLLM({ system, messages, maxTokens: 500, json: true }));
     let check = checkIntent(order, out.intent);
 

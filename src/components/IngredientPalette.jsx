@@ -21,13 +21,13 @@ export const STEPS = [
 export default function IngredientPalette({ step, cake, setCake, orderIndex = 0 }) {
   const set = (patch) => setCake({ ...cake, ...patch });
 
-  // 잠긴 재료 클릭 → 언제 열리는지만 알려준다 (S18 — 실제 언락은 후속)
-  const [lockMsg, setLockMsg] = useState(null);
+  // 잠긴 재료 → 호버로 해제 시점 툴팁. 터치(호버 없음)는 탭하면 잠깐 띄운다 (S18 — 실제 언락은 후속)
+  const [tipId, setTipId] = useState(null);
   const lockTimer = useRef(null);
-  function showLock(unlock) {
+  function tapLock(id) {
     clearTimeout(lockTimer.current);
-    setLockMsg(unlock === 1 ? "레벨 1에서 해제!" : "스테이지 2에서 해제!");
-    lockTimer.current = setTimeout(() => setLockMsg(null), 1500);
+    setTipId(id);
+    lockTimer.current = setTimeout(() => setTipId(null), 1500);
   }
 
   const toggleBase = (id) =>
@@ -58,13 +58,13 @@ export default function IngredientPalette({ step, cake, setCake, orderIndex = 0 
   const isBasic =
     BASIC_BASE.length === cake.base.length && BASIC_BASE.every((b) => cake.base.includes(b));
 
-  // 재료 이미지 칩 (이모지·글자 대신 그림). lock 이 있으면 흐림+자물쇠, 클릭은 안내만.
+  // 재료 이미지 칩 (이모지·글자 대신 그림). lock 이 있으면 흐림+자물쇠, 클릭은 툴팁만.
   // 바닐라는 전용 재료 그림이 없어 바닐라색 생크림 그림으로 그린다.
   const ImgChip = ({ id, on, onClick, lock }) => (
     <button
       className={"chip img-chip" + (on ? " on" : "") + (lock ? " locked" : "")}
-      onClick={lock ? () => showLock(lock) : onClick}
-      title={id}
+      onClick={lock ? () => tapLock(id) : onClick}
+      title={lock ? undefined : id}
     >
       <img
         className="ing-img"
@@ -72,6 +72,11 @@ export default function IngredientPalette({ step, cake, setCake, orderIndex = 0 
         alt=""
       />
       {lock && <img className="lock-badge" src="/assets/ui_lock.svg" alt="잠김" />}
+      {lock && (
+        <span className={"lock-tip" + (tipId === id ? " show" : "")}>
+          {lock === 1 ? "레벨 1에서 해제!" : "스테이지 2에서 해제!"}
+        </span>
+      )}
     </button>
   );
   // 색내기 재료 칩 (단일 선택) — 시트/생크림/쪽지 공용. kind 는 잠금 테이블 키(null = 잠금 없음).
@@ -186,15 +191,6 @@ export default function IngredientPalette({ step, cake, setCake, orderIndex = 0 
         </>
       )}
 
-      {/* 잠긴 재료를 눌렀을 때 — 언제 열리는지 */}
-      {lockMsg && (
-        <div className="palette-row">
-          <span className="palette-label" />
-          <span className="note lock-note">
-            <img src="/assets/ui_lock.svg" alt="" /> {lockMsg}
-          </span>
-        </div>
-      )}
       </div>
     </div>
   );

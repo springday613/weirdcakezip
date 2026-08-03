@@ -502,24 +502,37 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .chip.sm { padding: 4px 8px; font-size: var(--fs-body); min-height: var(--tap-min-sm); }
 .img-chip { padding: 3px; line-height: 0; }
 
-/* 잠긴 재료 (S18) — 그림만 흐리고 자물쇠는 또렷하게. 클릭하면 해제 시점 안내만 */
+/* 잠긴 재료 (S18) — 그림을 흐리고 자물쇠가 정중앙에서 살짝 가린다 */
 .img-chip.locked { position: relative; cursor: default; }
 .img-chip.locked .ing-img { opacity: .3; filter: grayscale(.7); }
 .img-chip.locked .lock-badge {
   position: absolute;
-  right: -4px;
-  bottom: -4px;
-  width: 16px;
+  left: 50%;
+  top: 50%;
+  width: 20px;
   height: auto;
-  transform: rotate(-8deg); /* 손으로 슥 붙인 느낌 */
+  transform: translate(-50%, -50%) rotate(-8deg); /* 손으로 슥 붙인 느낌 */
 }
-.lock-note {
+/* 해제 시점 툴팁 — 호버(데스크톱)·탭(.show, 터치)에 칩 위로 뜬다 */
+.lock-tip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  background: var(--paper);
+  border: var(--ink-line-thin) solid var(--ink);
+  border-radius: var(--r-pill);
+  padding: 3px 10px;
+  font-size: var(--fs-note);
   font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .12s;
+  z-index: 5;
 }
-.lock-note img { width: 15px; height: auto; }
+.img-chip.locked:hover .lock-tip,
+.lock-tip.show { opacity: 1; }
 .ing-img { width: var(--icon-sm); height: var(--icon-sm); object-fit: contain; display: block; }
 .color-dot {
   width: 30px;

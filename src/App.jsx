@@ -36,6 +36,7 @@ export default function App() {
   const [extraTurns, setExtraTurns] = useState(0); // 코인으로 산 추가 질문(감점 없음, 상한 5)
   const [bgMode, setBgMode] = useState(0); // 개발용 배경 토글
   const [messages, setMessages] = useState([]); // 대화 기록 — 화면 전환에도 유지
+  const [scriptIdx, setScriptIdx] = useState(0); // 대본 진행도 — ChatBox 와 동기
   const [chatPopupOpen, setChatPopupOpen] = useState(false);
   const nextMsgId = useRef(1); // 메시지별 안정적 key
 
@@ -45,6 +46,7 @@ export default function App() {
   function seedMessages(o) {
     nextMsgId.current = 1;
     setMessages([{ id: 0, role: "monster", content: o.dialogue }]);
+    setScriptIdx(0);
   }
 
   function start() {
@@ -69,17 +71,21 @@ export default function App() {
     setScreen("RESULT");
   }
 
-  // 대화 보내기 — ChatBox 에서 호출. 대본이면 ask+reply 쌍, 일반이면 text 만
-  async function handleSend(text, scriptReply) {
-    if (scriptReply != null) {
-      // 대본 모드 — LLM 없이 즉시 추가
-      setMessages((m) => [
-        ...m,
-        { id: nextMsgId.current++, role: "user", content: text },
-        { id: nextMsgId.current++, role: "monster", content: scriptReply },
-      ]);
-      return;
-    }
+  // 대본 진행 — ChatBox 에서 호출
+  function advanceScript() {
+    const script = order.script;
+    if (!script || scriptIdx >= script.length) return;
+    const { ask, reply } = script[scriptIdx];
+    setMessages((m) => [
+      ...m,
+      { id: nextMsgId.current++, role: "user", content: ask },
+      { id: nextMsgId.current++, role: "monster", content: reply },
+    ]);
+    setScriptIdx((n) => n + 1);
+  }
+
+  // 대화 보내기 — ChatBox 에서 호출. 일반 대화만
+  async function handleSend(text) {
     // 일반 대화 — LLM 호출
     const userMsg = { id: nextMsgId.current++, role: "user", content: text };
     const next = [...messages, userMsg];
@@ -163,6 +169,8 @@ export default function App() {
           onAsk={() => setTurns((n) => n + 1)}
           onBuyTurn={buyTurn}
           onMake={() => setScreen("BUILD")}
+          scriptIdx={scriptIdx}
+          onAdvanceScript={advanceScript}
         />
       )}
 
@@ -191,6 +199,8 @@ export default function App() {
               onAsk={() => setTurns((n) => n + 1)}
               onBuyTurn={buyTurn}
               onClose={() => setChatPopupOpen(false)}
+              scriptIdx={scriptIdx}
+              onAdvanceScript={advanceScript}
             />
           )}
         </div>

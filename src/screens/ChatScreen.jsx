@@ -14,6 +14,8 @@ export default function ChatScreen({
   onAsk,
   onBuyTurn,
   onMake,
+  scriptIdx,
+  onAdvanceScript,
 }) {
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
 
@@ -44,6 +46,8 @@ export default function ChatScreen({
           money={money}
           onAsk={onAsk}
           onBuyTurn={onBuyTurn}
+          scriptIdx={scriptIdx}
+          onAdvanceScript={onAdvanceScript}
         />
 
         {/* 케이크 만들기 */}

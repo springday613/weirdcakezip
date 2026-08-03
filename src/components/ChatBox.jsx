@@ -2,12 +2,12 @@ import { useState, useRef, useEffect } from "react";
 import { MONSTERS } from "../data/ingredients.js";
 import { TURN_BUDGET, TURN_PENALTY, EXTRA_TURN_BUNDLE, extraTurnPrice } from "../scoreCake.js";
 
-// 손님 괴물과의 대화창. messages 를 props 로 받아 그린다.
-// 대화 기록은 App 이 소유하고, 보내기는 onSend 로 위임한다.
+// 손님 괴물과의 대화창. messages · scriptIdx 를 props 로 받아 그린다.
+// 대화 기록과 대본 진행도는 App 이 소유한다.
 //
 // 질문 수(turns)는 App 이 들고 있다 — 점수에서 지불하는 값이라 채점까지 가야 한다.
 // 예산을 다 쓰면 여기서 막는다.
-export default function ChatBox({ order, messages = [], onSend, busy = false, turns = 0, extraTurns = 0, money = 0, onAsk, onBuyTurn }) {
+export default function ChatBox({ order, messages = [], onSend, busy = false, turns = 0, extraTurns = 0, money = 0, onAsk, onBuyTurn, scriptIdx = 0, onAdvanceScript }) {
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
   const [input, setInput] = useState("");
   const listRef = useRef(null);
@@ -21,15 +21,7 @@ export default function ChatBox({ order, messages = [], onSend, busy = false, tu
 
   // 대본 모드(튜토리얼) — 주인 말이 미리 채워져 있고 '확인'만 누른다. LLM·감점 없음.
   const script = order.script ?? null;
-  const [scriptIdx, setScriptIdx] = useState(0);
   const scriptDone = script && scriptIdx >= script.length;
-
-  function advanceScript() {
-    if (!script || scriptDone) return;
-    const { ask, reply } = script[scriptIdx];
-    onSend?.(ask, reply);
-    setScriptIdx(scriptIdx + 1);
-  }
 
   useEffect(() => {
     listRef.current?.scrollTo(0, listRef.current.scrollHeight);
@@ -68,7 +60,7 @@ export default function ChatBox({ order, messages = [], onSend, busy = false, tu
           ) : (
             <>
               <span className="script-ask">{script[scriptIdx].ask}</span>
-              <button className="btn small" onClick={advanceScript}>확인</button>
+              <button className="btn small" onClick={onAdvanceScript}>확인</button>
             </>
           )}
           <span className="script-badge">무료 · 턴 ✕</span>

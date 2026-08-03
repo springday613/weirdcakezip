@@ -15,6 +15,8 @@ export default function ChatPopup({
   onAsk,
   onBuyTurn,
   onClose,
+  scriptIdx,
+  onAdvanceScript,
 }) {
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
   const backdropRef = useRef(null);
@@ -60,6 +62,8 @@ export default function ChatPopup({
           money={money}
           onAsk={onAsk}
           onBuyTurn={onBuyTurn}
+          scriptIdx={scriptIdx}
+          onAdvanceScript={onAdvanceScript}
         />
 
         <button className="btn-ghost chat-popup-done" onClick={onClose}>닫기</button>

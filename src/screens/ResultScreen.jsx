@@ -1,4 +1,5 @@
 import { describeCake, MONSTERS, moodOf } from "../data/ingredients.js";
+import { answerMap } from "../scoreCake.js";
 import CakeView from "../components/CakeView.jsx";
 
 export default function ResultScreen({ result, order, cake, onNext }) {
@@ -19,7 +20,7 @@ export default function ResultScreen({ result, order, cake, onNext }) {
       </div>
       <p className="reaction">{result.reaction}</p>
       {result.earned != null && (
-        <p className="earned">+{result.earned.toLocaleString()}원 벌었어요!</p>
+        <p className="earned">+{result.earned.toLocaleString()}코인 벌었어요!</p>
       )}
 
       {result.parts && (
@@ -33,6 +34,13 @@ export default function ResultScreen({ result, order, cake, onNext }) {
               </span>
             </div>
           ))}
+          {/* 대화 비용 — 안 보여주면 "다 맞았는데 왜 90점?" 이 된다(실플레이 제보) */}
+          {result.penalty > 0 && (
+            <div className="spec-line">
+              💬 질문 {result.turns}번{" "}
+              <span className="muted">−{result.penalty}점</span>
+            </div>
+          )}
         </div>
       )}
 
@@ -43,9 +51,13 @@ export default function ResultScreen({ result, order, cake, onNext }) {
         ))}
       </div>
 
+      {/* 손님이 매 턴 뱉는 intent 와 같은 모양. 다 알아냈다면 손님의 intent 가 이것과 같아진다 */}
       <details className="reveal">
         <summary>손님의 진짜 마음은?</summary>
-        <p>{order.hidden.intent}</p>
+        <pre className="reveal-intent">{JSON.stringify(answerMap(order), null, 2)}</pre>
+        <p className="reveal-legend">
+          <code>"dont care"</code> 상관없음 · <code>"none"</code> 없어야 함 · 그 외는 그 값이 정답
+        </p>
       </details>
 
       {result._mock && <p className="hint">※ mock 판정 (실서버 아님)</p>}

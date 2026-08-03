@@ -11,4 +11,5 @@ __pycache__/
 .claude/settings.local.json
 
 # 프롬프트 콘솔(admin) 편집본 — 로컬 전용 (S8 에서 콘솔과 함께 들어옴)
+# 프롬프트 콘솔(admin) 편집본 — 로컬 전용
 prompt-overrides.json

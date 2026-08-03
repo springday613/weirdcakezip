@@ -881,8 +881,19 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   background: url("/assets/bg_default.webp") center / cover no-repeat;
   pointer-events: none;
 }
-/* 주문(CHAT) 화면 — 케이크 가게 안 */
-.screen-bg--shop { background-image: url("/assets/bg_cake_shop.webp"); }
+/* 주문(CHAT) 화면 상단 — 괴물~주문 카드 구간만 케이크 가게 안 */
+.chat-shop-zone {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  background: url("/assets/bg_cake_shop.webp") center top / cover no-repeat;
+  padding-bottom: 6px;
+  /* HUD(위 형제, z3) 뒤로 배경을 밀어 올려 화면 위쪽 끝까지 가게가 이어지게 */
+  margin-top: -56px;
+  padding-top: 56px;
+}
+.chat-order-wrap { padding-top: 0; }
 
 /* 말풍선 대사 — 컷 하단에 얹힌다. ≫ 로 한 줄씩 */
 .story-bubble {

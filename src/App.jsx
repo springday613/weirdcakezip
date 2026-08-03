@@ -150,10 +150,8 @@ export default function App() {
       {/* 배경 위 베일 — 어두운 배경에서도 UI가 읽히게 */}
       <div className="layer-veil" />
 
-      {/* 게임 진행 화면들도 배경을 깐다 — 주문(CHAT)은 케이크 가게 안, 나머지는 구름 하늘 */}
-      {["CHAT", "BUILD", "RESULT", "END"].includes(screen) && (
-        <div className={"screen-bg" + (screen === "CHAT" ? " screen-bg--shop" : "")} />
-      )}
+      {/* 게임 진행 화면들도 기본 배경(구름 하늘)을 깐다 — CHAT 상단은 ChatScreen 이 가게 배경을 얹는다 */}
+      {["CHAT", "BUILD", "RESULT", "END"].includes(screen) && <div className="screen-bg" />}
 
       {/* HUD — 타이틀·이름·스토리 이외 화면에 상주하는 크롬 */}
       {!["TITLE", "NAME", "INTRO", "ENDING", "CREDITS"].includes(screen) && (

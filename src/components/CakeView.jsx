@@ -34,7 +34,7 @@ function warmVariants() {
 // preview 상태: "bowl-empty" | "bowl-dough" | "making" | "cake"
 export default function CakeView({ cake, preview = "cake" }) {
   warmVariants();
-  const sheet = cake.sheetColor || "vanilla";
+  const sheet = cake.cakeBase || "vanilla";
   const cakeType = sheetType(cake.base) || "cake";
 
   const src =

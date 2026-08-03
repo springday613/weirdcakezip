@@ -95,7 +95,7 @@ export function describeCake(cake) {
   const creamN = cake.cream?.dollops?.length ?? 0;
   return [
     `시트: ${(cake.base ?? []).map((b) => labelOf(SHEET_BASE, b)).join("+") || "없음"}` +
-      ` (색: ${cake.sheetColor ? labelOf(COLORS, cake.sheetColor) : "없음"})`,
+      ` (색: ${cake.cakeBase ? labelOf(COLORS, cake.cakeBase) : "없음"})`,
     `생크림: ${cake.cream ? `${labelOf(COLORS, cake.cream.color)} ×${creamN}` : "안 올림"}`,
     `토핑: ${groupCount(cake.toppings, TOPPINGS)}`,
     `데코: ${groupCount(cake.deco, DECO)}`,

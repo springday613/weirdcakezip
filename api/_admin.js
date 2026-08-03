@@ -39,7 +39,7 @@ function validateWants(w) {
     if (!Array.isArray(w.base)) bad.push("base 는 배열이어야 한다");
     else w.base.forEach((v) => known(v, "base"));
   }
-  if ("sheetColor" in w && w.sheetColor != null) known(w.sheetColor, "color");
+  if ("cakeBase" in w && w.cakeBase != null) known(w.cakeBase, "color");
   if ("toppings" in w) {
     if (!Array.isArray(w.toppings)) bad.push("toppings 는 배열이어야 한다");
     else w.toppings.forEach((v) => known(v, "topping"));

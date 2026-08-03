@@ -5,7 +5,7 @@
 // 기본 가중치(적힌 항목끼리 100점으로 정규화):
 //   시트반죽 15 / 시트맛 25 / 토핑 25 / 레터링 20 / 생크림 10 / 데코 10
 
-const WEIGHT = { base: 15, sheetColor: 25, toppings: 25, lettering: 20, cream: 10, deco: 10 };
+const WEIGHT = { base: 15, cakeBase: 25, toppings: 25, lettering: 20, cream: 10, deco: 10 };
 
 // 점수 구간 — 위키 「게임 플로우」 스펙(2026-07-27 확정)이 근원이다.
 //   90+ ★5 happy · 75+ ★4 happy · 60+ ★3 기본(통과선) · 50+ ★2 sad · 그 미만 ★1 sad
@@ -57,7 +57,7 @@ export function scoreCake(order, cake) {
   const w = order.hidden.wants;
   const raw = [];
   if ("base" in w) raw.push({ key: "시트 반죽", wk: "base", frac: sameSet(w.base, cake.base) ? 1 : 0 });
-  if ("sheetColor" in w) raw.push({ key: "케이크 베이스", wk: "sheetColor", frac: cake.sheetColor === w.sheetColor ? 1 : 0 });
+  if ("cakeBase" in w) raw.push({ key: "케이크 베이스", wk: "cakeBase", frac: cake.cakeBase === w.cakeBase ? 1 : 0 });
   if ("toppings" in w) raw.push({ key: "토핑", wk: "toppings", frac: toppingFrac(w.toppings, cake.toppings) });
   if ("lettering" in w) raw.push({ key: "레터링", wk: "lettering", frac: norm(cake.lettering?.text) === norm(w.lettering?.text) ? 1 : 0 });
   if ("cream" in w) raw.push({ key: "생크림", wk: "cream", frac: creamFrac(w.cream, cake.cream) });
@@ -90,7 +90,7 @@ export function answerMap(order) {
   const w = order.hidden.wants ?? {};
   const val = {
     base: () => (w.base ?? []).join("+"),
-    sheetColor: () => w.sheetColor,
+    cakeBase: () => w.cakeBase,
     toppings: () => (w.toppings ?? []).join(","),
     cream: () => w.cream?.color,
     deco: () => (w.deco ?? []).map((d) => `${d.type}x${d.count}`).join(","),

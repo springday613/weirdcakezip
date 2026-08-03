@@ -11,7 +11,7 @@ import Hud from "./components/Hud.jsx";
 //   TITLE → PLAYING(orderIndex) → RESULT(orderIndex) → 다음 or END
 const emptyCake = () => ({
   base: [],
-  sheetColor: null,
+  cakeBase: null,
   cream: null,
   toppings: [],
   deco: [],

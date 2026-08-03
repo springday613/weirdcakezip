@@ -19,7 +19,7 @@ const order = (wants) => ({ id: "test", hidden: { wants } });
 
 const WANTS = {
   base: BASIC_BASE,
-  sheetColor: "strawberry",
+  cakeBase: "strawberry",
   toppings: ["strawberry"],
   cream: { color: "vanilla" },
   deco: [],
@@ -28,7 +28,7 @@ const WANTS = {
 
 const PERFECT = {
   base: BASIC_BASE,
-  sheetColor: "strawberry",
+  cakeBase: "strawberry",
   toppings: [{ type: "strawberry" }],
   cream: { color: "vanilla" },
   deco: [],
@@ -45,16 +45,16 @@ test("완전 정답이면 100점", () => {
 });
 
 test("가중치는 적힌 항목끼리 100 으로 정규화된다", () => {
-  // sheetColor(25) + toppings(25) 만 적힌 주문 → 각 50
-  const r = scoreCake(order({ sheetColor: "lemon", toppings: ["cherry"] }),
-                      cake({ sheetColor: "lemon", toppings: [{ type: "cherry" }] }));
+  // cakeBase(25) + toppings(25) 만 적힌 주문 → 각 50
+  const r = scoreCake(order({ cakeBase: "lemon", toppings: ["cherry"] }),
+                      cake({ cakeBase: "lemon", toppings: [{ type: "cherry" }] }));
   assert.equal(r.score, 100);
   assert.deepEqual(r.parts.map((p) => p.weight), [50, 50]);
 });
 
 // ── don't-care vs none ─────────────────────────────────────────
 test("don't-care: wants 에 키가 없으면 무엇을 올려도 점수가 같다", () => {
-  const w = { sheetColor: "strawberry" }; // deco·lettering·toppings·cream 키 없음
+  const w = { cakeBase: "strawberry" }; // deco·lettering·toppings·cream 키 없음
   const bare = scoreCake(order(w), cake({ deco: [], lettering: { text: "" } }));
   const loaded = scoreCake(order(w), cake({
     deco: [{ type: "bomb_candle" }, { type: "sprinkle" }],
@@ -67,7 +67,7 @@ test("don't-care: wants 에 키가 없으면 무엇을 올려도 점수가 같�
 });
 
 test("none: 키가 있고 빈 값이면 채점한다 — 올리면 감점", () => {
-  const w = { sheetColor: "strawberry", deco: [] };
+  const w = { cakeBase: "strawberry", deco: [] };
   const clean = scoreCake(order(w), cake({ deco: [] }));
   const dirty = scoreCake(order(w), cake({ deco: [{ type: "sprinkle" }] }));
   assert.equal(clean.score, 100);
@@ -76,14 +76,14 @@ test("none: 키가 있고 빈 값이면 채점한다 — 올리면 감점", () =
 });
 
 test("none: 레터링 빈 문자열인데 글자를 쓰면 감점", () => {
-  const w = { sheetColor: "strawberry", lettering: { text: "" } };
+  const w = { cakeBase: "strawberry", lettering: { text: "" } };
   const r = scoreCake(order(w), cake({ lettering: { text: "생일축하" } }));
   assert.ok(r.score < 100);
   assert.ok(r.missing.includes("레터링"));
 });
 
 test("none: 크림이 null 이면 크림을 올릴 때 감점", () => {
-  const w = { sheetColor: "strawberry", cream: null };
+  const w = { cakeBase: "strawberry", cream: null };
   assert.equal(scoreCake(order(w), cake({ cream: null })).score, 100);
   assert.ok(scoreCake(order(w), cake({ cream: { color: "vanilla" } })).score < 100);
 });
@@ -114,10 +114,10 @@ test("데코는 개수까지 일치해야 만점", () => {
 });
 
 test("부분 정답 단조성 — 더 맞히면 점수가 낮아지지 않는다", () => {
-  const w = { sheetColor: "strawberry", toppings: ["strawberry"], cream: { color: "vanilla" } };
-  const none = scoreCake(order(w), cake({ sheetColor: "lemon", toppings: [], cream: { color: "chocolate" } }));
-  const one = scoreCake(order(w), cake({ sheetColor: "strawberry", toppings: [], cream: { color: "chocolate" } }));
-  const two = scoreCake(order(w), cake({ sheetColor: "strawberry", toppings: [{ type: "strawberry" }], cream: { color: "chocolate" } }));
+  const w = { cakeBase: "strawberry", toppings: ["strawberry"], cream: { color: "vanilla" } };
+  const none = scoreCake(order(w), cake({ cakeBase: "lemon", toppings: [], cream: { color: "chocolate" } }));
+  const one = scoreCake(order(w), cake({ cakeBase: "strawberry", toppings: [], cream: { color: "chocolate" } }));
+  const two = scoreCake(order(w), cake({ cakeBase: "strawberry", toppings: [{ type: "strawberry" }], cream: { color: "chocolate" } }));
   const all = scoreCake(order(w), cake());
   assert.ok(none.score <= one.score && one.score <= two.score && two.score <= all.score,
             `단조성 위반: ${none.score} → ${one.score} → ${two.score} → ${all.score}`);
@@ -153,7 +153,7 @@ test("조사 처리", () => {
 // ── 점수 구간 (위키 「게임 플로우」 스펙) ──────────────────────
 // 별점·표정·통과·코인이 같은 경계를 쓴다. 하나만 어긋나도 "왜 우는 얼굴인데 통과야?" 가 된다.
 test("통과선은 60점", () => {
-  assert.equal(judgeResult(order(WANTS), cake({ sheetColor: "lemon" })).passed, true);
+  assert.equal(judgeResult(order(WANTS), cake({ cakeBase: "lemon" })).passed, true);
   assert.equal(coinsFor(59), 0, "통과선 미만이면 손님이 안 사간다");
 });
 

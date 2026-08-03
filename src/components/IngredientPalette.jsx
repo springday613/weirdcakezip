@@ -91,7 +91,7 @@ export default function IngredientPalette({ step, cake, setCake }) {
       {cur.id === "color" && (
         <div className="palette-row">
           <span className="palette-label">케이크 베이스</span>
-          {colorChips(cake.sheetColor, (id) => set({ sheetColor: id }))}
+          {colorChips(cake.cakeBase, (id) => set({ cakeBase: id }))}
         </div>
       )}
 

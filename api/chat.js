@@ -53,7 +53,7 @@ export default async function handler(req, res) {
       : /크림/.test(lastUser) ? "cream"
       : /토핑/.test(lastUser) ? "toppings"
       : /레터링|글자|문구/.test(lastUser) ? "lettering"
-      : /시트|케이크 ?맛/.test(lastUser) ? "sheetColor"
+      : /시트|케이크 ?맛/.test(lastUser) ? "cakeBase"
       : null;
     // 대사가 물은 칸의 정답과 모순되는가 — 원본과 재시도 결과 모두 이걸로 심사한다
     const clashOf = (reply) => {
@@ -138,7 +138,7 @@ export default async function handler(req, res) {
 //   (가) { intent: { 슬롯: 값 } }                          — 슬롯마다 값 하나
 //   (나) { known_intent, unknown_intent, dont_care/"don't care" } — 예전 3분할
 // 3분할은 같은 슬롯이 두 곳에 동시에 들어갈 수 있어서(실측) 겹치면 dont care > 확인값 > unknown 순으로 정한다.
-const SLOTS = ["base", "sheetColor", "toppings", "cream", "deco", "lettering"];
+const SLOTS = ["base", "cakeBase", "toppings", "cream", "deco", "lettering"];
 
 export function normalizeIntent(o) {
   if (o.intent && typeof o.intent === "object" && !Array.isArray(o.intent)) return o.intent;

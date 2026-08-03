@@ -100,9 +100,11 @@ export default async function handler(req, res) {
     // 메아리 가드 — 자기 첫 주문 대사를 그대로 응답으로 뱉는 경우(측정에서 2~3/360 관측).
     // 첫 대사 앞 20자가 응답에 통째로 들어 있으면 메아리로 본다.
     const seed = history.find((m) => m.role !== "user")?.content ?? order.dialogue ?? "";
+    // 플레이어가 주문을 다시 말해달라고 했으면 메아리가 정답이다 — 가드 제외
+    const askedRepeat = /다시|뭐였|뭐라고 했|주문.*말해|한 ?번 더/.test(lastUser);
     const echoOf = (r) => {
       const d = seed.slice(0, 20);
-      return d.length >= 10 && (r ?? "").includes(d);
+      return !askedRepeat && d.length >= 10 && (r ?? "").includes(d);
     };
     if (echoOf(out.reply)) critical.push("echo");
 
@@ -181,6 +183,12 @@ export default async function handler(req, res) {
       const formatFixed = !critical.includes("format") || !formatBad(retry.reply ?? "");
       const parrotFixed = !critical.includes("parrot") || !parrot(retry.reply ?? "");
       if (intentOk && clashFixed && flipFixed && echoFixed && leakFixed && formatFixed && parrotFixed) { out = retry; check = retryCheck; out.retried = true; }
+
+      // 메아리는 재시도로도 못 고치면 중립 대사로 확정 대체 — 메아리를 내보내는 것보다
+      // 항상 낫다(무의미 + 회귀 키워드에 걸림). CI 실측: 두 번 연속 메아리로 FAIL.
+      if (echoOf(out.reply)) {
+        out = { ...out, reply: "응? 갑자기 무슨 말이야~ 얼른 케이크 만들어줘!", intent: out.intent, retried: true };
+      }
     }
 
     return res.json({ reply: out.reply, intent: out.intent, raw: out.raw,

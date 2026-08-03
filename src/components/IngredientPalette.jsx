@@ -133,9 +133,6 @@ export default function IngredientPalette({ step, cake, setCake, orderIndex = 0 
       {cur.id === "cream" && (
         <div className="palette-row">
           <span className="palette-label">생크림</span>
-          <button className={"chip" + (!cake.cream ? " on" : "")} onClick={() => set({ cream: null })}>
-            안 올림
-          </button>
           {colorChips("cream", cake.cream?.color, addCream)}
         </div>
       )}

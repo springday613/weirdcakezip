@@ -194,7 +194,6 @@ export default function App() {
             }
             name={playerName}
             money={money}
-            nav
             onDone={() => setScreen("CREDITS")}
           />
         </div>

@@ -839,6 +839,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .story-layer {
   flex: 1;
   display: flex;
+  padding: 0; /* 컷이 가로폭을 꽉 채우게 — 스토리 화면은 여백 없이 */
   background: url("/assets/bg_default.webp") center / cover no-repeat;
 }
 .story {
@@ -946,6 +947,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: var(--pad-screen); /* story-layer 가 패딩 0 이라 여기서 확보 */
 }
 .name-card {
   width: min(100%, 300px);
@@ -985,6 +987,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   justify-content: center;
   gap: 14px;
   text-align: center;
+  padding: var(--pad-screen); /* story-layer 가 패딩 0 이라 여기서 확보 */
 }
 .credits-char { width: min(62%, 240px); border-radius: var(--r-card); }
 .credits-q {

@@ -89,7 +89,7 @@ test("none: 크림이 null 이면 크림을 올릴 때 감점", () => {
 });
 
 // ── 항목별 채점 ────────────────────────────────────────────────
-test("쪽지은 앞뒤 공백을 무시하고 비교한다", () => {
+test("쪽지는 앞뒤 공백을 무시하고 비교한다", () => {
   const w = { lettering: { text: "딸기" } };
   assert.equal(scoreCake(order(w), cake({ lettering: { text: "  딸기 " } })).score, 100);
   assert.ok(scoreCake(order(w), cake({ lettering: { text: "딸 기" } })).score < 100);

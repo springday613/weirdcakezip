@@ -41,7 +41,7 @@ export const orders = [
         reply: "맞아, 맞아! 체리 토핑을 올렸어~~!" },
       { ask: "데코는 어떻게 해줄까? 초 꽂아줘?",
         reply: "아니, 데코는 상관없어. 맡길게!" },
-      { ask: "그럼 쪽지은 어떻게 할까?",
+      { ask: "그럼 쪽지는 어떻게 할까?",
         reply: "그것도 나 상관없어~~!! 히힛 바닐라 체리 복숭아 케이크만 먹을 수 있으면 좋아!" },
     ],
   },
@@ -49,7 +49,7 @@ export const orders = [
   // ── 1번째: 기본(딸기) ────────────────────────
   {
     id: "order-003",
-    // 새 대사가 직접 밝히는 건 '딸기 케이크'(시트)뿐. 크림·토핑·쪽지은 힌트
+    // 새 대사가 직접 밝히는 건 '딸기 케이크'(시트)뿐. 크림·토핑·쪽지는 힌트
     // "전부 딸기였으면 좋겠어" 로 유도한다 — ★1에서 ★2쯤으로 올라간 셈.
     disclosed: { cakeBase: "strawberry" },
     monster: "pink",
@@ -67,12 +67,12 @@ export const orders = [
     id: "order-004",
     disclosed: { cakeBase: "blueberry", lettering: "none" },
     monster: "cherry",
-    dialogue: "블루베리 케이크! 쪽지은 필요없어요",
+    dialogue: "블루베리 케이크! 쪽지는 필요없어요",
     hidden: {
-      intent: "블루베리 시트 케이크. 쪽지은 없음(필요없음).",
+      intent: "블루베리 시트 케이크. 쪽지는 없음(필요없음).",
       wants: { base: BASIC_BASE, cakeBase: "blueberry", lettering: { text: "", color: null } },
     },
-    hints: ["블루베리 케이크면 돼요! 쪽지은 필요 없답니다."],
+    hints: ["블루베리 케이크면 돼요! 쪽지는 필요 없답니다."],
   },
 
   // ── 3번째: 애매(쪽지 '필요없음' + 초콜릿) ──────
@@ -82,7 +82,7 @@ export const orders = [
     monster: "robot",
     dialogue: "베이스: 초콜릿, 생크림: 초콜릿, 토핑: 초콜릿, 데코: 필요없음, 쪽지: '필요없음'.",
     hidden: {
-      intent: "같은 '필요없음'이 두 항목에서 다르게 쓰였다. 데코는 진짜로 없는 것이고, 쪽지은 그 글자를 그대로 써달라는 뜻(생략 아님). 케이크는 초콜릿 시트+초콜릿 생크림+초콜릿 토핑.",
+      intent: "같은 '필요없음'이 두 항목에서 다르게 쓰였다. 데코는 진짜로 없는 것이고, 쪽지는 그 글자를 그대로 써달라는 뜻(생략 아님). 케이크는 초콜릿 시트+초콜릿 생크림+초콜릿 토핑.",
       wants: {
         base: BASIC_BASE,
         cakeBase: "chocolate",

@@ -262,8 +262,9 @@ export default function App() {
             <p className="big">오늘 매출 {money.toLocaleString()}코인</p>
             <p className="hint">총점 {totalScore}점</p>
             <button className="btn" onClick={() => setScreen("ENDING")}>
-              이야기 계속하기
+              엔딩 보기
             </button>
+            <button className="chip ghost" onClick={start}>다시하기</button>
           </div>
         </div>
       )}

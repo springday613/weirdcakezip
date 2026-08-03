@@ -36,6 +36,8 @@ export default function ChatScreen({
   }, [guide]);
   const spotOrder = guide === 1 || guide === 2; // 주문 카드만 밝게
   const dim = (on) => (on ? " tut-dim-el" : "");
+  // 대본을 다 들었으면 다음 행동은 케이크 만들기 — 버튼을 빛낸다
+  const scriptDone = order.script && scriptIdx >= order.script.length;
 
   return (
     <>
@@ -78,7 +80,7 @@ export default function ChatScreen({
 
         {/* 케이크 만들기 */}
         <button
-          className={"btn-primary chat-make-btn" + dim(guide != null)}
+          className={"btn-primary chat-make-btn" + dim(guide != null) + (scriptDone ? " tut-pulse" : "")}
           onClick={onMake}
         >
           케이크 만들기

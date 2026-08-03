@@ -106,6 +106,10 @@ export default async function handler(req, res) {
     const formatBad = (r) => Boolean(speechRule) && !(r ?? "").includes(":");
     if (formatBad(out.reply)) critical.push("format");
 
+    // 특별 규칙 앵무새 가드 — 쪽지가 아닌 칸을 물었는데 쪽지 특별문구를 반복하는 경우
+    const parrot = (r) => topic && topic !== "lettering" && /쪽지: ?'?필요없음'?/.test(r ?? "");
+    if (parrot(out.reply)) critical.push("parrot");
+
     if (critical.length || !out.intent) {
       const notes = [];
       if (!out.intent) {
@@ -132,6 +136,9 @@ export default async function handler(req, res) {
       if (critical.includes("format")) {
         notes.push(`말투 형식을 지켜라: ${speechRule}`);
       }
+      if (critical.includes("parrot")) {
+        notes.push(`지금 질문은 ${topic} 에 대한 것이다 — 쪽지 문구를 반복하지 말고 ${topic} 에 대해서만 답해라.`);
+      }
       if (out.intent && critical.some((c) => !["roleflip", "echo", "format"].includes(c) && !String(c).startsWith("leak:") && c !== topic)) {
         notes.push(`intent 의 ${critical.filter((c) => typeof c === "string" && !["roleflip","echo","format"].includes(c) && !String(c).startsWith("leak:")).join(", ")} 값도 정답 JSON 에 맞게 바로잡아라.`);
       }
@@ -152,7 +159,8 @@ export default async function handler(req, res) {
       // 원본 유출 여부와 무관하게, 재시도 결과가 새면 채택하지 않는다
       const leakFixed = leaksIn(retry.reply ?? "").length === 0;
       const formatFixed = !critical.includes("format") || !formatBad(retry.reply ?? "");
-      if (intentOk && clashFixed && flipFixed && echoFixed && leakFixed && formatFixed) { out = retry; check = retryCheck; out.retried = true; }
+      const parrotFixed = !critical.includes("parrot") || !parrot(retry.reply ?? "");
+      if (intentOk && clashFixed && flipFixed && echoFixed && leakFixed && formatFixed && parrotFixed) { out = retry; check = retryCheck; out.retried = true; }
     }
 
     return res.json({ reply: out.reply, intent: out.intent, raw: out.raw,

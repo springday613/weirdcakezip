@@ -127,12 +127,8 @@ export default function CakeView({ cake, preview = "cake" }) {
           })}
 
         {isCake && cake.lettering.text && (
-          <span className="lettering-note">
-            {/* 쪽지 컨셉(S16) — 글자를 크림으로 쓰는 게 아니라 쪽지에 써서 얹는다 */}
-            <img src="/assets/note_open.webp" alt="" />
-            <span className="lettering" style={{ color: hexOf(cake.lettering.color) }}>
-              {cake.lettering.text}
-            </span>
+          <span className="lettering" style={{ color: hexOf(cake.lettering.color) }}>
+            {cake.lettering.text}
           </span>
         )}
       </div>

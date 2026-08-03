@@ -11,7 +11,7 @@ img[mood] 만 바꿔 끼우는데(.monster-big 160px, object-fit: contain), 컷�
 
     python3 build_monsters.py [--install]
 
-출력: build/<id>[_happy|_sad].webp   --install 이면 ../../cake-shop/public/assets/ 까지
+출력: (리포 밖) assets/assets-monster/build/<id>[_happy|_sad].webp   --install 이면 리포 public/assets/ 까지
 """
 
 import sys

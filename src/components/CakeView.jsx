@@ -44,6 +44,20 @@ export default function CakeView({ cake, preview = "cake" }) {
     : `/assets/${cakeType}_${sheet}.webp`;
   const isCake = preview === "cake";
 
+  // 쪽지 쓰기 모드 — 케이크 대신 펼친 쪽지가 무대를 차지한다 (S16)
+  if (preview === "note") {
+    return (
+      <div className="cake-stage">
+        <div className="note-stage">
+          <img src="/assets/note_open.webp" alt="쪽지" />
+          <span className="note-text" style={{ color: hexOf(cake.lettering.color) }}>
+            {cake.lettering.text || "…"}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   // 생크림 — fill_order 앞에서부터. 몇 개를 올리든 링 전체에 고르게 퍼진다.
   const dollops = cake.cream?.dollops ?? [];
   const creamSlots = layout.cream.fill_order

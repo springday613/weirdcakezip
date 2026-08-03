@@ -13,7 +13,7 @@ export const STEPS = [
   { id: "cream", label: "생크림" },
   { id: "topping", label: "토핑" },
   { id: "deco", label: "데코" },
-  { id: "lettering", label: "레터링" },
+  { id: "lettering", label: "쪽지" },
 ];
 
 // 재료 팔레트 — 한 단계씩만 보여준다.
@@ -58,7 +58,7 @@ export default function IngredientPalette({ step, cake, setCake }) {
       )}
     </button>
   );
-  // 색내기 재료 칩 (단일 선택) — 시트/생크림/레터링 공용
+  // 색내기 재료 칩 (단일 선택) — 시트/생크림/쪽지 공용
   const colorChips = (selectedId, onPick) =>
     COLORS.map((c) => <ImgChip key={c.id} id={c.id} on={selectedId === c.id} onClick={() => onPick(c.id)} />);
 
@@ -131,13 +131,13 @@ export default function IngredientPalette({ step, cake, setCake }) {
               className={"chip" + (!cake.lettering.text ? " on" : "")}
               onClick={() => set({ lettering: { text: "", color: null } })}
             >
-              안 올림
+              안 씀
             </button>
             <input
               className="lettering-input"
               type="text"
               maxLength={12}
-              placeholder="케이크 위 문구"
+              placeholder="쪽지에 쓸 문구"
               value={cake.lettering.text}
               onChange={(e) => set({ lettering: { ...cake.lettering, text: e.target.value } })}
             />

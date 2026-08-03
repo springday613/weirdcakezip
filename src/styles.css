@@ -653,3 +653,23 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   color: var(--text-muted);
   margin: calc(var(--gap) * 1.8) 0 0;
 }
+
+/* 쪽지 쓰기 모드(S16) — 쪽지 차례엔 케이크 대신 쪽지가 무대 중앙에 */
+.note-stage {
+  position: relative;
+  width: min(78%, 300px);
+  margin: 0 auto;
+}
+.note-stage img { width: 100%; display: block; }
+.note-stage .note-text {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%) rotate(-2deg);
+  max-width: 80%;
+  font-family: "Gaegu", cursive;
+  font-size: var(--fs-title);
+  font-weight: 700;
+  text-align: center;
+  word-break: keep-all;
+}

@@ -15,8 +15,12 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
   const baseKey = cake.base.join(",");
   useEffect(() => { setMade(false); setWarn(false); }, [baseKey]);
 
+  // 쪽지 쓰는 차례엔 케이크를 치우고 쪽지를 크게 — 쓰는 대상이 화면의 주인공이 되게
+  const writingNote = made && STEPS[step]?.id === "lettering";
   const preview = making
     ? "making"
+    : writingNote
+    ? "note"
     : made
     ? "cake"
     : cake.base.length === 0

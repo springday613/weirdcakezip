@@ -49,7 +49,7 @@ export default async function handler(req, res) {
     const lastUser = [...history].reverse().find((m) => m.role === "user")?.content ?? "";
     const topic =
       /반죽|시트 ?반죽/.test(lastUser) ? "base"
-      : /데코|장식|초(?![a-가-힣])|스프링클/.test(lastUser) ? "deco"
+      : /데코|장식|초(?=[는를도만\s?!,.~]|$)|촛불|캔들|모자|스프링클/.test(lastUser) ? "deco"
       : /크림/.test(lastUser) ? "cream"
       : /토핑/.test(lastUser) ? "toppings"
       : /레터링|글자|문구/.test(lastUser) ? "lettering"
@@ -61,8 +61,10 @@ export default async function handler(req, res) {
       if (tt === undefined) return false;
       const denies = /없어도|필요 ?없|안 ?올려도/.test(reply);
       const shrugs = /아무거나|상관없|알아서/.test(reply);
+      const demands = /꼭 ?(필요|있어야|올려)|올리고 싶|필수|올려 ?줘|해 ?줘/.test(reply);
       return (tt !== "dont care" && tt !== "none" && (denies || shrugs)) ||
-             (tt === "none" && shrugs) || (tt === "dont care" && denies);
+             (tt === "none" && (shrugs || demands)) ||
+             (tt === "dont care" && (denies || demands));
     };
     const topicClash = clashOf(out.reply ?? "");
     if (topicClash && !critical.includes(topic)) critical.push(topic);

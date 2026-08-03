@@ -78,6 +78,23 @@ export const DECO = [
   { id: "sprinkle", label: "레인보우스프링클", emoji: "🌈" },
 ];
 
+// ⑤ 재료 잠금 (S18) — 표시 전용. 실제 언락(코인 차감·저장)은 후속 티켓.
+//    값 = 열리는 시점: 1 = 레벨 1부터(튜토리얼에서만 잠김) · 2 = 스테이지 2부터(이번 판 내내 잠김).
+//    키는 팔레트 단계 id 와 같다. 없는 재료는 항상 열려 있다. 데코·쪽지는 잠그지 않는다.
+export const LOCKS = {
+  sheet: { water: 1, soymilk: 1, riceflour: 1, veggieoil: 1, icecream: 2, gelatin: 2 },
+  color: { strawberry: 1, cherry: 1, lemon: 1, chocolate: 1, tomato: 1, blueberry: 1, avocado: 1, peach: 1, banana: 2, protein: 2 },
+  cream: { lemon: 1, chocolate: 1, tomato: 1, blueberry: 1, avocado: 1, peach: 1, banana: 2, protein: 2 },
+  topping: { banana: 2, almond: 2, chicken: 2 },
+};
+// 현재 레벨 — 튜토리얼(0번째 주문) = 0, 레벨 1~4 = 1. 스테이지 2는 아직 없다.
+const levelOf = (orderIndex) => (orderIndex === 0 ? 0 : 1);
+// 잠겨 있으면 열리는 시점(1|2)을, 열려 있으면 null 을 돌려준다.
+export const lockOf = (kind, id, orderIndex) => {
+  const unlock = LOCKS[kind]?.[id];
+  return unlock != null && unlock > levelOf(orderIndex) ? unlock : null;
+};
+
 // 색 id → hex 조회
 export const hexOf = (id) => COLORS.find((c) => c.id === id)?.hex ?? "#f5efe6";
 export const emojiOf = (list, id) => list.find((x) => x.id === id)?.emoji ?? "•";

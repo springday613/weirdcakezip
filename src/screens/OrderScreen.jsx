@@ -70,7 +70,7 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
       )}
       <CakeView cake={cake} preview={preview} />
 
-      <IngredientPalette step={step} cake={cake} setCake={setCake} />
+      <IngredientPalette step={step} cake={cake} setCake={setCake} orderIndex={index} />
 
       <div className="make-nav">
         <button className="arrow" disabled={step === 0 || making} onClick={() => setStep(step - 1)}>

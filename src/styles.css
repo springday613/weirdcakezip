@@ -501,6 +501,18 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 }
 .chip.sm { padding: 4px 8px; font-size: var(--fs-body); min-height: var(--tap-min-sm); }
 .img-chip { padding: 3px; line-height: 0; }
+
+/* 잠긴 재료 (S18) — 그림만 흐리고 자물쇠는 또렷하게. 클릭하면 해제 시점 안내만 */
+.img-chip.locked { position: relative; cursor: default; }
+.img-chip.locked .ing-img { opacity: .3; filter: grayscale(.7); }
+.img-chip.locked .lock-badge {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  font-size: 13px;
+  line-height: 1;
+}
+.lock-note { font-weight: 700; }
 .ing-img { width: var(--icon-sm); height: var(--icon-sm); object-fit: contain; display: block; }
 .color-dot {
   width: 30px;

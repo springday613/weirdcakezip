@@ -167,8 +167,8 @@ export default function CakeView({ cake, preview = "cake", notePlacement = "top"
           </span>
         )}
 
-        {/* 결과 화면 — 함께 배달된 접힌 쪽지를 케이크 옆에 놓는다 */}
-        {isCake && cake.lettering.text && notePlacement === "beside" && (
+        {/* 결과 화면 — 함께 배달된 접힌 쪽지를 케이크 옆에 놓는다 (문구를 안 썼어도 쪽지는 간다) */}
+        {isCake && notePlacement === "beside" && (
           <img className="note-beside" src="/assets/note_closed.webp" alt="쪽지" />
         )}
       </div>

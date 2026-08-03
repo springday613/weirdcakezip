@@ -24,13 +24,7 @@ export default function StoryScreen({ cuts, name = "", onDone }) {
       setLi(0);
     } else onDone();
   };
-  const prevCut = () => {
-    if (i > 0) {
-      setI(i - 1);
-      setLi(0);
-    }
-  };
-  // 대사 한 줄 진행 — 이 컷의 대사가 끝났으면 다음 컷
+  // 대사 한 줄 진행 — 이 컷의 대사가 끝났으면 다음 컷. 진행은 탭/≫ 만으로.
   const advance = () => (li + 1 < lines.length ? setLi(li + 1) : nextCut());
 
   return (
@@ -52,20 +46,6 @@ export default function StoryScreen({ cuts, name = "", onDone }) {
       )}
 
       <div className="story-nav">
-        <button
-          className="chip ghost story-prev"
-          disabled={i === 0}
-          onClick={(e) => { e.stopPropagation(); prevCut(); }}
-        >
-          ←
-        </button>
-        <span className="story-progress">{i + 1} / {cuts.length}</span>
-        <button
-          className="chip ghost story-next"
-          onClick={(e) => { e.stopPropagation(); nextCut(); }}
-        >
-          다음
-        </button>
         <button
           className="chip ghost story-skip"
           onClick={(e) => { e.stopPropagation(); onDone(); }}

@@ -1,0 +1,57 @@
+import { useState } from "react";
+import Img from "../components/Img.jsx";
+import { randomTip } from "../data/tips.js";
+
+// 로딩 오버레이 — 화면 위에 얹는다 (뒤 화면 언마운트 방지).
+// useLoading() 훅이 최소 표시 시간(800ms)을 보장한다.
+const MIN_MS = 800;
+
+export default function LoadingScreen({ visible, message = "준비 중…" }) {
+  const [tip] = useState(() => randomTip());
+
+  if (!visible) return null;
+
+  return (
+    <div className="loading-overlay">
+      <div className="loading-content">
+        <Img src="/assets/pink.webp" className="loading-monster" alt="" />
+        <p className="loading-message">{message}</p>
+        <div className="loading-dots">
+          <span className="loading-dot" />
+          <span className="loading-dot" />
+          <span className="loading-dot" />
+        </div>
+        <div className="loading-bar">
+          <div className="loading-bar-fill" />
+        </div>
+        <div className="loading-tip stk">
+          <span className="loading-tip-badge">TIP</span>
+          <p className="loading-tip-line">{tip[0]}</p>
+          <p className="loading-tip-line">{tip[1]}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 편의 훅 — 로딩 오버레이를 제어한다
+export function useLoading() {
+  const [loading, setLoading] = useState(false);
+  const [loadMsg, setLoadMsg] = useState("준비 중…");
+
+  // 로딩 시작 + 비동기 작업 래핑. 최소 MIN_MS 동안 표시.
+  async function withLoading(msg, asyncFn) {
+    setLoadMsg(msg);
+    setLoading(true);
+    const start = Date.now();
+    const result = await asyncFn();
+    const elapsed = Date.now() - start;
+    if (elapsed < MIN_MS) {
+      await new Promise((r) => setTimeout(r, MIN_MS - elapsed));
+    }
+    setLoading(false);
+    return result;
+  }
+
+  return { loading, loadMsg, setLoading, withLoading };
+}

@@ -1,16 +1,19 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { orders } from "./data/orders.js";
 import { judge } from "./judgeClient.js";
+import { chat } from "./chatClient.js";
 import { coinsFor, starsFor, EXTRA_TURN_BUNDLE, extraTurnPrice } from "./scoreCake.js";
 import TitleScreen from "./screens/TitleScreen.jsx";
 import StageMapScreen from "./screens/StageMapScreen.jsx";
+import ChatScreen from "./screens/ChatScreen.jsx";
 import OrderScreen from "./screens/OrderScreen.jsx";
 import ResultScreen from "./screens/ResultScreen.jsx";
 import LoadingScreen, { useLoading } from "./screens/LoadingScreen.jsx";
 import Hud from "./components/Hud.jsx";
+import ChatPopup from "./components/ChatPopup.jsx";
 
 // 게임 루프 = 상태머신
-//   TITLE → STAGE → PLAYING → RESULT → STAGE (또는 END)
+//   TITLE → STAGE → CHAT → BUILD → RESULT → STAGE (또는 END)
 const emptyCake = () => ({
   base: [],
   cakeBase: null,
@@ -24,7 +27,7 @@ const BG_MODES = ["solid", "day", "night"];
 const BG_LABELS = { solid: "단색", day: "낮", night: "밤" };
 
 export default function App() {
-  const [screen, setScreen] = useState("TITLE"); // TITLE | STAGE | PLAYING | RESULT | END
+  const [screen, setScreen] = useState("TITLE"); // TITLE | STAGE | CHAT | BUILD | RESULT | END
   const [orderIndex, setOrderIndex] = useState(0);
   const [cake, setCake] = useState(emptyCake());
   const [result, setResult] = useState(null);
@@ -34,6 +37,10 @@ export default function App() {
   const [turns, setTurns] = useState(0);
   const [extraTurns, setExtraTurns] = useState(0);
   const [bgMode, setBgMode] = useState(0);
+  const [messages, setMessages] = useState([]); // 대화 기록 — 화면 전환에도 유지
+  const [scriptIdx, setScriptIdx] = useState(0); // 대본 진행도 — ChatBox 와 동기
+  const [chatPopupOpen, setChatPopupOpen] = useState(false);
+  const nextMsgId = useRef(1);
 
   // 손님별 최고 별점. 인덱스 = orders 배열 순서. 0 = 아직 안 함
   const [stars, setStars] = useState(() => orders.map(() => 0));
@@ -42,6 +49,13 @@ export default function App() {
   const { loading, loadMsg, withLoading } = useLoading();
 
   const order = orders[orderIndex];
+
+  // 손님 시드 — 최초 주문 대사로 대화 시작
+  function seedMessages(o) {
+    nextMsgId.current = 1;
+    setMessages([{ id: 0, role: "monster", content: o.dialogue }]);
+    setScriptIdx(0);
+  }
 
   function start() {
     setOrderIndex(0);
@@ -61,8 +75,9 @@ export default function App() {
     setResult(null);
     setTurns(0);
     setExtraTurns(0);
+    seedMessages(orders[i]);
     withLoading("손님이 오고 있어요…", async () => {}).then(() => {
-      setScreen("PLAYING");
+      setScreen("CHAT");
     });
   }
 
@@ -86,6 +101,30 @@ export default function App() {
     setScreen("RESULT");
   }
 
+  // 대본 진행 — ChatBox 에서 호출
+  function advanceScript() {
+    const script = order.script;
+    if (!script || scriptIdx >= script.length) return;
+    const { ask, reply } = script[scriptIdx];
+    setMessages((m) => [
+      ...m,
+      { id: nextMsgId.current++, role: "user", content: ask },
+      { id: nextMsgId.current++, role: "monster", content: reply },
+    ]);
+    setScriptIdx((n) => n + 1);
+  }
+
+  // 대화 보내기 — ChatBox 에서 호출. 일반 대화만
+  async function handleSend(text) {
+    const userMsg = { id: nextMsgId.current++, role: "user", content: text };
+    const next = [...messages, userMsg];
+    setMessages(next);
+    setBusy(true);
+    const { reply, raw } = await chat(order.id, next);
+    setBusy(false);
+    setMessages((m) => [...m, { id: nextMsgId.current++, role: "monster", content: reply, raw }]);
+  }
+
   // 개발용: 스테이지 점프
   function jumpTo(i) {
     setOrderIndex(i);
@@ -93,13 +132,22 @@ export default function App() {
     setResult(null);
     setTurns(0);
     setExtraTurns(0);
-    setScreen("PLAYING");
+    seedMessages(orders[i]);
+    setScreen("CHAT");
   }
 
   function next() {
     // 정산 후 스테이지 맵으로 돌아간다
     setScreen("STAGE");
   }
+
+  const buyTurn = () => {
+    const price = extraTurnPrice(extraTurns);
+    if (price != null && money >= price) {
+      setMoney((m) => m - price);
+      setExtraTurns((n) => n + EXTRA_TURN_BUNDLE);
+    }
+  };
 
   const bgClass = `bg-${BG_MODES[bgMode]}`;
 
@@ -110,7 +158,15 @@ export default function App() {
 
       {/* HUD — 타이틀 이외 화면에 상주 */}
       {screen !== "TITLE" && (
-        <div className="layer-ui"><Hud coins={money} /></div>
+        <div className="layer-ui">
+          <Hud coins={money}>
+            {screen === "BUILD" && (
+              <button className="btn-ghost chat-popup-trigger" onClick={() => setChatPopupOpen(true)}>
+                ··· 대화
+              </button>
+            )}
+          </Hud>
+        </div>
       )}
 
       {screen === "TITLE" && <TitleScreen onStart={start} />}
@@ -119,8 +175,26 @@ export default function App() {
         <StageMapScreen stars={stars} onSelect={selectNode} />
       )}
 
-      {screen === "PLAYING" && (
-        <div className="layer-ui">
+      {screen === "CHAT" && (
+        <ChatScreen
+          key={order.id}
+          order={order}
+          messages={messages}
+          onSend={handleSend}
+          busy={busy}
+          turns={turns}
+          extraTurns={extraTurns}
+          money={money}
+          onAsk={() => setTurns((n) => n + 1)}
+          onBuyTurn={buyTurn}
+          onMake={() => setScreen("BUILD")}
+          scriptIdx={scriptIdx}
+          onAdvanceScript={advanceScript}
+        />
+      )}
+
+      {screen === "BUILD" && (
+        <div className="layer-ui layer-ui--grow">
           <OrderScreen
             key={order.id}
             order={order}
@@ -131,28 +205,34 @@ export default function App() {
             setCake={setCake}
             onSubmit={submit}
             busy={busy}
-            turns={turns}
-            extraTurns={extraTurns}
-            onAsk={() => setTurns((n) => n + 1)}
-            onBuyTurn={() => {
-              const price = extraTurnPrice(extraTurns);
-              if (price != null && money >= price) {
-                setMoney((m) => m - price);
-                setExtraTurns((n) => n + EXTRA_TURN_BUNDLE);
-              }
-            }}
           />
+          {chatPopupOpen && (
+            <ChatPopup
+              order={order}
+              messages={messages}
+              onSend={handleSend}
+              busy={busy}
+              turns={turns}
+              extraTurns={extraTurns}
+              money={money}
+              onAsk={() => setTurns((n) => n + 1)}
+              onBuyTurn={buyTurn}
+              onClose={() => setChatPopupOpen(false)}
+              scriptIdx={scriptIdx}
+              onAdvanceScript={advanceScript}
+            />
+          )}
         </div>
       )}
 
       {screen === "RESULT" && (
-        <div className="layer-ui">
+        <div className="layer-ui layer-ui--grow">
           <ResultScreen result={result} order={order} cake={cake} onNext={next} />
         </div>
       )}
 
       {screen === "END" && (
-        <div className="layer-ui">
+        <div className="layer-ui layer-ui--grow">
           <div className="screen center">
             <h1>영업 종료</h1>
             <p className="big">오늘 매출 {money.toLocaleString()}코인</p>

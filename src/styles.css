@@ -750,16 +750,46 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   right: 8px;
   bottom: 64px;
   border-radius: 14px;
-  padding: 8px 40px 8px 14px;
+  padding: 8px 36px 8px 10px;
   text-align: left;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 84px;
 }
-.story-who {
-  display: block;
-  font-size: var(--fs-label);
+/* 화자 얼굴 — 원형 크롭 + 바로 아래 이름 */
+.story-face {
+  flex-shrink: 0;
+  width: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.story-face img,
+.story-face-q {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: var(--ink-line-thin) solid var(--ink);
+  background: var(--paper);
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
   font-weight: 700;
   color: var(--text-muted);
 }
+.story-who {
+  font-size: var(--fs-note);
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2;
+  word-break: keep-all;
+}
 .story-line {
+  flex: 1;
   margin: 2px 0 0;
   font-size: var(--fs-body);
   font-weight: 700;

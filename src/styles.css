@@ -774,11 +774,6 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   background: var(--paper);
   object-fit: cover;
 }
-/* 누끼 몬스터 에셋은 잘라내지 않고 원 안에 통째로 */
-.story-face img.contain {
-  object-fit: contain;
-  padding: 3px;
-}
 .story-who {
   font-size: var(--fs-note);
   font-weight: 700;

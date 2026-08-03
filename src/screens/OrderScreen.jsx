@@ -55,7 +55,7 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
     <div className="screen">
       <div className="hud hud-row">
         <span>주문 {index + 1} / {total}</span>
-        <span className="money">매출 {(money ?? 0).toLocaleString()}원</span>
+        <span className="money">매출 {(money ?? 0).toLocaleString()}코인</span>
       </div>
 
       {/* 괴물은 상단 '대화' 버튼(바스트샷)으로 이동 — 제작 화면은 케이크가 주인공 */}

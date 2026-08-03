@@ -22,7 +22,7 @@ export default function Hud({ hearts, coins = 0, children }) {
 
       <div className="hud-pill">
         <Icon name="coin" size="sm" />
-        <span>{coins.toLocaleString()}원</span>
+        <span>{coins.toLocaleString()}코인</span>
       </div>
 
       <button className="btn-icon" aria-label="메뉴">

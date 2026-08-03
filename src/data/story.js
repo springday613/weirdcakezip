@@ -1,8 +1,8 @@
 // 스토리 컷 (S19) — 원본은 리포 밖 ../assets/assets-story/, webp 변환해 반영.
 // story_end_2 는 굿·배드 공용 컷 — 원본 end_good_2 와 end_bad_2 가 같은 파일이다(바이트 동일 확인).
 
-// 굿/배드 분기 — 최종 코인 기준. 5주문 전부 통과선(60점=60코인)이면 300. ⚠ 실측 후 조정
-export const GOOD_ENDING_COINS = 300;
+// 굿/배드 분기 — 최종 코인 기준(사용자 확정 400). 5주문 전부 통과선이면 300이라 +α 필요. ⚠ 실측 후 조정
+export const GOOD_ENDING_COINS = 400;
 
 // 대사 치환 — {name} 은 유저 이름, {name}아 는 호격(받침 있으면 '아', 없으면 '야'), {coins} 는 귀환 주문 값
 export function fillLine(text, name) {

@@ -881,6 +881,8 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   background: url("/assets/bg_default.webp") center / cover no-repeat;
   pointer-events: none;
 }
+/* 주문(CHAT) 화면 — 케이크 가게 안 */
+.screen-bg--shop { background-image: url("/assets/bg_cake_shop.webp"); }
 
 /* 말풍선 대사 — 컷 하단에 얹힌다. ≫ 로 한 줄씩 */
 .story-bubble {

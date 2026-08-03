@@ -6,6 +6,7 @@
 // ─────────────────────────────────────────────────────────────
 
 import { orders } from "../src/data/orders.js";
+import { COLORS, TOPPINGS, DECO, labelOf } from "../src/data/ingredients.js";
 import { buildMonsterSystem, toApiMessages, answerMap } from "./_monsterPrompt.js";
 import { callLLM, hasLLM } from "./_llm.js";
 
@@ -62,8 +63,9 @@ export default async function handler(req, res) {
       const denies = /없어도|필요 ?없|안 ?올려도/.test(reply);
       const shrugs = /아무거나|상관없|알아서/.test(reply);
       const demands = /꼭 ?(필요|있어야|올려)|올리고 싶|필수|올려 ?줘|해 ?줘/.test(reply);
+      const allows = /올려도 돼|얹어도 돼|넣어도 돼|써도 돼/.test(reply);  // none 슬롯에서 허용도 거짓
       return (tt !== "dont care" && tt !== "none" && (denies || shrugs)) ||
-             (tt === "none" && (shrugs || demands)) ||
+             (tt === "none" && (shrugs || demands || allows)) ||
              (tt === "dont care" && (denies || demands));
     };
     const topicClash = clashOf(out.reply ?? "");
@@ -78,15 +80,33 @@ export default async function handler(req, res) {
 
     // 메아리 가드 — 자기 첫 주문 대사를 그대로 응답으로 뱉는 경우(측정에서 2~3/360 관측).
     // 첫 대사 앞 20자가 응답에 통째로 들어 있으면 메아리로 본다.
+    const seed = history.find((m) => m.role !== "user")?.content ?? order.dialogue ?? "";
     const echoOf = (r) => {
-      const d = (order.dialogue ?? "").slice(0, 20);
+      const d = seed.slice(0, 20);
       return d.length >= 10 && (r ?? "").includes(d);
     };
     if (echoOf(out.reply)) critical.push("echo");
 
+    // 이름 유출 가드 — 플레이어가 아직 짚지 않은 정답 재료의 '한글 이름'이 대사에 나오면
+    // 재시도. 대화(첫 대사·플레이어 발화·이전 손님 발화)에 이미 나온 이름은 허용.
+    // (최대 위반 부류: 오답 추측에 "크림은 바닐라야!" — H 측정 17/20)
+    const historyText = history.map((m) => m.content ?? "").join(" ") + " " + JSON.stringify(order.disclosed ?? {});
+    const leakNames = [];
+    const w = order.hidden.wants ?? {};
+    if (w.cakeBase) leakNames.push(labelOf(COLORS, w.cakeBase));
+    if (w.cream?.color) leakNames.push(labelOf(COLORS, w.cream.color));
+    for (const tp of w.toppings ?? []) leakNames.push(labelOf(TOPPINGS, tp));
+    for (const d of w.deco ?? []) leakNames.push(labelOf(DECO, d.type));
+    const leaksIn = (r) => leakNames.filter((n) => n && (r ?? "").includes(n) && !historyText.includes(n));
+    const leaked = leaksIn(out.reply);
+    if (leaked.length) critical.push("leak:" + leaked.join(","));
+
     if (critical.length || !out.intent) {
       const note = !out.intent
         ? "방금 출력이 형식을 어겼다. '출력 형식' 절의 JSON 하나로 다시 답해라. 대사 내용은 그대로."
+        : critical.some((c) => String(c).startsWith("leak:"))
+        ? `${critical.find((c) => String(c).startsWith("leak:")).slice(5)} — 이 이름을 주인이 아직 짚지 않았다. ` +
+          "이름을 지우고 색·맛·식감 같은 특성으로만 암시해서 다시 답해라. 다른 내용은 유지."
         : critical.includes("echo")
         ? "방금 응답이 너의 첫 주문 대사를 그대로 반복했다. 첫 대사를 되풀이하지 말고, 주인의 마지막 질문에 새로 답해라."
         : critical.includes("roleflip")
@@ -115,7 +135,9 @@ export default async function handler(req, res) {
       const clashFixed = !topicClash || !clashOf(retry.reply ?? "");
       const flipFixed = !critical.includes("roleflip") || !roleFlip(retry.reply ?? "");
       const echoFixed = !critical.includes("echo") || !echoOf(retry.reply ?? "");
-      if (intentOk && clashFixed && flipFixed && echoFixed) { out = retry; check = retryCheck; out.retried = true; }
+      // 원본 유출 여부와 무관하게, 재시도 결과가 새면 채택하지 않는다
+      const leakFixed = leaksIn(retry.reply ?? "").length === 0;
+      if (intentOk && clashFixed && flipFixed && echoFixed && leakFixed) { out = retry; check = retryCheck; out.retried = true; }
     }
 
     return res.json({ reply: out.reply, intent: out.intent, raw: out.raw,

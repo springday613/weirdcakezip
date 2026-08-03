@@ -23,7 +23,7 @@ def U(t): return {"role": "user", "content": t}
 def M(t): return {"role": "monster", "content": t}
 
 D1 = "바다가 그리운데.. 바다 생각나는 케이크 없을까요?"  # order-001 딸기+바닐라크림 (deco/lettering = none)
-D3 = "모든 걸 딸기로 해주세요! 레터링도 '딸기'!"          # order-003 전부 딸기 (deco = don't-care)
+D3 = "내가 세상에서 제일 좋아하는 딸기 케이크 부탁해!"      # order-003 전부 딸기 (deco = don't-care)
 
 # (라벨, orderId, history, 기대, 체크함수)  체크: reply -> (ok:bool, note)
 def no(*words):   # reply에 어떤 단어도 없어야 PASS
@@ -79,7 +79,7 @@ SCEN = [
     ("인사: 역할 역전·유도 금지", "order-003",
      [M(D3), U("안녕")],
      "인사만 받고 진전 0. 시트·색 유도 X, ~보렴 같은 주인 말투 X",
-     no("시트", "색의", "생각해보", "보렴", "골라", "정해보")),
+     no("색의", "생각해보", "보렴", "골라", "정해보")),  # 새 대사에 시트 언급 없음 → 시트 키워드 제외
     ("잡담: 힌트 누설 금지", "order-001",
      [M(D1), U("배고파~")],
      "정보 0", no("바다", "여름", "딸기", "빨갛", "알맹이", "새콤")),

@@ -84,7 +84,7 @@ body {
   flex-direction: column;
   width: 390px;
   max-width: 100vw;
-  min-height: 100dvh;
+  height: 100dvh;
   margin: 0 auto;
   overflow: hidden;
 }
@@ -93,7 +93,7 @@ body {
 .layer-veil  { position: absolute; inset: 0; z-index: 0; background: var(--veil); pointer-events: none; }
 .layer-frame { position: relative; z-index: 1; }
 .layer-asset { position: relative; z-index: 2; }
-.layer-ui    { position: relative; z-index: 3; padding: var(--pad-screen); }
+.layer-ui    { position: relative; z-index: 3; padding: var(--pad-screen); flex: 1; min-height: 0; display: flex; flex-direction: column; }
 
 /* ── 4. 스티커 기본 (.stk) ───────────────────────────────── */
 .stk {
@@ -298,7 +298,7 @@ body {
    ============================================================ */
 
 .app { max-width: 390px; margin: 0 auto; padding: var(--pad-screen); }
-.screen { display: flex; flex-direction: column; gap: 14px; }
+.screen { display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0; overflow-y: auto; }
 .center { align-items: center; text-align: center; padding-top: 40px; }
 h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); font-weight: 700; }
 .hint { color: var(--text-muted); font-size: var(--fs-note); margin: 0; }
@@ -338,9 +338,12 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  flex: 1;
+  min-height: 0;
 }
 .chat-list {
-  max-height: 200px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 12px;
   display: flex;
@@ -695,4 +698,69 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   font-size: var(--fs-note);
   color: var(--text-muted);
   margin: calc(var(--gap) * 1.8) 0 0;
+}
+
+/* ── 14. 채팅 화면 ─────────────────────────────────────── */
+.chat-monster-area {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 0;
+  flex-shrink: 0;
+}
+.chat-monster {
+  width: clamp(96px, 22vh, 150px);
+  aspect-ratio: 682 / 896;
+  object-fit: contain;
+}
+.chat-ui {
+  flex: 1;
+  min-height: 0;
+  gap: var(--gap);
+}
+
+/* 주문 카드 — 상단 고정, 대화 목록 위 */
+.order-card {
+  border-radius: var(--r-card);
+  padding: 8px 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.order-badge {
+  flex-shrink: 0;
+  background: var(--ink);
+  color: var(--text-on-ink);
+  border-radius: var(--r-pill);
+  padding: 2px 10px;
+  font-size: var(--fs-note);
+  font-weight: 700;
+  line-height: 1.5;
+}
+.order-text {
+  margin: 0;
+  font-size: var(--fs-label);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 케이크 만들기 버튼 */
+.chat-make-btn {
+  flex-shrink: 0;
+  width: 100%;
+}
+
+/* 대본 배지 — 무료 · 턴 ✕ */
+.script-badge {
+  flex-shrink: 0;
+  background: var(--paper);
+  border: var(--ink-line-thin) solid var(--ink);
+  border-radius: var(--r-pill);
+  padding: 2px 8px;
+  font-size: var(--fs-note);
+  font-weight: 700;
+  color: var(--text-muted);
 }

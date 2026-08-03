@@ -1,19 +1,15 @@
 import { useState, useRef, useEffect } from "react";
-import { chat } from "../chatClient.js";
 import { MONSTERS } from "../data/ingredients.js";
 import { TURN_BUDGET, TURN_PENALTY, EXTRA_TURN_BUNDLE, extraTurnPrice } from "../scoreCake.js";
 
-// 손님 괴물과의 대화창. order.dialogue를 첫 대사로 시드.
-// 대화 기록(history)은 이 컴포넌트가 보관하고 매 호출 시 서버로 전달(서버는 stateless).
+// 손님 괴물과의 대화창. messages 를 props 로 받아 그린다.
+// 대화 기록은 App 이 소유하고, 보내기는 onSend 로 위임한다.
 //
 // 질문 수(turns)는 App 이 들고 있다 — 점수에서 지불하는 값이라 채점까지 가야 한다.
-// 예산을 다 쓰면 여기서 막는다. 스펙상 11~15턴은 코인으로 사지만 구매는 아직 미구현이라,
-// 막지 않으면 11턴부터 공짜 질문이 되어버린다.
-export default function ChatBox({ order, turns = 0, extraTurns = 0, money = 0, onAsk, onBuyTurn }) {
+// 예산을 다 쓰면 여기서 막는다.
+export default function ChatBox({ order, messages = [], onSend, busy = false, turns = 0, extraTurns = 0, money = 0, onAsk, onBuyTurn }) {
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
-  const [messages, setMessages] = useState([{ id: 0, role: "monster", content: order.dialogue }]);
   const [input, setInput] = useState("");
-  const [busy, setBusy] = useState(false);
   const listRef = useRef(null);
   // 허용량 = 기본 예산 + 코인으로 산 추가분. 기본분은 −2점/턴, 구매분은 감점 없음(스펙).
   const allowance = TURN_BUDGET + extraTurns;
@@ -31,31 +27,20 @@ export default function ChatBox({ order, turns = 0, extraTurns = 0, money = 0, o
   function advanceScript() {
     if (!script || scriptDone) return;
     const { ask, reply } = script[scriptIdx];
-    setMessages((m) => [...m,
-      { id: nextId.current++, role: "user", content: ask },
-      { id: nextId.current++, role: "monster", content: reply },
-    ]);
+    onSend?.(ask, reply);
     setScriptIdx(scriptIdx + 1);
   }
-  const nextId = useRef(1); // 메시지별 안정적 key (배열 인덱스 대신)
 
   useEffect(() => {
     listRef.current?.scrollTo(0, listRef.current.scrollHeight);
   }, [messages, busy]);
 
-  async function send() {
+  function send() {
     const text = input.trim();
     if (!text || busy || spent) return;
-    const next = [...messages, { id: nextId.current++, role: "user", content: text }];
-    setMessages(next);
     setInput("");
-    setBusy(true);
+    onSend?.(text);
     onAsk?.();
-    // raw = 손님이 실제로 뱉은 구조(JSON) 원문. 다음 턴에 그대로 되돌려줘야
-    // 이미 확인해준 슬롯·상관없는 항목을 손님이 이어받는다(안 그러면 매 턴 잊는다).
-    const { reply, raw } = await chat(order.id, next);
-    setBusy(false);
-    setMessages((m) => [...m, { id: nextId.current++, role: "monster", content: reply, raw }]);
   }
 
   return (
@@ -86,6 +71,7 @@ export default function ChatBox({ order, turns = 0, extraTurns = 0, money = 0, o
               <button className="btn small" onClick={advanceScript}>확인</button>
             </>
           )}
+          <span className="script-badge">무료 · 턴 ✕</span>
         </div>
       ) : (<>
       <div className="chat-budget">

@@ -28,8 +28,13 @@ export function promptParts(order) {
   const ladder = (order.hints ?? []).map((h, i) => `  ${i + 1}단계: ${h}`).join("\n");
 
   const d = order.disclosed ?? {};
-  const disclosed = Object.entries(d).map(([k, v]) =>
-    Array.isArray(v) ? `${k} 중 ${v.join(",")}` : `${k}=${v}`).join(" · ") || "(없음)";
+  const w2 = order.hidden?.wants ?? {};
+  const disclosed = Object.entries(d).map(([k, v]) => {
+    if (!Array.isArray(v)) return `${k}=${v}`;
+    // 배열 슬롯: 정답 전체를 밝혔으면 '=', 일부만 밝혔으면 '중'(모델이 미완성으로 안다)
+    const want = Array.isArray(w2[k]) ? w2[k] : [];
+    return v.length >= want.length ? `${k}=${v.join(",")}` : `${k} 중 ${v.join(",")} (더 있음)`;
+  }).join(" · ") || "(없음)";
 
   return {
     disclosed,

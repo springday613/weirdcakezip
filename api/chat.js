@@ -46,6 +46,7 @@ export default async function handler(req, res) {
       }
     }
     let out = parseReply(await callLLM({ system, messages, maxTokens: 500, json: true }));
+    seedDisclosed(order, out.intent);
     let check = checkIntent(order, out.intent);
 
     // 재시도는 공정성을 깨는 부류에서만 — 실제 정답이 있는 슬롯을 '상관없음/없음'으로,
@@ -167,6 +168,7 @@ export default async function handler(req, res) {
                    { role: "user", content: `(시스템 교정) ${note}` }],
         maxTokens: 500, json: true,
       }));
+      seedDisclosed(order, retry.intent);
       const retryCheck = checkIntent(order, retry.intent);
       // 재시도 채택 기준: intent 가 나빠지지 않았고, 대사 모순(있었다면)이 실제로 사라졌을 때
       const intentOk = retry.intent && (!retryCheck ||
@@ -220,6 +222,22 @@ export function normalizeIntent(o) {
     else out[k] = "unknown";
   }
   return out;
+}
+
+// 첫 대사에서 밝힌 값(disclosed)은 협상 대상이 아니다 — 모델이 unknown 으로 뭉개면
+// 서버가 결정적으로 채운다(프롬프트 설득은 실측상 불안정). 부분 공개 배열은 ",unknown" 꼬리.
+export function seedDisclosed(order, intent) {
+  if (!intent || !order.disclosed) return;
+  const w = order.hidden?.wants ?? {};
+  for (const [k, v] of Object.entries(order.disclosed)) {
+    if (intent[k] !== "unknown" && intent[k] !== undefined) continue;
+    if (Array.isArray(v)) {
+      const want = Array.isArray(w[k]) ? w[k] : [];
+      intent[k] = v.length >= want.length ? v.join(",") : v.join(",") + ",unknown";
+    } else {
+      intent[k] = String(v);
+    }
+  }
 }
 
 export function checkIntent(order, intent) {

@@ -11,7 +11,7 @@ export function characterBlock(order) {
   const m = MONSTERS[order.monster];
   const c = m?.character;
   if (!c) return "";
-  return [m.name && `- 이름: ${m.name}`,
+  return [m.name && `- 이름: ${m.name} (비밀 아님 — 물어보면 그냥 알려준다. '이름 금지' 규칙은 재료 이야기다)`,
           c.personality && `- 성격: ${c.personality}`,
           c.favorite && `- 좋아하는 것: ${c.favorite}`,
           c.dislike && `- 싫어하는 것: ${c.dislike}`,

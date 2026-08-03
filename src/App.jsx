@@ -3,6 +3,7 @@ import { orders } from "./data/orders.js";
 import { judge } from "./judgeClient.js";
 import { chat } from "./chatClient.js";
 import { coinsFor, EXTRA_TURN_BUNDLE, extraTurnPrice } from "./scoreCake.js";
+import { MONSTERS } from "./data/ingredients.js";
 import TitleScreen from "./screens/TitleScreen.jsx";
 import ChatScreen from "./screens/ChatScreen.jsx";
 import OrderScreen from "./screens/OrderScreen.jsx";
@@ -41,6 +42,7 @@ export default function App() {
   const nextMsgId = useRef(1); // 메시지별 안정적 key
 
   const order = orders[orderIndex];
+  const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
 
   // 손님 시드 — 최초 주문 대사로 대화 시작
   function seedMessages(o) {
@@ -140,13 +142,17 @@ export default function App() {
       {/* 배경 위 베일 — 어두운 배경에서도 UI가 읽히게 */}
       <div className="layer-veil" />
 
+      {/* 게임 진행 화면들도 기본 배경(구름 하늘)을 깐다 — CHAT 상단은 ChatScreen 이 가게 배경을 얹는다 */}
+      {["CHAT", "BUILD", "RESULT", "END"].includes(screen) && <div className="screen-bg" />}
+
       {/* HUD — 타이틀 이외 화면에 상주하는 크롬 */}
       {screen !== "TITLE" && (
         <div className="layer-ui">
           <Hud coins={money}>
             {screen === "BUILD" && (
               <button className="btn-ghost chat-popup-trigger" onClick={() => setChatPopupOpen(true)}>
-                ··· 대화
+                <img className="bubble-face chat-trigger-face" src={monster.img.normal} alt="" />
+                대화
               </button>
             )}
           </Hud>

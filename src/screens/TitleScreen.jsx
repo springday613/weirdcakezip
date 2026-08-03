@@ -3,6 +3,8 @@ import Img from "../components/Img.jsx";
 export default function TitleScreen({ onStart }) {
   return (
     <>
+      {/* 기본 배경(구름 하늘) — 로고·버튼 층 아래에 깐다 */}
+      <div className="screen-bg" />
       <div className="layer-asset title-assets">
         <Img src="/assets/logo.webp" className="title-logo" alt="weirdcakezip" />
       </div>

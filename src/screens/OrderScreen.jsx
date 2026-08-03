@@ -45,6 +45,16 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
 
   const sheetReady = cake.base.length > 0 && cake.cakeBase;
   const clearBoard = () => setCake({ ...cake, toppings: [], deco: [], cream: null });
+  // 지금 보고 있는 단계의 재료만 비운다 — 다른 단계는 건드리지 않는다
+  const clearStep = () => {
+    const id = STEPS[step]?.id;
+    if (id === "sheet") setCake({ ...cake, base: [] });
+    else if (id === "color") setCake({ ...cake, cakeBase: null });
+    else if (id === "cream") setCake({ ...cake, cream: null });
+    else if (id === "topping") setCake({ ...cake, toppings: [] });
+    else if (id === "deco") setCake({ ...cake, deco: [] });
+    else if (id === "lettering") setCake({ ...cake, lettering: { text: "", color: null } });
+  };
   const resetAll = () => {
     setCake({ base: [], cakeBase: null, cream: null, toppings: [], deco: [], lettering: { text: "", color: null } });
     setMade(false);
@@ -86,8 +96,9 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
       </div>
 
       <div className="edit-row">
-        <button className="chip ghost" onClick={clearBoard}>케이크 위 지우기</button>
-        <button className="chip ghost" onClick={resetAll}>처음부터 만들기</button>
+        <button className="chip ghost" onClick={resetAll}>다시시작</button>
+        <button className="chip ghost" onClick={clearBoard}>케이크위 다 지우기</button>
+        <button className="chip ghost" onClick={clearStep}>현재 단계만 지우기</button>
       </div>
     </div>
   );

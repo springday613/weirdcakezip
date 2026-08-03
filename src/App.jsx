@@ -122,6 +122,15 @@ export default function App() {
     setScreen("CHAT");
   }
 
+  // 다시하기 — 이번 채점의 점수·코인을 물리고 같은 손님의 제작으로 돌아간다.
+  // 대화 기록과 질문 수(감점)는 유지 — 재도전이 공짜 정보가 되지 않게.
+  function retry() {
+    setTotalScore((s) => s - result.score);
+    setMoney((m) => m - result.earned);
+    setResult(null);
+    setScreen("BUILD");
+  }
+
   const buyTurn = () => {
     const price = extraTurnPrice(extraTurns);
     if (price != null && money >= price) {
@@ -208,7 +217,7 @@ export default function App() {
 
       {screen === "RESULT" && (
         <div className="layer-ui layer-ui--grow">
-          <ResultScreen result={result} order={order} cake={cake} onNext={next} />
+          <ResultScreen result={result} order={order} cake={cake} onNext={next} onRetry={retry} />
         </div>
       )}
 

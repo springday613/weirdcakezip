@@ -826,3 +826,11 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   padding: 2px 10px;
   min-height: 28px;
 }
+
+/* 결과 화면 버튼 줄 (S20) — 다음 손님 / 다시하기 */
+.result-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}

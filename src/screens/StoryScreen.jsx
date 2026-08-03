@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import { fillLine } from "../data/story.js";
 
+// 문장이 끝나는 자리(.·!·?·…·~ 뒤 공백)마다 줄을 바꿔 호흡을 만든다
+const breath = (text) =>
+  text.split(/(?<=[.!?…~])\s+/).map((seg, k) => (
+    <span key={k}>
+      {k > 0 && <br />}
+      {seg}
+    </span>
+  ));
+
 // 대사의 face 값 → 프로필 그림(바스트샷 원형 크롭). 얼굴이 화면에 나오기 전(face 없음)엔 실루엣.
 const FACE_SRC = {
   user: "/assets/story_face_user.webp",
@@ -46,7 +55,7 @@ export default function StoryScreen({ cuts, name = "", onDone, money = 0 }) {
             <img src={line.face ? FACE_SRC[line.face] : "/assets/ui_silhouette.svg"} alt="" />
             <span className="story-who">{fillLine(line.who, name, money)}</span>
           </span>
-          <p className="story-line">{fillLine(line.text, name, money)}</p>
+          <p className="story-line">{breath(fillLine(line.text, name, money))}</p>
           <button
             className="story-adv"
             aria-label="다음 대사"

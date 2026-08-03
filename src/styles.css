@@ -766,20 +766,18 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   align-items: center;
   gap: 2px;
 }
-.story-face img,
-.story-face-q {
+.story-face img {
   width: 48px;
   height: 48px;
   border-radius: 50%;
   border: var(--ink-line-thin) solid var(--ink);
   background: var(--paper);
   object-fit: cover;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text-muted);
+}
+/* 누끼 몬스터 에셋은 잘라내지 않고 원 안에 통째로 */
+.story-face img.contain {
+  object-fit: contain;
+  padding: 3px;
 }
 .story-who {
   font-size: var(--fs-note);

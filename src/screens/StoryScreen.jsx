@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { fillLine } from "../data/story.js";
 
-// 화자 → 얼굴 그림. 정체를 숨긴 화자(??·???)는 ? 원으로.
-const FACES = {
-  "{name}": "/assets/story_face_user.webp",
-  "점박이말차": "/assets/story_face_chef.webp",
-  "커스터드물범": "/assets/story_face_assistant.webp",
+// 대사의 face 값 → 프로필 그림. 얼굴이 화면에 나오기 전(face 없음)엔 실루엣.
+// 핑크는 몬스터 에셋(누끼)이라 contain 으로 통짜를 담는다.
+const FACE_SRC = {
+  user: "/assets/story_face_user.webp",
+  chef: "/assets/story_face_chef.webp",
+  assistant: "/assets/story_face_assistant.webp",
+  pink: "/assets/pink.webp",
 };
 
 // 스토리 화면 (S19) — 컷 위에 말풍선 대사가 한 줄씩 나온다.
@@ -41,11 +43,11 @@ export default function StoryScreen({ cuts, name = "", onDone }) {
       {line && (
         <div className="story-bubble stk">
           <span className="story-face">
-            {FACES[line.who] ? (
-              <img src={FACES[line.who]} alt="" />
-            ) : (
-              <span className="story-face-q">?</span>
-            )}
+            <img
+              className={line.face === "pink" ? "contain" : undefined}
+              src={line.face ? FACE_SRC[line.face] : "/assets/ui_silhouette.svg"}
+              alt=""
+            />
             <span className="story-who">{fillLine(line.who, name)}</span>
           </span>
           <p className="story-line">{fillLine(line.text, name)}</p>

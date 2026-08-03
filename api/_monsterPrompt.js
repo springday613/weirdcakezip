@@ -8,9 +8,11 @@ import { answerMap } from "../src/scoreCake.js";
 
 // 종의 성격·배경. 정답 표현(answerMap)은 scoreCake.js 가 근원이라 여기선 쓰기만 한다.
 export function characterBlock(order) {
-  const c = MONSTERS[order.monster]?.character;
+  const m = MONSTERS[order.monster];
+  const c = m?.character;
   if (!c) return "";
-  return [c.personality && `- 성격: ${c.personality}`,
+  return [m.name && `- 이름: ${m.name}`,
+          c.personality && `- 성격: ${c.personality}`,
           c.favorite && `- 좋아하는 것: ${c.favorite}`,
           c.dislike && `- 싫어하는 것: ${c.dislike}`,
           c.background && `- 배경: ${c.background}`].filter(Boolean).join("\n");

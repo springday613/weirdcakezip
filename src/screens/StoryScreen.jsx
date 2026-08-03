@@ -1,14 +1,26 @@
 import { useEffect, useState } from "react";
 import { fillLine } from "../data/story.js";
 
-// 문장이 끝나는 자리(.·!·?·…·~ 뒤 공백)마다 줄을 바꿔 호흡을 만든다
-const breath = (text) =>
-  text.split(/(?<=[.!?…~])\s+/).map((seg, k) => (
+// 문장이 끝나는 자리(.·!·?·…·~ 뒤 공백)마다 줄을 바꿔 호흡을 만든다.
+// 단, 짧은 문장끼리는 한 줄로 병합 — 줄이 너무 잘게 쪼개지지 않게.
+const BREATH_MAX = 22; // 병합해도 이 글자수를 넘지 않을 때만 같은 줄
+const breath = (text) => {
+  const lines = [];
+  for (const p of text.split(/(?<=[.!?…~])\s+/)) {
+    const last = lines[lines.length - 1];
+    if (last != null && (last + " " + p).length <= BREATH_MAX) {
+      lines[lines.length - 1] = last + " " + p;
+    } else {
+      lines.push(p);
+    }
+  }
+  return lines.map((seg, k) => (
     <span key={k}>
       {k > 0 && <br />}
       {seg}
     </span>
   ));
+};
 
 // 대사의 face 값 → 프로필 그림(바스트샷 원형 크롭). 얼굴이 화면에 나오기 전(face 없음)엔 실루엣.
 const FACE_SRC = {

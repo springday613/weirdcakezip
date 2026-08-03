@@ -3,7 +3,7 @@
 //   (손님이 대화로 언급한 것만 정답에 넣으면, 알 수 없는 걸로 감점되지 않아 공정)
 //
 // 기본 가중치(적힌 항목끼리 100점으로 정규화):
-//   시트반죽 15 / 시트맛 25 / 토핑 25 / 레터링 20 / 생크림 10 / 데코 10
+//   시트반죽 15 / 시트맛 25 / 토핑 25 / 쪽지 20 / 생크림 10 / 데코 10
 
 const WEIGHT = { base: 15, cakeBase: 25, toppings: 25, lettering: 20, cream: 10, deco: 10 };
 
@@ -59,7 +59,7 @@ export function scoreCake(order, cake) {
   if ("base" in w) raw.push({ key: "시트 반죽", wk: "base", frac: sameSet(w.base, cake.base) ? 1 : 0 });
   if ("cakeBase" in w) raw.push({ key: "케이크 베이스", wk: "cakeBase", frac: cake.cakeBase === w.cakeBase ? 1 : 0 });
   if ("toppings" in w) raw.push({ key: "토핑", wk: "toppings", frac: toppingFrac(w.toppings, cake.toppings) });
-  if ("lettering" in w) raw.push({ key: "레터링", wk: "lettering", frac: norm(cake.lettering?.text) === norm(w.lettering?.text) ? 1 : 0 });
+  if ("lettering" in w) raw.push({ key: "쪽지", wk: "lettering", frac: norm(cake.lettering?.text) === norm(w.lettering?.text) ? 1 : 0 });
   if ("cream" in w) raw.push({ key: "생크림", wk: "cream", frac: creamFrac(w.cream, cake.cream) });
   if ("deco" in w) raw.push({ key: "데코", wk: "deco", frac: decoFrac(w.deco, cake.deco) });
 

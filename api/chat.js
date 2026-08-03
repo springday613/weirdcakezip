@@ -72,7 +72,7 @@ export default async function handler(req, res) {
       : /데코|장식|초(?=[는를도만\s?!,.~]|$)|촛불|캔들|모자|스프링클/.test(lastUser) ? "deco"
       : /크림/.test(lastUser) ? "cream"
       : /토핑/.test(lastUser) ? "toppings"
-      : /레터링|글자|문구/.test(lastUser) ? "lettering"
+      : /쪽지|글자|문구/.test(lastUser) ? "lettering"
       : /시트|케이크 ?맛/.test(lastUser) ? "cakeBase"
       : null;
     // 대사가 물은 칸의 정답과 모순되는가 — 원본과 재시도 결과 모두 이걸로 심사한다
@@ -139,7 +139,7 @@ export default async function handler(req, res) {
           (truth[topic] === "none" ? '"필요 없어"라고 답해라 ("아무거나"는 금지).'
            : truth[topic] === "dont care" ? '"아무거나 괜찮아"라고 답해라 ("필요 없어"는 금지).'
            : topic === "lettering"
-           ? "레터링 정답은 그 글자를 케이크에 '그대로 써야' 한다는 뜻이다 — 생략이 아니다. " +
+           ? "쪽지 정답은 그 글자를 케이크에 '그대로 써야' 한다는 뜻이다 — 생략이 아니다. " +
              '"안 써도 된다/안 올려도 된다"는 거짓말이다. 그 문구를 그대로 써달라고 답해라(문구는 첫 주문에 이미 있다).'
            : '"아무거나/필요 없어"는 거짓말이 된다 — 금지. 이름 대신 색·맛·식감으로만 암시해라.'));
       }

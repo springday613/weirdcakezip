@@ -75,11 +75,11 @@ test("none: 키가 있고 빈 값이면 채점한다 — 올리면 감점", () =
   assert.ok(dirty.missing.includes("데코"));
 });
 
-test("none: 레터링 빈 문자열인데 글자를 쓰면 감점", () => {
+test("none: 쪽지 빈 문자열인데 글자를 쓰면 감점", () => {
   const w = { cakeBase: "strawberry", lettering: { text: "" } };
   const r = scoreCake(order(w), cake({ lettering: { text: "생일축하" } }));
   assert.ok(r.score < 100);
-  assert.ok(r.missing.includes("레터링"));
+  assert.ok(r.missing.includes("쪽지"));
 });
 
 test("none: 크림이 null 이면 크림을 올릴 때 감점", () => {
@@ -89,7 +89,7 @@ test("none: 크림이 null 이면 크림을 올릴 때 감점", () => {
 });
 
 // ── 항목별 채점 ────────────────────────────────────────────────
-test("레터링은 앞뒤 공백을 무시하고 비교한다", () => {
+test("쪽지은 앞뒤 공백을 무시하고 비교한다", () => {
   const w = { lettering: { text: "딸기" } };
   assert.equal(scoreCake(order(w), cake({ lettering: { text: "  딸기 " } })).score, 100);
   assert.ok(scoreCake(order(w), cake({ lettering: { text: "딸 기" } })).score < 100);

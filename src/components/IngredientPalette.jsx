@@ -13,7 +13,7 @@ export const STEPS = [
   { id: "cream", label: "생크림" },
   { id: "topping", label: "토핑" },
   { id: "deco", label: "데코" },
-  { id: "lettering", label: "레터링" },
+  { id: "lettering", label: "쪽지" },
 ];
 
 // 재료 팔레트 — 한 단계씩만 보여준다.
@@ -58,7 +58,7 @@ export default function IngredientPalette({ step, cake, setCake }) {
       )}
     </button>
   );
-  // 색내기 재료 칩 (단일 선택) — 시트/생크림/레터링 공용
+  // 색내기 재료 칩 (단일 선택) — 시트/생크림/쪽지 공용
   const colorChips = (selectedId, onPick) =>
     COLORS.map((c) => <ImgChip key={c.id} id={c.id} on={selectedId === c.id} onClick={() => onPick(c.id)} />);
 

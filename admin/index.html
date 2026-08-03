@@ -406,7 +406,7 @@ function drawLog() {
 
 // 손님이 슬롯마다 뭘 안다고 여기는지 — 프롬프트를 고칠 때 이게 흔들리면 바로 보인다
 const SLOT_KO = { base: "시트반죽", cakeBase: "케이크 베이스", toppings: "토핑",
-                  cream: "생크림", deco: "데코", lettering: "레터링" };
+                  cream: "생크림", deco: "데코", lettering: "쪽지" };
 function intentHtml(m) {
   if (m.role !== "monster") return "";
   if (m.raw !== undefined && m.intent == null) return `<div class="intent bad">구조 파싱 실패 — 원문을 대사로 씀</div>`;

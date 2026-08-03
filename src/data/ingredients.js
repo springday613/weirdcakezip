@@ -38,7 +38,7 @@ export function sheetType(base) {
   return null;
 }
 
-// ② 케이크 베이스: 시트·레터링·생크림의 맛/색을 결정 (색이 아니라 '재료'로 고른다 — 맛이 곧 색)
+// ② 케이크 베이스: 시트·쪽지·생크림의 맛/색을 결정 (색이 아니라 '재료'로 고른다 — 맛이 곧 색)
 export const COLORS = [
   { id: "vanilla", label: "바닐라", emoji: "🍦", hex: "#fff2cc" },
   { id: "strawberry", label: "딸기", emoji: "🍓", hex: "#ffd1dc" },
@@ -99,7 +99,7 @@ export function describeCake(cake) {
     `생크림: ${cake.cream ? `${labelOf(COLORS, cake.cream.color)} ×${creamN}` : "안 올림"}`,
     `토핑: ${groupCount(cake.toppings, TOPPINGS)}`,
     `데코: ${groupCount(cake.deco, DECO)}`,
-    `레터링: ${cake.lettering?.text ? `"${cake.lettering.text}" (${cake.lettering.color ? labelOf(COLORS, cake.lettering.color) : "-"})` : "없음"}`,
+    `쪽지: ${cake.lettering?.text ? `"${cake.lettering.text}" (${cake.lettering.color ? labelOf(COLORS, cake.lettering.color) : "-"})` : "없음"}`,
   ];
 }
 

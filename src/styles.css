@@ -714,9 +714,6 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .story-cut {
   width: 100%;
   display: block;
-  background: var(--paper);
-  border: var(--ink-line) solid var(--ink);
-  border-radius: var(--r-card);
 }
 .story-nav {
   position: absolute;

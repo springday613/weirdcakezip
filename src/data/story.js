@@ -1,7 +1,8 @@
 // 스토리 컷 (S19) — 원본은 리포 밖 ../assets/assets-story/, webp 변환해 반영.
 // story_end_2 는 굿·배드 공용 컷 — 원본 end_good_2 와 end_bad_2 가 같은 파일이다(바이트 동일 확인).
 export const STORY = {
-  begin: [1, 2, 3, 4, 5, 6].map((n) => `/assets/story_begin_${n}.webp`),
+  // 첫 컷은 배경 그림만 — 무대가 열리고 이야기가 시작되는 느낌 (총 7컷)
+  begin: ["/assets/bg_default.webp", ...[1, 2, 3, 4, 5, 6].map((n) => `/assets/story_begin_${n}.webp`)],
   endGood: [
     "/assets/story_end_good_1.webp",
     "/assets/story_end_2.webp",

@@ -20,6 +20,12 @@ export default function StoryScreen({ cuts, onDone }) {
       <div className="story-nav">
         <span className="story-progress">{i + 1} / {cuts.length}</span>
         <button
+          className="chip ghost story-next"
+          onClick={(e) => { e.stopPropagation(); next(); }}
+        >
+          다음
+        </button>
+        <button
           className="chip ghost story-skip"
           onClick={(e) => { e.stopPropagation(); onDone(); }}
         >

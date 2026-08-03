@@ -1,4 +1,4 @@
-import { hexOf, sheetType, COLORS } from "../data/ingredients.js";
+import { sheetType, COLORS } from "../data/ingredients.js";
 import layout from "../data/cakeLayout.json";
 
 // 배치는 전부 cakeLayout.json 에 미리 계산돼 있다(손그림에서 실측한 윗면 타원 기준).
@@ -56,9 +56,7 @@ export default function CakeView({ cake, preview = "cake", notePlacement = "top"
       <div className="cake-stage">
         <div className="note-stage">
           <img src="/assets/note_open.webp" alt="쪽지" />
-          <span className="note-text" style={{ color: hexOf(cake.lettering.color) }}>
-            {cake.lettering.text || "…"}
-          </span>
+          <span className="note-text">{cake.lettering.text || "…"}</span>
         </div>
       </div>
     );
@@ -161,14 +159,12 @@ export default function CakeView({ cake, preview = "cake", notePlacement = "top"
           <span className="lettering-note">
             {/* 쪽지 컨셉(S16) — 글자를 크림으로 쓰는 게 아니라 쪽지에 써서 얹는다 */}
             <img src="/assets/note_open.webp" alt="" />
-            <span className="lettering" style={{ color: hexOf(cake.lettering.color) }}>
-              {cake.lettering.text}
-            </span>
+            <span className="lettering">{cake.lettering.text}</span>
           </span>
         )}
 
-        {/* 결과 화면 — 함께 배달된 접힌 쪽지를 케이크 옆에 놓는다 (문구를 안 썼어도 쪽지는 간다) */}
-        {isCake && notePlacement === "beside" && (
+        {/* 결과 화면 — 함께 배달된 접힌 쪽지를 케이크 옆에 놓는다. 안 썼으면 쪽지도 없다 */}
+        {isCake && cake.lettering.text && notePlacement === "beside" && (
           <img className="note-beside" src="/assets/note_closed.webp" alt="쪽지" />
         )}
       </div>

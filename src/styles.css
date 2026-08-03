@@ -673,3 +673,15 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   text-align: center;
   word-break: keep-all;
 }
+
+/* 완성 직전 접힌 쪽지(0.3초) — 펼친 쪽지와 같은 자리에서 접힌다 */
+.note-stage--folded { width: min(58%, 220px); }
+
+/* 결과 화면 — 접힌 쪽지가 케이크 옆에 놓인다 */
+.note-beside {
+  position: absolute;
+  right: -4%;
+  bottom: 2%;
+  width: 30%;
+  transform: rotate(9deg);
+}

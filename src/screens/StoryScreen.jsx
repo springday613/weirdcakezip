@@ -10,8 +10,9 @@ const FACE_SRC = {
 };
 
 // 스토리 화면 (S19) — 컷 위에 말풍선 대사가 한 줄씩 나온다.
-// 탭/≫ 는 대사 한 줄씩, 대사가 끝나면 다음 컷. ←/다음은 컷 단위 이동, 건너뛰기는 종료.
-export default function StoryScreen({ cuts, name = "", onDone }) {
+// 탭/≫ 는 대사 한 줄씩, 대사가 끝나면 다음 컷. 건너뛰기는 종료.
+// nav: 대사 없는 시퀀스(아웃트로)용 — ← / n/N / 다음 컷 내비를 함께 보여준다.
+export default function StoryScreen({ cuts, name = "", onDone, nav = false }) {
   const [i, setI] = useState(0);   // 컷 번호
   const [li, setLi] = useState(0); // 컷 안 대사 번호
   const cut = cuts[i];
@@ -31,6 +32,12 @@ export default function StoryScreen({ cuts, name = "", onDone }) {
       setI(i + 1);
       setLi(0);
     } else onDone();
+  };
+  const prevCut = () => {
+    if (i > 0) {
+      setI(i - 1);
+      setLi(0);
+    }
   };
   // 대사 한 줄 진행 — 이 컷의 대사가 끝났으면 다음 컷. 진행은 탭/≫ 만으로.
   const advance = () => (li + 1 < lines.length ? setLi(li + 1) : nextCut());
@@ -57,6 +64,24 @@ export default function StoryScreen({ cuts, name = "", onDone }) {
       )}
 
       <div className="story-nav">
+        {nav && (
+          <>
+            <button
+              className="chip ghost story-prev"
+              disabled={i === 0}
+              onClick={(e) => { e.stopPropagation(); prevCut(); }}
+            >
+              ←
+            </button>
+            <span className="story-progress">{i + 1} / {cuts.length}</span>
+            <button
+              className="chip ghost story-next"
+              onClick={(e) => { e.stopPropagation(); nextCut(); }}
+            >
+              다음
+            </button>
+          </>
+        )}
         <button
           className="chip ghost story-skip"
           onClick={(e) => { e.stopPropagation(); onDone(); }}

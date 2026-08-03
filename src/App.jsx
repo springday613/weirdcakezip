@@ -185,6 +185,7 @@ export default function App() {
           <StoryScreen
             cuts={money >= GOOD_ENDING_COINS ? STORY.endGood : STORY.endBad}
             name={playerName}
+            nav
             onDone={() => setScreen("END")}
           />
         </div>

@@ -121,9 +121,11 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
     }
   }
 
+  const introDim = tut && tutIntro != null ? " tut-dim-el" : ""; // 물범 인사 중 배경 어둡게
+
   return (
     <div className="screen">
-      <div className="hud hud-row">
+      <div className={"hud hud-row" + introDim}>
         <span>주문 {index + 1} / {total}</span>
         <span className="money">매출 {(money ?? 0).toLocaleString()}코인</span>
       </div>
@@ -132,7 +134,7 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
       {warn && step === 0 && (
         <div className="warn-bubble warn-bubble--center">시트가 뭔가 이상해! 다시 보자</div>
       )}
-      <div className="cake-wrap">
+      <div className={"cake-wrap" + introDim}>
         {/* 치트 시트 — 물범 인사가 끝나면 케이크 왼편에 붙는다 */}
         {tut && tutIntro == null && (
           <div className="tut-cheat">
@@ -147,9 +149,11 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
         <CakeView cake={cake} preview={preview} />
       </div>
 
-      <IngredientPalette step={step} cake={cake} setCake={guardedSetCake} tutBasic={tutBasic} tutChips={tutChips} />
+      <div className={introDim || undefined}>
+        <IngredientPalette step={step} cake={cake} setCake={guardedSetCake} tutBasic={tutBasic} tutChips={tutChips} />
+      </div>
 
-      <div className="make-nav">
+      <div className={"make-nav" + introDim}>
         <button className="arrow" disabled={step === 0 || making} onClick={() => setStep(step - 1)}>
           ←
         </button>
@@ -169,7 +173,7 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
         </button>
       </div>
 
-      <div className="edit-row">
+      <div className={"edit-row" + introDim}>
         <button className="chip ghost" onClick={clearBoard}>케이크 위 지우기</button>
         <button className="chip ghost" onClick={resetAll}>처음부터 만들기</button>
       </div>

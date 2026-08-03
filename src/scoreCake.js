@@ -40,7 +40,7 @@ function toppingFrac(want, made) {
   return Math.min(1, Math.max(0, (hit - extra * 0.5) / want.length));
 }
 // 생크림 '가득' 기준 — cakeLayout.json cream.slots 수와 같아야 한다 (슬롯 19자리)
-const CREAM_FULL = 19;
+export const CREAM_FULL = 19;
 function creamFrac(want, made) {
   if (want == null) return made ? 0 : 1; // 크림 없어야 함
   if (!made || made.color !== want.color) return 0;

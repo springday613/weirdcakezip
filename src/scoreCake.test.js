@@ -10,7 +10,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { scoreCake, coinsFor, reactionFor, josa, starsFor, finalScore, judgeResult,
-         TURN_BUDGET, TURN_PENALTY } from "./scoreCake.js";
+         TURN_BUDGET, TURN_PENALTY, CREAM_FULL } from "./scoreCake.js";
 import { BASIC_BASE, sheetType, moodOf } from "./data/ingredients.js";
 
 // ── fixture ────────────────────────────────────────────────────
@@ -217,4 +217,12 @@ test("생크림 amount full — 가득 채워야 만점, 색 틀리면 0", () =>
   const half = scoreCake(order(w), cake({ cream: { color: "cherry", dollops: full.slice(0, 9) } })).score;
   assert.ok(half < 100 && half > 0, `절반이면 부분 점수: ${half}`);
   assert.equal(scoreCake(order(w), cake({ cream: { color: "vanilla", dollops: full } })).score, 0, "색 틀리면 개수 무관 0");
+});
+
+// 리뷰 지적(PR #23): CREAM_FULL 이 cakeLayout 과 암묵적으로 묶여 있다 — 슬롯을 늘리면
+// 채점이 조용히 틀어진다. 두 값이 갈라지면 여기서 시끄럽게 죽는다.
+test("CREAM_FULL 은 cakeLayout 의 생크림 슬롯 수와 같다", async () => {
+  const { readFileSync } = await import("node:fs");
+  const layout = JSON.parse(readFileSync(new URL("./data/cakeLayout.json", import.meta.url), "utf-8"));
+  assert.equal(CREAM_FULL, layout.cream.slots.length);
 });

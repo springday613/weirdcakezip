@@ -435,6 +435,22 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   transform-origin: center bottom;
   z-index: 3;
 }
+/* 쪽지(S16) — 펼친 쪽지 그림 위에 글자. 케이크 윗면 중앙에 얹힌다 */
+.lettering-note {
+  position: absolute;
+  left: 50%;
+  top: 36%;
+  transform: translate(-50%, -50%);
+  width: 38%;
+}
+.lettering-note img { width: 100%; display: block; }
+.lettering-note .lettering {
+  position: absolute;
+  left: 50%;
+  top: 46%;                      /* 쪽지 종이 면 중앙(하트·모서리 피해서) */
+  transform: translate(-50%, -50%) rotate(-2deg);
+  max-width: 86%;
+}
 .lettering {
   position: absolute;
   left: 50%;

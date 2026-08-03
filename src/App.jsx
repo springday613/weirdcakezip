@@ -11,7 +11,8 @@ import Hud from "./components/Hud.jsx";
 //   TITLE → PLAYING(orderIndex) → RESULT(orderIndex) → 다음 or END
 const emptyCake = () => ({
   base: [],
-  cakeBase: null,
+  cakeBase: "vanilla", // 기본 선택 — 튜토리얼에서 유일하게 열린 맛이기도 하다
+
   cream: null,
   toppings: [],
   deco: [],

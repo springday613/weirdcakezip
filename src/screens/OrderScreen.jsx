@@ -47,7 +47,7 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
   const sheetReady = cake.base.length > 0 && cake.cakeBase;
   const clearBoard = () => setCake({ ...cake, toppings: [], deco: [], cream: null });
   const resetAll = () => {
-    setCake({ base: [], cakeBase: null, cream: null, toppings: [], deco: [], lettering: { text: "", color: null } });
+    setCake({ base: [], cakeBase: "vanilla", cream: null, toppings: [], deco: [], lettering: { text: "", color: null } });
     setMade(false);
     setMaking(false);
     setStep(0);

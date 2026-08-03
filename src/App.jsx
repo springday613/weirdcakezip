@@ -3,6 +3,7 @@ import { orders } from "./data/orders.js";
 import { judge } from "./judgeClient.js";
 import { chat } from "./chatClient.js";
 import { coinsFor, EXTRA_TURN_BUNDLE, extraTurnPrice } from "./scoreCake.js";
+import { MONSTERS } from "./data/ingredients.js";
 import TitleScreen from "./screens/TitleScreen.jsx";
 import NameScreen from "./screens/NameScreen.jsx";
 import StoryScreen from "./screens/StoryScreen.jsx";
@@ -45,6 +46,7 @@ export default function App() {
   const nextMsgId = useRef(1); // 메시지별 안정적 key
 
   const order = orders[orderIndex];
+  const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
 
   // 손님 시드 — 최초 주문 대사로 대화 시작
   function seedMessages(o) {
@@ -150,7 +152,8 @@ export default function App() {
           <Hud coins={money}>
             {screen === "BUILD" && (
               <button className="btn-ghost chat-popup-trigger" onClick={() => setChatPopupOpen(true)}>
-                ··· 대화
+                <img className="bubble-face chat-trigger-face" src={monster.img.normal} alt="" />
+                대화
               </button>
             )}
           </Hud>

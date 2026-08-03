@@ -270,19 +270,39 @@ export default function App() {
         </button>
       )}
 
-      {/* 개발용 스테이지 점프 — 번호 클릭으로 해당 손님 바로 시작 */}
+      {/* 개발용 스테이지 점프 — intro/outro 와 손님 번호로 바로 이동 */}
       {import.meta.env.DEV && (
         <div className="dev-stage-jump">
+          <button
+            className={screen === "INTRO" ? "on" : ""}
+            title="인트로 스토리"
+            onClick={() => {
+              if (!playerName) setPlayerName("달콤한체리"); // 이름 없이 점프해도 대사가 깨지지 않게
+              setScreen("INTRO");
+            }}
+          >
+            in
+          </button>
           {orders.map((o, i) => (
             <button
               key={o.id}
-              className={i === orderIndex && screen !== "TITLE" ? "on" : ""}
+              className={i === orderIndex && !["TITLE", "INTRO", "ENDING"].includes(screen) ? "on" : ""}
               title={o.id + " · " + o.monster}
               onClick={() => jumpTo(i)}
             >
               {i === 0 ? "T" : i}
             </button>
           ))}
+          <button
+            className={screen === "ENDING" ? "on" : ""}
+            title="아웃트로 스토리 (현재 코인 기준 굿/배드)"
+            onClick={() => {
+              if (!playerName) setPlayerName("달콤한체리");
+              setScreen("ENDING");
+            }}
+          >
+            out
+          </button>
         </div>
       )}
     </div>

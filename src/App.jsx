@@ -112,7 +112,6 @@ export default function App() {
             busy={busy}
             turns={turns}
             extraTurns={extraTurns}
-            money={money}
             onAsk={() => setTurns((n) => n + 1)}
             onBuyTurn={() => {
               // 질문 3개 묶음, 가격 에스컬레이션(30→50→100→200) — 캐시템이라 감점 없음

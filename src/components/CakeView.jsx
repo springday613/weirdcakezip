@@ -29,6 +29,11 @@ function warmVariants() {
       im.src = p;
     }
   }
+  // 쪽지 2장도 미리 — 접는 연출이 0.3초뿐이라, 그 순간 처음 받으면 접힌 컷을 못 보고 지나간다
+  for (const p of ["/assets/note_open.webp", "/assets/note_closed.webp"]) {
+    const im = new Image();
+    im.src = p;
+  }
 }
 
 // preview 상태: "bowl-empty" | "bowl-dough" | "making" | "cake" | "note" | "note-folded"

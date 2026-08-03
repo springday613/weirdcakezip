@@ -9,7 +9,7 @@ const SPRINKLE_MAX_CLICKS = layout.sprinkle.max_clicks;
 // 재료 만들기 단계 (화살표로 이동, 상태는 OrderScreen이 소유)
 export const STEPS = [
   { id: "sheet", label: "시트" },
-  { id: "color", label: "맛/색" },
+  { id: "color", label: "케이크 베이스" },
   { id: "cream", label: "생크림" },
   { id: "topping", label: "토핑" },
   { id: "deco", label: "데코" },
@@ -90,8 +90,8 @@ export default function IngredientPalette({ step, cake, setCake }) {
 
       {cur.id === "color" && (
         <div className="palette-row">
-          <span className="palette-label">맛/색</span>
-          {colorChips(cake.sheetColor, (id) => set({ sheetColor: id }))}
+          <span className="palette-label">케이크 베이스</span>
+          {colorChips(cake.cakeBase, (id) => set({ cakeBase: id }))}
         </div>
       )}
 

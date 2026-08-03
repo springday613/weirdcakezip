@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { orders } from "./data/orders.js";
 import { judge } from "./judgeClient.js";
-import { coinsFor } from "./scoreCake.js";
+import { coinsFor, EXTRA_TURN_BUNDLE, extraTurnPrice } from "./scoreCake.js";
 import TitleScreen from "./screens/TitleScreen.jsx";
 import OrderScreen from "./screens/OrderScreen.jsx";
 import ResultScreen from "./screens/ResultScreen.jsx";
@@ -11,7 +11,7 @@ import Hud from "./components/Hud.jsx";
 //   TITLE → PLAYING(orderIndex) → RESULT(orderIndex) → 다음 or END
 const emptyCake = () => ({
   base: [],
-  sheetColor: null,
+  cakeBase: null,
   cream: null,
   toppings: [],
   deco: [],
@@ -29,6 +29,8 @@ export default function App() {
   const [totalScore, setTotalScore] = useState(0);
   const [money, setMoney] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [turns, setTurns] = useState(0); // 이번 손님에게 던진 질문 수 — 점수에서 지불한다
+  const [extraTurns, setExtraTurns] = useState(0); // 코인으로 산 추가 질문(감점 없음, 상한 5)
   const [bgMode, setBgMode] = useState(0); // 개발용 배경 토글
 
   const order = orders[orderIndex];
@@ -38,18 +40,30 @@ export default function App() {
     setCake(emptyCake());
     setTotalScore(0);
     setMoney(0);
+    setTurns(0);
+    setExtraTurns(0);
     setScreen("PLAYING");
   }
 
   async function submit() {
     setBusy(true);
-    const r = await judge(order.id, cake);
+    const r = await judge(order.id, cake, turns);
     setBusy(false);
     const earned = coinsFor(r.score);
     setResult({ ...r, earned });
     setTotalScore((s) => s + r.score);
     setMoney((m) => m + earned);
     setScreen("RESULT");
+  }
+
+  // 개발용: 스테이지 점프 — 순차 진행 없이 특정 손님으로 바로
+  function jumpTo(i) {
+    setOrderIndex(i);
+    setCake(emptyCake());
+    setResult(null);
+    setTurns(0);
+    setExtraTurns(0);
+    setScreen("PLAYING");
   }
 
   function next() {
@@ -61,6 +75,8 @@ export default function App() {
     setOrderIndex(ni);
     setCake(emptyCake());
     setResult(null);
+    setTurns(0);
+    setExtraTurns(0); // 예산은 손님마다 새로 준다
     setScreen("PLAYING");
   }
 
@@ -94,6 +110,18 @@ export default function App() {
             setCake={setCake}
             onSubmit={submit}
             busy={busy}
+            turns={turns}
+            extraTurns={extraTurns}
+            money={money}
+            onAsk={() => setTurns((n) => n + 1)}
+            onBuyTurn={() => {
+              // 질문 3개 묶음, 가격 에스컬레이션(30→50→100→200) — 캐시템이라 감점 없음
+              const price = extraTurnPrice(extraTurns);
+              if (price != null && money >= price) {
+                setMoney((m) => m - price);
+                setExtraTurns((n) => n + EXTRA_TURN_BUNDLE);
+              }
+            }}
           />
         </div>
       )}
@@ -108,7 +136,7 @@ export default function App() {
         <div className="layer-ui">
           <div className="screen center">
             <h1>영업 종료</h1>
-            <p className="big">오늘 매출 {money.toLocaleString()}원</p>
+            <p className="big">오늘 매출 {money.toLocaleString()}코인</p>
             <p className="hint">총점 {totalScore}점</p>
             <button className="btn" onClick={start}>
               다시 하기
@@ -125,6 +153,22 @@ export default function App() {
         >
           BG: {BG_LABELS[BG_MODES[bgMode]]}
         </button>
+      )}
+
+      {/* 개발용 스테이지 점프 — 번호 클릭으로 해당 손님 바로 시작 */}
+      {import.meta.env.DEV && (
+        <div className="dev-stage-jump">
+          {orders.map((o, i) => (
+            <button
+              key={o.id}
+              className={i === orderIndex && screen !== "TITLE" ? "on" : ""}
+              title={o.id + " · " + o.monster}
+              onClick={() => jumpTo(i)}
+            >
+              {i === 0 ? "T" : i}
+            </button>
+          ))}
+        </div>
       )}
     </div>
   );

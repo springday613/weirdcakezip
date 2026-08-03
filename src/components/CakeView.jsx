@@ -35,7 +35,7 @@ function warmVariants() {
 // notePlacement: "top"(기본, 케이크 위에 얹기) | "beside"(결과 화면 — 접힌 쪽지를 케이크 옆에)
 export default function CakeView({ cake, preview = "cake", notePlacement = "top" }) {
   warmVariants();
-  const sheet = cake.sheetColor || "vanilla";
+  const sheet = cake.cakeBase || "vanilla";
   const cakeType = sheetType(cake.base) || "cake";
 
   const src =

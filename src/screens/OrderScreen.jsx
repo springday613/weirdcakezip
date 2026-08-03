@@ -4,7 +4,7 @@ import IngredientPalette, { STEPS } from "../components/IngredientPalette.jsx";
 import ChatBox from "../components/ChatBox.jsx";
 import { MONSTERS, sheetType } from "../data/ingredients.js";
 
-export default function OrderScreen({ order, index, total, money, cake, setCake, onSubmit, busy }) {
+export default function OrderScreen({ order, index, total, money, cake, setCake, onSubmit, busy, turns, extraTurns, onAsk, onBuyTurn }) {
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
   const [step, setStep] = useState(0);
   const [made, setMade] = useState(false);   // 시트가 케이크로 구워졌는가
@@ -64,10 +64,10 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
     wasBusy.current = busy;
   }, [busy]);
 
-  const sheetReady = cake.base.length > 0 && cake.sheetColor;
+  const sheetReady = cake.base.length > 0 && cake.cakeBase;
   const clearBoard = () => setCake({ ...cake, toppings: [], deco: [], cream: null });
   const resetAll = () => {
-    setCake({ base: [], sheetColor: null, cream: null, toppings: [], deco: [], lettering: { text: "", color: null } });
+    setCake({ base: [], cakeBase: null, cream: null, toppings: [], deco: [], lettering: { text: "", color: null } });
     setMade(false);
     setMaking(false);
     setStep(0);
@@ -83,7 +83,7 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
       <img className="monster-big" src={monster.img.normal} alt="손님 괴물" />
 
       {/* 애매한 주문은 대화로 푼다 (런타임 LLM) */}
-      <ChatBox order={order} />
+      <ChatBox order={order} turns={turns} extraTurns={extraTurns} money={money} onAsk={onAsk} onBuyTurn={onBuyTurn} />
 
       {warn && step === 0 && (
         <div className="warn-bubble">시트가 뭔가 이상해! 다시 보자</div>

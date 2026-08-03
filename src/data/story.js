@@ -76,13 +76,68 @@ export const STORY = {
       ],
     },
   ],
-  // 엔딩은 대사 없이 컷만
+  // 굿 엔딩 7컷 — 그림 5컷 사이에 배경 컷 2개(잠드는 전환 연출)를 끼운다
   endGood: [
-    { img: "/assets/story_end_good_1.webp" },
-    { img: "/assets/story_end_2.webp" },
-    { img: "/assets/story_end_good_3.webp" },
-    { img: "/assets/story_end_good_4.webp" },
-    { img: "/assets/story_end_good_5.webp" },
+    {
+      img: "/assets/story_end_good_1.webp",
+      lines: [
+        { who: "{name}", text: "됐어!! 드디어 필요한 코인을 다 모았어!!", face: "user" },
+        { who: "{name}", text: "점박이 말차가 오면, 난 드디어 집으로 돌아갈 수 있어...", face: "user" },
+      ],
+    },
+    {
+      img: "/assets/story_end_2.webp",
+      lines: [
+        { who: "점박이말차", text: "{name}!! 나 돌아왔어", face: "chef" },
+        { who: "점박이말차", text: "뭉게뭉게 마을의 파티세리 콘테스트에서 1등을 했다구! 다 {name} 덕분이야", face: "chef" },
+        { who: "점박이말차", text: "부상으로 아이스크림 케이크와 젤라틴 케이크의 레시피도 얻어왔어! 난 너무 행복해", face: "chef" },
+        { who: "점박이말차", text: "{name}..  {coins}코인을 다 모았구나. 정말 대단해", face: "chef" },
+      ],
+    },
+    {
+      img: "/assets/story_end_good_3.webp",
+      lines: [
+        { who: "점박이말차", text: "너무 아쉽지만 약속은 약속이니 보내줄게!", face: "chef" },
+        { who: "점박이말차", text: "폭신폭신달콤달콤콤달콤달신폭신폭....", face: "chef" },
+      ],
+    },
+    {
+      img: "/assets/bg_default.webp",
+      lines: [
+        { who: "{name}", text: "정신이 점점 몽롱해져.. 잠이든다..", face: "user" },
+        { who: "{name}", text: "커스터드물범이랑 인사도 못했는데..", face: "user" },
+      ],
+    },
+    {
+      img: "/assets/story_end_good_4.webp",
+      lines: [
+        { who: "{name}", text: "허억!", face: "user" },
+        { who: "{name}", text: "여긴.. 내 집이잖아!", face: "user" },
+        { who: "{name}", text: "내 몸도 돌아왔어! 더 이상 달콤한 푸딩 몸이 아니라 인간의 몸이야!!!", face: "user" },
+        { who: "{name}", text: "열심히 일한 보람이 있었어.. 그래, 지금은 월요일 아침이고 나는 출근을..", face: "user" },
+        { who: "{name}", text: "잠깐만, 월요일 아침?", face: "user" },
+        { who: "{name}", text: "괴물들보다도 애매한 주문을 하는 클라이언트들.... 내 노고를 알아주는 곳 없는 직장.. 달콤하지 않은 작업물들...", face: "user" },
+        { who: "{name}", text: "잠깐 이거.. 괴물 케이크가게 생활이 더 나은거 아니야?", face: "user" },
+        { who: "{name}", text: "나 돌아갈래!!! 점박이말차야 날 돌려줘", face: "user" },
+      ],
+    },
+    {
+      img: "/assets/bg_default.webp",
+      lines: [
+        { who: "{name}", text: "앗.. 다시 정신이 몽롱해진다", face: "user" },
+        { who: "{name}", text: "설마...?", face: "user" },
+      ],
+    },
+    {
+      img: "/assets/story_end_good_5.webp",
+      lines: [
+        { who: "{name}", text: "점박이말차..!", face: "user" },
+        { who: "점박이말차", text: "{name}...! 돌아와준거야?", face: "chef" },
+        { who: "{name}", text: "나 그냥 여기서 일할래, 일하게 해줘!", face: "user" },
+        { who: "점박이말차", text: "야호, 꿈에 그리던 견습 제빵사가 생겼어!", face: "chef" },
+        { who: "점박이말차", text: "좋아, {name}. 잘 부탁한다구!", face: "chef" },
+      ],
+    },
   ],
   // 배드 엔딩은 원안부터 1·2·4 세 컷 구성 (3번 컷 없음)
   endBad: [

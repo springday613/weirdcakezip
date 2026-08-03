@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { orders } from "./data/orders.js";
 import { judge } from "./judgeClient.js";
-import { coinsFor } from "./scoreCake.js";
+import { coinsFor, EXTRA_TURN_COST, EXTRA_TURN_MAX } from "./scoreCake.js";
 import TitleScreen from "./screens/TitleScreen.jsx";
 import OrderScreen from "./screens/OrderScreen.jsx";
 import ResultScreen from "./screens/ResultScreen.jsx";
@@ -30,6 +30,7 @@ export default function App() {
   const [money, setMoney] = useState(0);
   const [busy, setBusy] = useState(false);
   const [turns, setTurns] = useState(0); // 이번 손님에게 던진 질문 수 — 점수에서 지불한다
+  const [extraTurns, setExtraTurns] = useState(0); // 코인으로 산 추가 질문(감점 없음, 상한 5)
   const [bgMode, setBgMode] = useState(0); // 개발용 배경 토글
 
   const order = orders[orderIndex];
@@ -40,6 +41,7 @@ export default function App() {
     setTotalScore(0);
     setMoney(0);
     setTurns(0);
+    setExtraTurns(0);
     setScreen("PLAYING");
   }
 
@@ -60,6 +62,7 @@ export default function App() {
     setCake(emptyCake());
     setResult(null);
     setTurns(0);
+    setExtraTurns(0);
     setScreen("PLAYING");
   }
 
@@ -72,7 +75,8 @@ export default function App() {
     setOrderIndex(ni);
     setCake(emptyCake());
     setResult(null);
-    setTurns(0); // 예산은 손님마다 새로 준다
+    setTurns(0);
+    setExtraTurns(0); // 예산은 손님마다 새로 준다
     setScreen("PLAYING");
   }
 
@@ -112,7 +116,16 @@ export default function App() {
             onSubmit={submit}
             busy={busy}
             turns={turns}
+            extraTurns={extraTurns}
+            money={money}
             onAsk={() => setTurns((n) => n + 1)}
+            onBuyTurn={() => {
+              // 코인으로 질문 1번 — 캐시템이라 감점 없음(스펙 260725)
+              if (money >= EXTRA_TURN_COST && extraTurns < EXTRA_TURN_MAX) {
+                setMoney((m) => m - EXTRA_TURN_COST);
+                setExtraTurns((n) => n + 1);
+              }
+            }}
           />
         )}
 

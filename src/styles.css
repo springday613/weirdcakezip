@@ -658,3 +658,6 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 }
 .dev-stage-jump button:hover { opacity: 1; }
 .dev-stage-jump button.on { background: var(--ink); color: var(--text-on-ink); opacity: 1; }
+
+/* 코인으로 질문 구매 — 예산 소진 시 예산 줄 자리에 나타난다 */
+.chat-budget .buy-turn { margin-left: auto; }

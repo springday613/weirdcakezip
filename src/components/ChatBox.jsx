@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { chat } from "../chatClient.js";
 import { MONSTERS } from "../data/ingredients.js";
-import { TURN_BUDGET, TURN_PENALTY } from "../scoreCake.js";
+import { TURN_BUDGET, TURN_PENALTY, EXTRA_TURN_COST, EXTRA_TURN_MAX } from "../scoreCake.js";
 
 // 손님 괴물과의 대화창. order.dialogue를 첫 대사로 시드.
 // 대화 기록(history)은 이 컴포넌트가 보관하고 매 호출 시 서버로 전달(서버는 stateless).
@@ -9,14 +9,18 @@ import { TURN_BUDGET, TURN_PENALTY } from "../scoreCake.js";
 // 질문 수(turns)는 App 이 들고 있다 — 점수에서 지불하는 값이라 채점까지 가야 한다.
 // 예산을 다 쓰면 여기서 막는다. 스펙상 11~15턴은 코인으로 사지만 구매는 아직 미구현이라,
 // 막지 않으면 11턴부터 공짜 질문이 되어버린다.
-export default function ChatBox({ order, turns = 0, onAsk }) {
+export default function ChatBox({ order, turns = 0, extraTurns = 0, money = 0, onAsk, onBuyTurn }) {
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
   const [messages, setMessages] = useState([{ id: 0, role: "monster", content: order.dialogue }]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const listRef = useRef(null);
-  const left = TURN_BUDGET - turns;
+  // 허용량 = 기본 예산 + 코인으로 산 추가분. 기본분은 −2점/턴, 구매분은 감점 없음(스펙).
+  const allowance = TURN_BUDGET + extraTurns;
+  const left = allowance - turns;
   const spent = left <= 0;
+  const canBuy = extraTurns < EXTRA_TURN_MAX && money >= EXTRA_TURN_COST;
+  const buyBlocked = extraTurns >= EXTRA_TURN_MAX ? "더는 살 수 없어요 (한도 5번)" : "코인이 부족해요";
 
   // 대본 모드(튜토리얼) — 주인 말이 미리 채워져 있고 '확인'만 누른다. LLM·감점 없음.
   const script = order.script ?? null;
@@ -84,7 +88,13 @@ export default function ChatBox({ order, turns = 0, onAsk }) {
         </div>
       ) : (<>
       <div className="chat-budget">
-        {spent ? "질문을 다 썼어요" : `질문 ${left}번 남음 · 1번에 ${TURN_PENALTY}점`}
+        {spent
+          ? (canBuy
+              ? <button className="btn small buy-turn" onClick={onBuyTurn}>질문 1번 사기 · {EXTRA_TURN_COST}코인</button>
+              : `질문을 다 썼어요 · ${buyBlocked}`)
+          : turns >= TURN_BUDGET
+            ? `산 질문 ${left}번 남음 (감점 없음)`
+            : `질문 ${left}번 남음 · 1번에 ${TURN_PENALTY}점`}
       </div>
       <div className="chat-input">
         <input

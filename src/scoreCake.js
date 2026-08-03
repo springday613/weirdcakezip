@@ -17,6 +17,10 @@ const TIERS = [90, 75, 60, 50];
 // 무료 구간을 두지 않는다(260725 회의). 11턴부터는 코인으로 사는 캐시템이라 깎지 않는다.
 export const TURN_BUDGET = 10;
 export const TURN_PENALTY = 2;
+// 예산 소진 후엔 코인으로 산다(캐시템이라 감점 없음 — finalScore 가 10턴에서 캡).
+// 단가 30 은 스펙의 '⚠실측 후 확정' 값 — 질문 횟수 실측 쌓이면 조정.
+export const EXTRA_TURN_COST = 30;
+export const EXTRA_TURN_MAX = 5;
 const norm = (t) => (t ?? "").trim();
 const sameSet = (a, b) => {
   const x = new Set(a ?? []), y = new Set(b ?? []);

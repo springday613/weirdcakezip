@@ -71,7 +71,7 @@ export default function IngredientPalette({ step, cake, setCake, orderIndex = 0 
         src={id === "vanilla" ? "/assets/cream_vanilla.webp" : `/assets/ing_${id}.webp`}
         alt=""
       />
-      {lock && <span className="lock-badge">🔒</span>}
+      {lock && <img className="lock-badge" src="/assets/ui_lock.svg" alt="잠김" />}
     </button>
   );
   // 색내기 재료 칩 (단일 선택) — 시트/생크림/쪽지 공용. kind 는 잠금 테이블 키(null = 잠금 없음).
@@ -190,7 +190,9 @@ export default function IngredientPalette({ step, cake, setCake, orderIndex = 0 
       {lockMsg && (
         <div className="palette-row">
           <span className="palette-label" />
-          <span className="note lock-note">🔒 {lockMsg}</span>
+          <span className="note lock-note">
+            <img src="/assets/ui_lock.svg" alt="" /> {lockMsg}
+          </span>
         </div>
       )}
       </div>

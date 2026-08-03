@@ -12,7 +12,8 @@ const FACE_SRC = {
 // 스토리 화면 (S19) — 컷 위에 말풍선 대사가 한 줄씩 나온다.
 // 탭/≫ 는 대사 한 줄씩, 대사가 끝나면 다음 컷. 건너뛰기는 종료.
 // nav: 대사 없는 시퀀스(아웃트로)용 — ← / n/N / 다음 컷 내비를 함께 보여준다.
-export default function StoryScreen({ cuts, name = "", onDone, nav = false }) {
+// money: 대사의 {money} 치환용 — 엔딩에서 실제 번 코인을 보여준다.
+export default function StoryScreen({ cuts, name = "", onDone, nav = false, money = 0 }) {
   const [i, setI] = useState(0);   // 컷 번호
   const [li, setLi] = useState(0); // 컷 안 대사 번호
   const cut = cuts[i];
@@ -50,9 +51,9 @@ export default function StoryScreen({ cuts, name = "", onDone, nav = false }) {
         <div className="story-bubble stk">
           <span className="story-face">
             <img src={line.face ? FACE_SRC[line.face] : "/assets/ui_silhouette.svg"} alt="" />
-            <span className="story-who">{fillLine(line.who, name)}</span>
+            <span className="story-who">{fillLine(line.who, name, money)}</span>
           </span>
-          <p className="story-line">{fillLine(line.text, name)}</p>
+          <p className="story-line">{fillLine(line.text, name, money)}</p>
           <button
             className="story-adv"
             aria-label="다음 대사"

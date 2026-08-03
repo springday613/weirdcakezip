@@ -4,15 +4,17 @@
 // 굿/배드 분기 — 최종 코인 기준(사용자 확정 400). 5주문 전부 통과선이면 300이라 +α 필요. ⚠ 실측 후 조정
 export const GOOD_ENDING_COINS = 400;
 
-// 대사 치환 — {name} 은 유저 이름, {name}아 는 호격(받침 있으면 '아', 없으면 '야'), {coins} 는 귀환 주문 값
-export function fillLine(text, name) {
+// 대사 치환 — {name} 은 유저 이름, {name}아 는 호격(받침 있으면 '아', 없으면 '야'),
+// {coins} 는 귀환 주문 목표값, {money} 는 실제로 번 코인(엔딩에서 씀)
+export function fillLine(text, name, money = 0) {
   const last = name.charCodeAt(name.length - 1);
   const voc =
     last >= 0xac00 && last <= 0xd7a3 && (last - 0xac00) % 28 > 0 ? `${name}아` : `${name}야`;
   return text
     .replaceAll("{name}아", voc)
     .replaceAll("{name}", name)
-    .replaceAll("{coins}", GOOD_ENDING_COINS.toLocaleString());
+    .replaceAll("{coins}", GOOD_ENDING_COINS.toLocaleString())
+    .replaceAll("{money}", (money ?? 0).toLocaleString());
 }
 
 // 인트로 7컷 — 첫 컷은 배경만(무대가 열리는 느낌), 이후 begin 1~6. lines 는 컷 위 말풍선 대사.
@@ -139,10 +141,39 @@ export const STORY = {
       ],
     },
   ],
-  // 배드 엔딩은 원안부터 1·2·4 세 컷 구성 (3번 컷 없음)
+  // 배드 엔딩 3컷 — 원안부터 1·2·4 구성 (3번 컷 없음). 2번은 굿과 공용 컷
   endBad: [
-    { img: "/assets/story_end_bad_1.webp" },
-    { img: "/assets/story_end_2.webp" },
-    { img: "/assets/story_end_bad_4.webp" },
+    {
+      img: "/assets/story_end_bad_1.webp",
+      lines: [
+        { who: "{name}", text: "최선을 다했는데.. {money} 코인밖에 못 벌었어", face: "user" },
+        { who: "{name}", text: "나는 왜 이 모양일까?", face: "user" },
+        { who: "{name}", text: "아니야, 저 손님들은 왜 저 모양인거야?", face: "user" },
+        { who: "{name}", text: "주문을 처음부터 똑바로 말하는 손님이 없고, 몇 번 되물어도 자기 내키는 대로 말하고!!! 내가 독심술사냐고!!!", face: "user" },
+        { who: "{name}", text: "그래도.. 손님들이 귀엽긴 했어.", face: "user" },
+        { who: "{name}", text: "일하면서 단것도 집어먹을수 있고... 똑같이 애매한 주문을 해도 귀엽지 않은 인간 클라이언트들보다 나을지도..", face: "user" },
+        { who: "{name}", text: "우리 회사 탕비실도 없고 말이지.", face: "user" },
+      ],
+    },
+    {
+      img: "/assets/story_end_2.webp",
+      lines: [
+        { who: "점박이말차", text: "{name}!! 나 돌아왔어", face: "chef" },
+        { who: "점박이말차", text: "뭉게뭉게 마을의 파티세리 콘테스트에서 1등을 했다구! 다 {name} 덕분이야", face: "chef" },
+        { who: "점박이말차", text: "부상으로 아이스크림 케이크와 젤라틴 케이크의 레시피도 얻어왔어! 난 너무 행복해", face: "chef" },
+        { who: "점박이말차", text: "앗 {name}.. 필요한 {coins}코인을 모으지 못했구나", face: "chef" },
+        { who: "점박이말차", text: "걱정마 {name}. 내 견습 제빵사로 채용해 줄테니, 우리 가게에서 같이 일하면서 모으자", face: "chef" },
+      ],
+    },
+    {
+      img: "/assets/story_end_bad_4.webp",
+      lines: [
+        { who: "점박이말차", text: "나에게도 견습 제빵사가 생기다니.. 꿈만 같아!", face: "chef" },
+        { who: "점박이말차", text: "참, 견습비는 하루에 200코인이야!", face: "chef" },
+        { who: "{name}", text: "뭔가 처음부터 끝까지 이 마을에는 킹받는 괴물만 있는 거 같지만..", face: "user" },
+        { who: "{name}", text: "뭐 어쩌겠어! 그냥 머리를 비우고 일하자!", face: "user" },
+        { who: "{name}", text: "어차피 원래 내 세상에서 일하던 거랑 별 차이도 없는 거 같은걸~!", face: "user" },
+      ],
+    },
   ],
 };

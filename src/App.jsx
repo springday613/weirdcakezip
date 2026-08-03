@@ -193,6 +193,7 @@ export default function App() {
                 : STORY.endBad
             }
             name={playerName}
+            money={money}
             nav
             onDone={() => setScreen("CREDITS")}
           />

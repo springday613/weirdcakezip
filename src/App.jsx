@@ -120,10 +120,10 @@ export default function App() {
             money={money}
             onAsk={() => setTurns((n) => n + 1)}
             onBuyTurn={() => {
-              // 코인으로 질문 1번 — 캐시템이라 감점 없음(스펙 260725)
-              if (money >= EXTRA_TURN_COST && extraTurns < EXTRA_TURN_MAX) {
+              // 30코인에 질문 5번 묶음, 손님당 1회 — 캐시템이라 감점 없음(스펙 260725)
+              if (money >= EXTRA_TURN_COST && extraTurns === 0) {
                 setMoney((m) => m - EXTRA_TURN_COST);
-                setExtraTurns((n) => n + 1);
+                setExtraTurns(EXTRA_TURN_MAX);
               }
             }}
           />

@@ -18,9 +18,9 @@ const TIERS = [90, 75, 60, 50];
 export const TURN_BUDGET = 10;
 export const TURN_PENALTY = 2;
 // 예산 소진 후엔 코인으로 산다(캐시템이라 감점 없음 — finalScore 가 10턴에서 캡).
-// 단가 30 은 스펙의 '⚠실측 후 확정' 값 — 질문 횟수 실측 쌓이면 조정.
-export const EXTRA_TURN_COST = 30;
-export const EXTRA_TURN_MAX = 5;
+// 30코인에 5번 '묶음' 1회 — 단가는 '⚠실측 후 확정', 지금은 이걸로 (2026-08-03 결정).
+export const EXTRA_TURN_COST = 30;   // 묶음 가격
+export const EXTRA_TURN_MAX = 5;     // 묶음에 들어있는 질문 수 = 손님당 상한
 const norm = (t) => (t ?? "").trim();
 const sameSet = (a, b) => {
   const x = new Set(a ?? []), y = new Set(b ?? []);

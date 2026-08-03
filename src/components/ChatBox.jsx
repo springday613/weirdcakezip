@@ -19,8 +19,8 @@ export default function ChatBox({ order, turns = 0, extraTurns = 0, money = 0, o
   const allowance = TURN_BUDGET + extraTurns;
   const left = allowance - turns;
   const spent = left <= 0;
-  const canBuy = extraTurns < EXTRA_TURN_MAX && money >= EXTRA_TURN_COST;
-  const buyBlocked = extraTurns >= EXTRA_TURN_MAX ? "더는 살 수 없어요 (한도 5번)" : "코인이 부족해요";
+  const canBuy = extraTurns === 0 && money >= EXTRA_TURN_COST;   // 묶음은 손님당 1회
+  const buyBlocked = extraTurns > 0 ? "산 질문까지 다 썼어요" : "코인이 부족해요";
 
   // 대본 모드(튜토리얼) — 주인 말이 미리 채워져 있고 '확인'만 누른다. LLM·감점 없음.
   const script = order.script ?? null;
@@ -90,7 +90,7 @@ export default function ChatBox({ order, turns = 0, extraTurns = 0, money = 0, o
       <div className="chat-budget">
         {spent
           ? (canBuy
-              ? <button className="btn small buy-turn" onClick={onBuyTurn}>질문 1번 사기 · {EXTRA_TURN_COST}코인</button>
+              ? <button className="btn small buy-turn" onClick={onBuyTurn}>질문 {EXTRA_TURN_MAX}번 사기 · {EXTRA_TURN_COST}코인</button>
               : `질문을 다 썼어요 · ${buyBlocked}`)
           : turns >= TURN_BUDGET
             ? `산 질문 ${left}번 남음 (감점 없음)`

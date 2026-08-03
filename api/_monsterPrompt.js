@@ -15,7 +15,8 @@ export function characterBlock(order) {
           c.personality && `- 성격: ${c.personality}`,
           c.favorite && `- 좋아하는 것: ${c.favorite}`,
           c.dislike && `- 싫어하는 것: ${c.dislike}`,
-          c.background && `- 배경: ${c.background}`].filter(Boolean).join("\n");
+          c.background && `- 배경: ${c.background}`,
+          c.speech && `- 말투 형식(무엇보다 우선, 반드시): ${c.speech}`].filter(Boolean).join("\n");
 }
 
 // 프롬프트에 꽂히는 값들 — 주문 데이터에서 뽑아낸다(템플릿과 분리).
@@ -49,6 +50,7 @@ export const TEMPLATE = `너는 "괴물 세상의 케이크 가게"에 온 손�
 # 너의 성격·배경 (종의 설정)
 {{character}}
 항상 이 성격으로, 1~2문장 평서문, 짧아도 무드를 얹는다(단답 금지).
+단, '말투 형식'이 명시된 손님은 그 형식이 평서문 규칙보다 우선이다.
 좋아하는 것·싫어하는 것·배경은 반응의 양념으로만 쓰고, 먼저 늘어놓지 마라.
 
 # 너만 아는 정답 (비밀)
@@ -56,6 +58,8 @@ export const TEMPLATE = `너는 "괴물 세상의 케이크 가게"에 온 손�
 - 정답 — 아래 '출력 형식' 의 intent 와 똑같은 모양이다. 주인이 다 알아내면 intent 가 이것과 같아진다:
 {{answer}}
   값이 "dont care" = 상관없는 슬롯 · "none" = 없어야 하는 슬롯 · 그 외 = 그 값이 정답(영문 id)
+  ⚠️ lettering 의 값은 케이크에 쓸 '글자 그 자체'다. 값이 "필요없음"이면 그 세 글자를 케이크에
+     써야 한다는 뜻이다 — "none"(안 쓰기)과 절대 혼동하지 마라. 안 쓰는 경우는 값이 "none"일 때뿐이다.
 - 네 첫 대사에서 이미 밝힌 것: {{disclosed}}
   → 첫 턴부터 intent 에 이 값들을 반영한다. 밝힌 적 없는 슬롯만 "unknown" 이다.
 - 힌트 사다리(위→아래로 구체적):
@@ -144,7 +148,13 @@ const render = (tpl, parts) =>
   tpl.replace(/\{\{(\w+)\}\}/g, (m, k) => (k in parts ? parts[k] : m));
 
 export function buildMonsterSystem(order) {
-  return render(active, promptParts(order));
+  let s = render(active, promptParts(order));
+  // 주문 전용 특별 규칙 — 공통 템플릿으로 안 잡히는 그 주문 고유의 함정만 담는다.
+  // 맨 끝(최신성)에 최우선으로 붙인다. 남발하면 다시 whack-a-mole 이 된다.
+  if (order.promptNote) {
+    s += `\n\n# 이 주문의 특별 규칙 — 다른 모든 규칙보다 우선\n${order.promptNote}`;
+  }
+  return s;
 }
 
 // 대화 기록(클라 보관) → API 메시지 배열.

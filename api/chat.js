@@ -6,7 +6,7 @@
 // ─────────────────────────────────────────────────────────────
 
 import { orders } from "../src/data/orders.js";
-import { COLORS, TOPPINGS, DECO, labelOf } from "../src/data/ingredients.js";
+import { COLORS, TOPPINGS, DECO, labelOf, MONSTERS } from "../src/data/ingredients.js";
 import { buildMonsterSystem, toApiMessages, answerMap } from "./_monsterPrompt.js";
 import { callLLM, hasLLM } from "./_llm.js";
 
@@ -101,27 +101,41 @@ export default async function handler(req, res) {
     const leaked = leaksIn(out.reply);
     if (leaked.length) critical.push("leak:" + leaked.join(","));
 
+    // 말투 형식 가드 — speech 가 명시된 손님(네모)이 '항목: 값' 형식을 깨면 재시도
+    const speechRule = MONSTERS[order.monster]?.character?.speech;
+    const formatBad = (r) => Boolean(speechRule) && !(r ?? "").includes(":");
+    if (formatBad(out.reply)) critical.push("format");
+
     if (critical.length || !out.intent) {
-      const note = !out.intent
-        ? "방금 출력이 형식을 어겼다. '출력 형식' 절의 JSON 하나로 다시 답해라. 대사 내용은 그대로."
-        : critical.some((c) => String(c).startsWith("leak:"))
-        ? `${critical.find((c) => String(c).startsWith("leak:")).slice(5)} — 이 이름을 주인이 아직 짚지 않았다. ` +
-          "이름을 지우고 색·맛·식감 같은 특성으로만 암시해서 다시 답해라. 다른 내용은 유지."
-        : critical.includes("echo")
-        ? "방금 응답이 너의 첫 주문 대사를 그대로 반복했다. 첫 대사를 되풀이하지 말고, 주인의 마지막 질문에 새로 답해라."
-        : critical.includes("roleflip")
-        ? "너는 손님이다 — 주인에게 뭘 원하는지·어떤 색이 좋은지 묻지 마라. 네가 원하는 건 이미 정답에 " +
-          "정해져 있다. 방금 질문에만 답하고, 질문·제안 없이 끝내라."
-        : topicClash
-        ? `주인은 지금 ${topic} 슬롯을 물었고, 그 슬롯의 정답은 ${JSON.stringify(truth[topic])} 이다. ` +
-          (truth[topic] === "none" ? '"필요 없어"라고 답해라 ("아무거나"는 금지). '
-           : truth[topic] === "dont care" ? '"아무거나 괜찮아"라고 답해라 ("필요 없어"는 금지). '
-           : '"아무거나/필요 없어"는 거짓말이 된다 — 금지. 주인이 그 이름을 아직 말하지 않았으니 ' +
-             "이름 대신 색·맛·식감으로만 암시해라. ") +
-          "다른 슬롯 이야기는 꺼내지 말고, intent 도 정답 JSON 에 맞게 바로잡아라."
-        : `intent 의 ${critical.join(", ")} 값이 정답과 다르다. 정답 JSON 의 그 슬롯을 다시 보고 ` +
-          "intent 만 바로잡아라. 대사는 원래 규칙(소거·확인·묘사)대로 방금 질문에만 답하고, " +
-          "다른 슬롯 이야기를 새로 꺼내지 마라.";
+      const notes = [];
+      if (!out.intent) {
+        notes.push("방금 출력이 형식을 어겼다. '출력 형식' 절의 JSON 하나로 다시 답해라.");
+      }
+      if (topicClash) {
+        notes.push(`주인은 지금 ${topic} 슬롯을 물었고, 그 슬롯의 정답은 ${JSON.stringify(truth[topic])} 이다. ` +
+          (truth[topic] === "none" ? '"필요 없어"라고 답해라 ("아무거나"는 금지).'
+           : truth[topic] === "dont care" ? '"아무거나 괜찮아"라고 답해라 ("필요 없어"는 금지).'
+           : topic === "lettering"
+           ? "레터링 정답은 그 글자를 케이크에 '그대로 써야' 한다는 뜻이다 — 생략이 아니다. " +
+             '"안 써도 된다/안 올려도 된다"는 거짓말이다. 그 문구를 그대로 써달라고 답해라(문구는 첫 주문에 이미 있다).'
+           : '"아무거나/필요 없어"는 거짓말이 된다 — 금지. 이름 대신 색·맛·식감으로만 암시해라.'));
+      }
+      if (critical.some((c) => String(c).startsWith("leak:"))) {
+        notes.push(`${critical.find((c) => String(c).startsWith("leak:")).slice(5)} — 이 이름을 주인이 아직 짚지 않았다. 이름을 지우고 특성으로만 암시해라.`);
+      }
+      if (critical.includes("roleflip")) {
+        notes.push("너는 손님이다 — 주인에게 뭘 원하는지 묻지 마라. 질문·제안 없이 끝내라.");
+      }
+      if (critical.includes("echo")) {
+        notes.push("첫 주문 대사를 반복하지 말고 방금 질문에 새로 답해라.");
+      }
+      if (critical.includes("format")) {
+        notes.push(`말투 형식을 지켜라: ${speechRule}`);
+      }
+      if (out.intent && critical.some((c) => !["roleflip", "echo", "format"].includes(c) && !String(c).startsWith("leak:") && c !== topic)) {
+        notes.push(`intent 의 ${critical.filter((c) => typeof c === "string" && !["roleflip","echo","format"].includes(c) && !String(c).startsWith("leak:")).join(", ")} 값도 정답 JSON 에 맞게 바로잡아라.`);
+      }
+      const note = notes.join(" ");
       const retry = parseReply(await callLLM({
         system,
         messages: [...messages, { role: "assistant", content: out.raw ?? out.reply },
@@ -137,7 +151,8 @@ export default async function handler(req, res) {
       const echoFixed = !critical.includes("echo") || !echoOf(retry.reply ?? "");
       // 원본 유출 여부와 무관하게, 재시도 결과가 새면 채택하지 않는다
       const leakFixed = leaksIn(retry.reply ?? "").length === 0;
-      if (intentOk && clashFixed && flipFixed && echoFixed && leakFixed) { out = retry; check = retryCheck; out.retried = true; }
+      const formatFixed = !critical.includes("format") || !formatBad(retry.reply ?? "");
+      if (intentOk && clashFixed && flipFixed && echoFixed && leakFixed && formatFixed) { out = retry; check = retryCheck; out.retried = true; }
     }
 
     return res.json({ reply: out.reply, intent: out.intent, raw: out.raw,

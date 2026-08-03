@@ -90,21 +90,16 @@ export default function App() {
       {/* 배경 위 베일 — 어두운 배경에서도 UI가 읽히게 */}
       <div className="layer-veil" />
 
-      {/* ② 패널·카드·스와치 원·노드 원 */}
-      <div className="layer-frame" />
+      {/* HUD — 타이틀 이외 화면에 상주하는 크롬 */}
+      {screen !== "TITLE" && (
+        <div className="layer-ui"><Hud coins={money} /></div>
+      )}
 
-      {/* ③ 에셋 PNG (케이크·재료·괴물) */}
-      <div className="layer-asset" />
+      {/* 화면이 필요한 층을 직접 렌더한다 (§2) */}
+      {screen === "TITLE" && <TitleScreen onStart={start} />}
 
-      {/* ④ 글자·버튼·아이콘·베일·딤 */}
-      <div className="layer-ui">
-        {screen !== "TITLE" && (
-          <Hud hearts={5} coins={money} />
-        )}
-
-        {screen === "TITLE" && <TitleScreen onStart={start} />}
-
-        {screen === "PLAYING" && (
+      {screen === "PLAYING" && (
+        <div className="layer-ui">
           <OrderScreen
             key={order.id}
             order={order}
@@ -128,13 +123,17 @@ export default function App() {
               }
             }}
           />
-        )}
+        </div>
+      )}
 
-        {screen === "RESULT" && (
+      {screen === "RESULT" && (
+        <div className="layer-ui">
           <ResultScreen result={result} order={order} cake={cake} onNext={next} />
-        )}
+        </div>
+      )}
 
-        {screen === "END" && (
+      {screen === "END" && (
+        <div className="layer-ui">
           <div className="screen center">
             <h1>영업 종료</h1>
             <p className="big">오늘 매출 {money.toLocaleString()}코인</p>
@@ -143,8 +142,8 @@ export default function App() {
               다시 하기
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* 개발용 배경 토글 — 프로덕션에서 숨김 */}
       {import.meta.env.DEV && (

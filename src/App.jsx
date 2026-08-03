@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { orders } from "./data/orders.js";
 import { judge } from "./judgeClient.js";
-import { coinsFor, EXTRA_TURN_COST, EXTRA_TURN_MAX } from "./scoreCake.js";
+import { coinsFor, EXTRA_TURN_BUNDLE, extraTurnPrice } from "./scoreCake.js";
 import TitleScreen from "./screens/TitleScreen.jsx";
 import OrderScreen from "./screens/OrderScreen.jsx";
 import ResultScreen from "./screens/ResultScreen.jsx";
@@ -120,10 +120,11 @@ export default function App() {
             money={money}
             onAsk={() => setTurns((n) => n + 1)}
             onBuyTurn={() => {
-              // 30코인에 질문 5번 묶음, 손님당 1회 — 캐시템이라 감점 없음(스펙 260725)
-              if (money >= EXTRA_TURN_COST && extraTurns === 0) {
-                setMoney((m) => m - EXTRA_TURN_COST);
-                setExtraTurns(EXTRA_TURN_MAX);
+              // 질문 3개 묶음, 가격 에스컬레이션(30→50→100→200) — 캐시템이라 감점 없음
+              const price = extraTurnPrice(extraTurns);
+              if (price != null && money >= price) {
+                setMoney((m) => m - price);
+                setExtraTurns((n) => n + EXTRA_TURN_BUNDLE);
               }
             }}
           />

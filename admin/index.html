@@ -300,6 +300,9 @@ function tabFields(o) {
     <p class="hint">성격(화법)은 몬스터의 것입니다 — 왼쪽 <b>몬스터 (종 설정)</b> 에서 고칩니다.</p>
     <label>첫 대사 (dialogue)</label>
     <textarea id="dialogue" rows="2">${esc(o.dialogue)}</textarea>
+    <label>원하는 것 (wish) — 프롬프트의 {{wish}}. 손님만 아는 진짜 속마음 서술</label>
+    <textarea id="wish" rows="3">${esc(o.wish)}</textarea>
+    <p class="why">출력 JSON 의 intent(슬롯 상태)와는 다른 것입니다 — 이건 산문 서술.</p>
     <label>힌트 사다리 — 위에서 아래로 구체적</label>
     <div id="hints">${o.hints.map(hintRow).join("")}</div>
     <button class="btn ghost" id="addHint">힌트 추가</button>
@@ -311,7 +314,7 @@ function tabFields(o) {
   $("#addHint").onclick = () =>
     $("#hints").insertAdjacentHTML("beforeend", hintRow("", $("#hints").children.length));
   $("#save").onclick = () => save({ orderId: o.id, fields: {
-    dialogue: $("#dialogue").value,
+    dialogue: $("#dialogue").value, wish: $("#wish").value,
     hints: [...document.querySelectorAll("#hints textarea")].map((t) => t.value.trim()).filter(Boolean),
   }});
   $("#reset").onclick = () => resetOrder(o);

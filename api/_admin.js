@@ -24,7 +24,7 @@ const LOG = join(HERE, "..", "docs", "prompt-engineering-log.md");
 // 주문별로 편집할 수 있는 필드. wants 는 프롬프트와 채점 양쪽에 쓰인다.
 // 성격(화법)은 몬스터의 것이라 여기 없다 → MONSTERS[].character
 // intent(원하는 것 서술)는 콘솔에서 안 고친다 — 출력의 intent(슬롯 상태)와 헷갈린다.
-const FIELDS = ["dialogue", "hints", "wants", "disclosed"];
+const FIELDS = ["dialogue", "wish", "hints", "wants", "disclosed"];
 
 const clone = (x) => JSON.parse(JSON.stringify(x));
 const ids = (list) => new Set(list.map((x) => x.id));
@@ -60,7 +60,7 @@ function validateWants(w) {
 }
 
 const base = new Map(
-  orders.map((o) => [o.id, { dialogue: o.dialogue, disclosed: clone(o.disclosed ?? {}),
+  orders.map((o) => [o.id, { dialogue: o.dialogue, wish: o.hidden.intent, disclosed: clone(o.disclosed ?? {}),
                              intent: o.hidden.intent, hints: [...(o.hints ?? [])],
                              wants: clone(o.hidden.wants ?? {}) }])
 );
@@ -88,6 +88,7 @@ export function apply(ov = read()) {
     const b = base.get(o.id);
     const e = ov.orders?.[o.id] ?? {};
     o.dialogue = e.dialogue ?? b.dialogue;
+    o.hidden.intent = e.wish ?? b.wish;
     o.hidden.intent = e.intent ?? b.intent;
     o.hints = e.hints ?? [...b.hints];
     o.hidden.wants = e.wants ? clone(e.wants) : clone(b.wants);
@@ -117,6 +118,7 @@ function state() {
       seq: i + 1,
       monster: o.monster,
       dialogue: o.dialogue,
+      wish: o.hidden.intent,
       hints: o.hints ?? [],
       wants: o.hidden.wants,
       disclosed: o.disclosed ?? {},

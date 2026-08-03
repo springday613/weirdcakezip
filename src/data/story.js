@@ -111,21 +111,21 @@ export const STORY = {
     {
       img: "/assets/story_end_good_4.webp",
       lines: [
-        { who: "{name}", text: "허억!", face: "user" },
-        { who: "{name}", text: "여긴.. 내 집이잖아!", face: "user" },
-        { who: "{name}", text: "내 몸도 돌아왔어! 더 이상 달콤한 푸딩 몸이 아니라 인간의 몸이야!!!", face: "user" },
-        { who: "{name}", text: "열심히 일한 보람이 있었어.. 그래, 지금은 월요일 아침이고 나는 출근을..", face: "user" },
-        { who: "{name}", text: "잠깐만, 월요일 아침?", face: "user" },
-        { who: "{name}", text: "괴물들보다도 애매한 주문을 하는 클라이언트들.... 내 노고를 알아주는 곳 없는 직장.. 달콤하지 않은 작업물들...", face: "user" },
-        { who: "{name}", text: "잠깐 이거.. 괴물 케이크가게 생활이 더 나은거 아니야?", face: "user" },
-        { who: "{name}", text: "나 돌아갈래!!! 점박이말차야 날 돌려줘", face: "user" },
+        { who: "{name}", text: "허억!" },
+        { who: "{name}", text: "여긴.. 내 집이잖아!" },
+        { who: "{name}", text: "내 몸도 돌아왔어! 더 이상 달콤한 푸딩 몸이 아니라 인간의 몸이야!!!" },
+        { who: "{name}", text: "열심히 일한 보람이 있었어.. 그래, 지금은 월요일 아침이고 나는 출근을.." },
+        { who: "{name}", text: "잠깐만, 월요일 아침?" },
+        { who: "{name}", text: "괴물들보다도 애매한 주문을 하는 클라이언트들.... 내 노고를 알아주는 곳 없는 직장.. 달콤하지 않은 작업물들..." },
+        { who: "{name}", text: "잠깐 이거.. 괴물 케이크가게 생활이 더 나은거 아니야?" },
+        { who: "{name}", text: "나 돌아갈래!!! 점박이말차야 날 돌려줘" },
       ],
     },
     {
       img: "/assets/bg_default.webp",
       lines: [
-        { who: "{name}", text: "앗.. 다시 정신이 몽롱해진다", face: "user" },
-        { who: "{name}", text: "설마...?", face: "user" },
+        { who: "{name}", text: "앗.. 다시 정신이 몽롱해진다" },
+        { who: "{name}", text: "설마...?" },
       ],
     },
     {

@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import CakeView from "../components/CakeView.jsx";
 import IngredientPalette, { STEPS } from "../components/IngredientPalette.jsx";
-import ChatBox from "../components/ChatBox.jsx";
 import { MONSTERS, sheetType } from "../data/ingredients.js";
 
-export default function OrderScreen({ order, index, total, money, cake, setCake, onSubmit, busy, turns, extraTurns, onAsk, onBuyTurn }) {
+export default function OrderScreen({ order, index, total, money, cake, setCake, onSubmit, busy }) {
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
   const [step, setStep] = useState(0);
   const [made, setMade] = useState(false);   // 시트가 케이크로 구워졌는가
@@ -80,14 +79,12 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
         <span className="money">매출 {(money ?? 0).toLocaleString()}원</span>
       </div>
 
-      <img className="monster-big" src={monster.img.normal} alt="손님 괴물" />
-
-      {/* 애매한 주문은 대화로 푼다 (런타임 LLM) */}
-      <ChatBox order={order} turns={turns} extraTurns={extraTurns} money={money} onAsk={onAsk} onBuyTurn={onBuyTurn} />
-
-      {warn && step === 0 && (
-        <div className="warn-bubble">시트가 뭔가 이상해! 다시 보자</div>
-      )}
+      <div className="monster-row">
+        <img className="monster-big" src={monster.img.normal} alt="손님 괴물" />
+        {warn && step === 0 && (
+          <div className="warn-bubble">시트가 뭔가 이상해! 다시 보자</div>
+        )}
+      </div>
       <CakeView cake={cake} preview={preview} />
 
       <IngredientPalette step={step} cake={cake} setCake={setCake} />

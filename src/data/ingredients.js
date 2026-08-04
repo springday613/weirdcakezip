@@ -84,6 +84,8 @@ export const DECO = [
 export const LOCKS = {
   sheet: { water: 1, soymilk: 1, riceflour: 1, veggieoil: 1, icecream: 2, gelatin: 2 },
   color: { strawberry: 1, cherry: 1, lemon: 1, chocolate: 1, tomato: 1, blueberry: 1, avocado: 1, peach: 1, banana: 2, protein: 2 },
+  // cream 에 strawberry·cherry 가 없는 건 의도 — 튜토리얼 정답(체리 생크림)이 잠기면 안 된다.
+  // 베이스는 바닐라만 열고 생크림은 3색(바닐라·딸기·체리)을 여는 비대칭이 스펙(2026-08-03 결정).
   cream: { lemon: 1, chocolate: 1, tomato: 1, blueberry: 1, avocado: 1, peach: 1, banana: 2, protein: 2 },
   topping: { banana: 2, almond: 2, chicken: 2 },
 };

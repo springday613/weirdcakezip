@@ -170,6 +170,14 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
         <span className="money">매출 {(money ?? 0).toLocaleString()}코인</span>
       </div>
 
+      {/* 주문 띠 — 팝업 안 열고도 6단계 내내 주문 문장이 보이게. 튜토리얼은 치트 시트가 있어 생략 */}
+      {!order.script && (
+        <div className="build-order">
+          <span className="order-badge">주문</span>
+          <p className="build-order-text">{order.dialogue}</p>
+        </div>
+      )}
+
       {/* 괴물은 상단 '대화' 버튼(바스트샷)으로 이동 — 제작 화면은 케이크가 주인공 */}
       {warn && step === 0 && (
         <div className="warn-bubble warn-bubble--center">시트가 뭔가 이상해! 다시 보자</div>

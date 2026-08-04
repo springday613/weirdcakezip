@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import CakeView from "../components/CakeView.jsx";
 import IngredientPalette, { STEPS } from "../components/IngredientPalette.jsx";
-import { MONSTERS, sheetType } from "../data/ingredients.js";
+import { sheetType } from "../data/ingredients.js";
 
 export default function OrderScreen({ order, index, total, money, cake, setCake, onSubmit, busy }) {
-  const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
   const [step, setStep] = useState(0);
   const [made, setMade] = useState(false);   // 시트가 케이크로 구워졌는가
   const [making, setMaking] = useState(false); // 굽는 중(1초 연출)
@@ -88,15 +87,13 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
     <div className="screen">
       <div className="hud hud-row">
         <span>주문 {index + 1} / {total}</span>
-        <span className="money">매출 {(money ?? 0).toLocaleString()}원</span>
+        <span className="money">매출 {(money ?? 0).toLocaleString()}코인</span>
       </div>
 
-      <div className="monster-row">
-        <img className="monster-big" src={monster.img.normal} alt="손님 괴물" />
-        {warn && step === 0 && (
-          <div className="warn-bubble">시트가 뭔가 이상해! 다시 보자</div>
-        )}
-      </div>
+      {/* 괴물은 상단 '대화' 버튼(바스트샷)으로 이동 — 제작 화면은 케이크가 주인공 */}
+      {warn && step === 0 && (
+        <div className="warn-bubble warn-bubble--center">시트가 뭔가 이상해! 다시 보자</div>
+      )}
       <CakeView cake={cake} preview={preview} />
 
       <IngredientPalette step={step} cake={cake} setCake={setCake} />

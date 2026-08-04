@@ -41,6 +41,8 @@ export default function ChatBox({ order, messages = [], onSend, busy = false, tu
         {messages.map((m) => (
           <div key={m.id} className={"bubble " + m.role}>
             {m.role === "monster" && <img className="bubble-face" src={monster.img.normal} alt="" />}
+            {/* 유저(주인공)는 스토리 바스트샷 — row-reverse 라 오른쪽에 붙는다 */}
+            {m.role === "user" && <img className="bubble-face" src="/assets/story_face_user.webp" alt="" />}
             <span className="bubble-text">{m.content}</span>
             {/* 디버그: 모델이 실제로 뱉은 JSON. raw 가 없으면 mock 응답이라는 뜻 */}
             {import.meta.env.DEV && m.role === "monster" && m.raw && (

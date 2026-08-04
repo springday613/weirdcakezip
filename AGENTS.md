@@ -32,6 +32,7 @@ cake-shop/
 │   └── judge.js             채점 (scoreCake 호출, LLM 아님)
 ├── devServer.js             로컬 API 서버 (npm run api, port 3001)
 ├── scripts/                 회귀 테스트 하네스 (testChat.py 등)
+├── tools/assets/            에셋 빌드 스크립트 (cake·monster) — 원본 그림은 리포 밖 ../assets/assets-* 에 두고 스크립트만 여기서 리뷰한다
 ├── rules/                   에이전트용 세부 규칙 (아래 참조)
 └── docs/                    사람용 개발 기록 (prompt-engineering-log 등)
 ```

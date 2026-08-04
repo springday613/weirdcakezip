@@ -121,7 +121,11 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
     else if (id === "lettering") setCake({ ...cake, lettering: { text: "", color: null } });
   };
   const resetAll = () => {
-    setCake({ base: [], cakeBase: "vanilla", cream: null, toppings: [], deco: [], lettering: { text: "", color: null } });
+    setCake({
+      base: [], cakeBase: "vanilla", cream: null, toppings: [], deco: [],
+      // 튜토리얼은 쪽지 인사말을 되살린다 — 빈칸으로 돌아가면 예시가 사라진다
+      lettering: { text: tut ? TUTORIAL_GUIDE.noteText : "", color: null },
+    });
     setMade(false);
     setMaking(false);
     setStep(0);

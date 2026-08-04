@@ -19,4 +19,6 @@ export const TUTORIAL_GUIDE = {
   ],
   // 단계별 정답 — 시트는 기본 조합 버튼, 색/생크림/토핑은 재료 id
   picks: { color: "vanilla", cream: "cherry", topping: ["peach", "cherry"] },
+  // 쪽지(마음대로 단계)에 미리 적혀 있는 인사말 — 쪽지가 뭔지 예시로 보여준다
+  noteText: "안녕! 잘 부탁해",
 };

@@ -30,6 +30,12 @@ const emptyCake = () => ({
   lettering: { text: "", color: null },
 });
 
+// 새 케이크 — 튜토리얼은 쪽지에 인사말이 미리 적혀 있다 (쪽지는 don't-care 라 채점 무관)
+const newCakeFor = (o) =>
+  o?.id === TUTORIAL_GUIDE.orderId
+    ? { ...emptyCake(), lettering: { text: TUTORIAL_GUIDE.noteText, color: null } }
+    : emptyCake();
+
 const BG_MODES = ["solid", "day", "night"];
 const BG_LABELS = { solid: "단색", day: "낮", night: "밤" };
 
@@ -90,7 +96,7 @@ export default function App() {
   // 스테이지 맵에서 노드 선택
   function selectNode(i) {
     setOrderIndex(i);
-    setCake(emptyCake());
+    setCake(newCakeFor(orders[i]));
     setResult(null);
     setTurns(0);
     setExtraTurns(0);
@@ -161,7 +167,7 @@ export default function App() {
   // 개발용: 스테이지 점프
   function jumpTo(i) {
     setOrderIndex(i);
-    setCake(emptyCake());
+    setCake(newCakeFor(orders[i]));
     setResult(null);
     setTurns(0);
     setExtraTurns(0);

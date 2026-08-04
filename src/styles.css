@@ -357,7 +357,15 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .bubble { display: flex; align-items: flex-end; gap: 6px; max-width: 85%; }
 .bubble.monster { align-self: flex-start; }
 .bubble.user { align-self: flex-end; flex-direction: row-reverse; }
-.bubble-face { width: 34px; height: 34px; object-fit: contain; }
+/* 아바타 — 통짜 몬스터 그림을 머리~가슴(바스트샷)만 원형으로 잘라 보여준다. 테두리 없음 */
+.bubble-face {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 8%;
+  flex-shrink: 0;
+}
 .bubble-text {
   padding: 8px 12px;
   border-radius: 14px;
@@ -1111,4 +1119,187 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   bottom: 2%;
   width: 30%;
   transform: rotate(9deg);
+}
+
+/* ── 스토리 화면 (S19) — 컷 한 장씩, 탭으로 진행 ─────────── */
+.story-layer {
+  flex: 1;
+  display: flex;
+  padding: 0; /* 컷이 가로폭을 꽉 채우게 — 스토리 화면은 여백 없이 */
+  background: url("/assets/bg_default.webp") center / cover no-repeat;
+}
+.story {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.story-cut {
+  width: 100%;
+  display: block;
+}
+.story-nav {
+  position: absolute;
+  bottom: 18px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+.story-progress {
+  background: rgba(26, 26, 26, .55);
+  color: var(--text-on-ink);
+  border-radius: var(--r-pill);
+  padding: 2px 10px;
+  font-size: var(--fs-note);
+  font-weight: 700;
+}
+
+/* 기본 배경 그림 — 베일(흰 55%) 위에 깔려 원색 그대로 보인다. 타이틀 등 화면 단위로 쓴다 */
+.screen-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: url("/assets/bg_default.webp") center / cover no-repeat;
+  pointer-events: none;
+}
+/* 주문(CHAT) 화면 상단 — 괴물~주문 카드 구간만 케이크 가게 안 */
+.chat-shop-zone {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  background: url("/assets/bg_cake_shop.webp") center top / cover no-repeat;
+  padding-bottom: 10px;
+  /* HUD(위 형제, z3) 뒤로 배경을 밀어 올려 화면 위쪽 끝까지 가게가 이어지게.
+     넉넉히 올려도 app-shell overflow 로 잘려서 안전하다 */
+  margin-top: -72px;
+  padding-top: 72px;
+}
+.chat-order-wrap { padding-top: 0; }
+/* 채팅창이 가게 배경 끝에 바로 붙게 — 사이 하늘 틈 제거 */
+.chat-ui { padding-top: 0; }
+
+/* 말풍선 대사 — 컷 하단에 얹힌다. ≫ 로 한 줄씩 */
+.story-bubble {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 64px;
+  border-radius: 14px;
+  padding: 8px 36px 8px 10px;
+  text-align: left;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 84px;
+}
+/* 화자 얼굴 — 원형 크롭 + 바로 아래 이름 */
+.story-face {
+  flex-shrink: 0;
+  width: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.story-face img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: var(--ink-line-thin) solid var(--ink);
+  background: var(--paper);
+  object-fit: cover;
+}
+.story-who {
+  font-size: var(--fs-note);
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2;
+  word-break: keep-all;
+}
+.story-line {
+  flex: 1;
+  margin: 2px 0 0;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  word-break: keep-all;
+}
+.story-adv {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  background: none;
+  border: none;
+  font-family: var(--font);
+  font-size: var(--fs-title);
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text);
+}
+
+/* 이름 입력 화면 */
+.name-screen {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--pad-screen); /* story-layer 가 패딩 0 이라 여기서 확보 */
+}
+.name-card {
+  width: min(100%, 300px);
+  border-radius: var(--r-card);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+}
+.name-title {
+  margin: 0;
+  font-size: var(--fs-title);
+  font-weight: 700;
+}
+.name-input { width: 100%; }
+.name-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 제작 화면 경고 — 괴물이 상단 버튼으로 옮겨가 말풍선만 가운데 뜬다 */
+.warn-bubble--center { align-self: center; margin-top: 16px; }
+.warn-bubble--center::after { display: none; }
+
+/* HUD 대화 버튼 속 손님 바스트샷 */
+.chat-trigger-face { width: 24px; height: 24px; }
+
+/* 엔딩 크레딧 (S19) — 배경 위 주인공 + CTA */
+.credits {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+  padding: var(--pad-screen); /* story-layer 가 패딩 0 이라 여기서 확보 */
+}
+.credits-char { width: min(62%, 240px); border-radius: var(--r-card); }
+.credits-q {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  word-break: keep-all;
+}
+.credits-thanks {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 700;
 }

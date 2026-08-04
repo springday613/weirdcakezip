@@ -21,20 +21,23 @@ export default function ChatScreen({
 
   return (
     <>
-      <div className="layer-asset chat-monster-area">
-        <Img
-          src={monster.img.normal}
-          className="chat-monster"
-          alt={monster.name}
-        />
+      {/* 상단(괴물~주문 카드)은 케이크 가게 안 — 아래 채팅부터는 기본 배경 */}
+      <div className="chat-shop-zone">
+        <div className="layer-asset chat-monster-area">
+          <Img
+            src={monster.img.normal}
+            className="chat-monster"
+            alt={monster.name}
+          />
+        </div>
+        <div className="layer-ui chat-order-wrap">
+          <div className="order-card stk">
+            <span className="order-badge">주문</span>
+            <p className="order-text">{order.dialogue}</p>
+          </div>
+        </div>
       </div>
       <div className="layer-ui layer-ui--grow chat-ui">
-        {/* 주문 카드 — 상단 고정 */}
-        <div className="order-card stk">
-          <span className="order-badge">주문</span>
-          <p className="order-text">{order.dialogue}</p>
-        </div>
-
         {/* 대화 영역 — ChatBox 가 턴 배지·대본·입력을 전부 렌더 */}
         <ChatBox
           order={order}

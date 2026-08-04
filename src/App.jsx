@@ -2,20 +2,23 @@ import { useState, useRef } from "react";
 import { orders } from "./data/orders.js";
 import { judge } from "./judgeClient.js";
 import { chat } from "./chatClient.js";
-import { coinsFor, EXTRA_TURN_BUNDLE, extraTurnPrice } from "./scoreCake.js";
-import { MONSTERS } from "./data/ingredients.js";
+import { coinsFor, starsFor, EXTRA_TURN_BUNDLE, extraTurnPrice } from "./scoreCake.js";
 import TitleScreen from "./screens/TitleScreen.jsx";
 import NameScreen from "./screens/NameScreen.jsx";
 import StoryScreen from "./screens/StoryScreen.jsx";
+import StageMapScreen from "./screens/StageMapScreen.jsx";
 import ChatScreen from "./screens/ChatScreen.jsx";
 import OrderScreen from "./screens/OrderScreen.jsx";
 import ResultScreen from "./screens/ResultScreen.jsx";
+import LoadingScreen, { useLoading } from "./screens/LoadingScreen.jsx";
 import Hud from "./components/Hud.jsx";
 import ChatPopup from "./components/ChatPopup.jsx";
+import { MONSTERS } from "./data/ingredients.js";
 import { STORY, GOOD_ENDING_COINS } from "./data/story.js";
 
-// 게임 루프 = 상태머신 (척추 = 이 하나의 상태 객체)
-//   TITLE → NAME → INTRO(스토리) → CHAT → BUILD → RESULT → 다음 or ENDING(스토리) → END
+// 게임 루프 = 상태머신
+//   TITLE → NAME(이름) → INTRO(스토리) → STAGE → CHAT → BUILD → RESULT → STAGE 순환
+//   → 코인 목표(GOOD_ENDING_COINS) 달성 또는 5명 완료 시: END(정산) → ENDING(스토리) → CREDITS
 const emptyCake = () => ({
   base: [],
   cakeBase: null,
@@ -29,23 +32,31 @@ const BG_MODES = ["solid", "day", "night"];
 const BG_LABELS = { solid: "단색", day: "낮", night: "밤" };
 
 export default function App() {
-  const [screen, setScreen] = useState("TITLE"); // TITLE | NAME | INTRO | CHAT | BUILD | RESULT | END(정산) | ENDING(아웃트로) | CREDITS
+  const [screen, setScreen] = useState("TITLE"); // TITLE | NAME | INTRO | STAGE | CHAT | BUILD | RESULT | END | ENDING | CREDITS
   const [playerName, setPlayerName] = useState(""); // 스토리 주인공 이름 (NAME 화면에서 받는다)
+  const [devEnding, setDevEnding] = useState(null); // 개발용 엔딩 강제("good"|"bad") — 실플레이는 null
+  const [cheered, setCheered] = useState(false); // 크레딧 CTA(합격시키기) 눌렀는가
   const [orderIndex, setOrderIndex] = useState(0);
   const [cake, setCake] = useState(emptyCake());
   const [result, setResult] = useState(null);
   const [totalScore, setTotalScore] = useState(0);
   const [money, setMoney] = useState(0);
-  const [busy, setBusy] = useState(false);
-  const [turns, setTurns] = useState(0); // 이번 손님에게 던진 질문 수 — 점수에서 지불한다
-  const [extraTurns, setExtraTurns] = useState(0); // 코인으로 산 추가 질문(감점 없음, 상한 5)
-  const [bgMode, setBgMode] = useState(0); // 개발용 배경 토글
-  const [devEnding, setDevEnding] = useState(null); // 개발용 엔딩 강제("good"|"bad") — 실플레이는 null
-  const [cheered, setCheered] = useState(false); // 크레딧 CTA(합격시키기) 눌렀는가
+  const [chatBusy, setChatBusy] = useState(false);
+  const [judgeBusy, setJudgeBusy] = useState(false);
+  const [turns, setTurns] = useState(0);
+  const [extraTurns, setExtraTurns] = useState(0);
+  const [bgMode, setBgMode] = useState(0);
   const [messages, setMessages] = useState([]); // 대화 기록 — 화면 전환에도 유지
   const [scriptIdx, setScriptIdx] = useState(0); // 대본 진행도 — ChatBox 와 동기
   const [chatPopupOpen, setChatPopupOpen] = useState(false);
-  const nextMsgId = useRef(1); // 메시지별 안정적 key
+  const nextMsgId = useRef(1);
+  const scriptAdvancing = useRef(false); // 대본 연타 가드
+
+  // 손님별 최고 별점. 인덱스 = orders 배열 순서. 0 = 아직 안 함
+  const [stars, setStars] = useState(() => orders.map(() => 0));
+
+  // 로딩 오버레이
+  const { loading, loadMsg, withLoading } = useLoading();
 
   const order = orders[orderIndex];
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
@@ -64,27 +75,56 @@ export default function App() {
     setMoney(0);
     setTurns(0);
     setExtraTurns(0);
+    setStars(orders.map(() => 0));
     setCheered(false);
     setDevEnding(null); // 개발용 엔딩 강제가 실플레이로 새지 않게
-    seedMessages(orders[0]);
-    setScreen("NAME"); // 이름 → 인트로 스토리 → 첫 주문(CHAT). 스토리는 건너뛰기 가능
+    setScreen("NAME"); // 이름 → 인트로 스토리 → 스테이지 맵
+  }
+
+  // 스테이지 맵에서 노드 선택
+  function selectNode(i) {
+    setOrderIndex(i);
+    setCake(emptyCake());
+    setResult(null);
+    setTurns(0);
+    setExtraTurns(0);
+    seedMessages(orders[i]);
+    withLoading("손님이 오고 있어요…", async () => {}).then(() => {
+      setScreen("CHAT");
+    });
   }
 
   async function submit() {
-    setBusy(true);
-    const r = await judge(order.id, cake, turns);
-    setBusy(false);
-    const earned = coinsFor(r.score);
-    setResult({ ...r, earned });
-    setTotalScore((s) => s + r.score);
-    setMoney((m) => m + earned);
+    await withLoading("케이크 채점 중…", async () => {
+      setJudgeBusy(true);
+      const r = await judge(order.id, cake, turns);
+      setJudgeBusy(false);
+      // ⚠ 임시 — 재플레이 수익 0. 최종 정책은 8/4 미팅 (재수익 0 vs 최고 기록 초과분만)
+      // 지금 안 막으면 완료 노드 반복으로 코인 무한 파밍 → S19 의 엔딩 조건이 무력화된다
+      const isReplay = stars[orderIndex] > 0;
+      const earned = isReplay ? 0 : coinsFor(r.score);
+      setResult({ ...r, earned });
+      if (!isReplay) {
+        setTotalScore((s) => s + r.score);
+        setMoney((m) => m + earned);
+      }
+      // 별점 갱신 — 기존보다 높을 때만 (재플레이도 갱신)
+      const newStars = starsFor(r.score);
+      setStars((prev) => {
+        const next = [...prev];
+        if (newStars > next[orderIndex]) next[orderIndex] = newStars;
+        return next;
+      });
+    });
     setScreen("RESULT");
   }
 
-  // 대본 진행 — ChatBox 에서 호출
+  // 대본 진행 — ChatBox 에서 호출. 연타 가드로 같은 대사 중복 방지.
   function advanceScript() {
     const script = order.script;
     if (!script || scriptIdx >= script.length) return;
+    if (scriptAdvancing.current) return; // 연타 방어
+    scriptAdvancing.current = true;
     const { ask, reply } = script[scriptIdx];
     setMessages((m) => [
       ...m,
@@ -92,21 +132,22 @@ export default function App() {
       { id: nextMsgId.current++, role: "monster", content: reply },
     ]);
     setScriptIdx((n) => n + 1);
+    // 다음 렌더 후 해제
+    requestAnimationFrame(() => { scriptAdvancing.current = false; });
   }
 
-  // 대화 보내기 — ChatBox 에서 호출. 일반 대화만
+  // 대화 보내기 — ChatBox 에서 호출. 일반 대화만 (chatBusy)
   async function handleSend(text) {
-    // 일반 대화 — LLM 호출
     const userMsg = { id: nextMsgId.current++, role: "user", content: text };
     const next = [...messages, userMsg];
     setMessages(next);
-    setBusy(true);
+    setChatBusy(true);
     const { reply, raw } = await chat(order.id, next);
-    setBusy(false);
+    setChatBusy(false);
     setMessages((m) => [...m, { id: nextMsgId.current++, role: "monster", content: reply, raw }]);
   }
 
-  // 개발용: 스테이지 점프 — 순차 진행 없이 특정 손님으로 바로
+  // 개발용: 스테이지 점프
   function jumpTo(i) {
     setOrderIndex(i);
     setCake(emptyCake());
@@ -118,19 +159,15 @@ export default function App() {
   }
 
   function next() {
-    const ni = orderIndex + 1;
-    if (ni >= orders.length) {
+    // 코인 목표를 모으면 귀환 주문 완성 — 엔딩으로. 5명을 다 돌고도 못 모았으면 배드 엔딩.
+    // (재플레이 수익 0 이라 5명 완료 후엔 더 벌 수 없다)
+    const allDone = stars.every((v) => v > 0);
+    if (money >= GOOD_ENDING_COINS || allDone) {
       setDevEnding(null); // 실플레이 엔딩은 코인으로만 가른다
-      setScreen("END"); // 영업 종료(정산) → 아웃트로 스토리 → 엔딩 화면
+      setScreen("END"); // 영업 종료(정산) → 엔딩 스토리
       return;
     }
-    setOrderIndex(ni);
-    setCake(emptyCake());
-    setResult(null);
-    setTurns(0);
-    setExtraTurns(0); // 예산은 손님마다 새로 준다
-    seedMessages(orders[ni]);
-    setScreen("CHAT");
+    setScreen("STAGE");
   }
 
   const buyTurn = () => {
@@ -145,16 +182,13 @@ export default function App() {
 
   return (
     <div className={`app-shell ${bgClass}`}>
-      {/* ① 배경 그림 (교체 예정) */}
       <div className="layer-art" />
-
-      {/* 배경 위 베일 — 어두운 배경에서도 UI가 읽히게 */}
       <div className="layer-veil" />
 
-      {/* 게임 진행 화면들도 기본 배경(구름 하늘)을 깐다 — CHAT 상단은 ChatScreen 이 가게 배경을 얹는다 */}
-      {["CHAT", "BUILD", "RESULT", "END"].includes(screen) && <div className="screen-bg" />}
+      {/* 게임 진행 화면들엔 기본 배경(구름 하늘) — CHAT 상단은 ChatScreen 이 가게 배경을 얹는다 */}
+      {["STAGE", "CHAT", "BUILD", "RESULT", "END"].includes(screen) && <div className="screen-bg" />}
 
-      {/* HUD — 타이틀·이름·스토리 이외 화면에 상주하는 크롬 */}
+      {/* HUD — 타이틀·이름·스토리 이외 화면에 상주 */}
       {!["TITLE", "NAME", "INTRO", "ENDING", "CREDITS"].includes(screen) && (
         <div className="layer-ui">
           <Hud coins={money}>
@@ -168,7 +202,6 @@ export default function App() {
         </div>
       )}
 
-      {/* 화면이 필요한 층을 직접 렌더한다 (§2) */}
       {screen === "TITLE" && <TitleScreen onStart={start} />}
 
       {screen === "NAME" && (
@@ -184,7 +217,7 @@ export default function App() {
 
       {screen === "INTRO" && (
         <div className="layer-ui story-layer">
-          <StoryScreen cuts={STORY.begin} name={playerName} onDone={() => setScreen("CHAT")} />
+          <StoryScreen cuts={STORY.begin} name={playerName} onDone={() => setScreen("STAGE")} />
         </div>
       )}
 
@@ -203,13 +236,17 @@ export default function App() {
         </div>
       )}
 
+      {screen === "STAGE" && (
+        <StageMapScreen stars={stars} onSelect={selectNode} />
+      )}
+
       {screen === "CHAT" && (
         <ChatScreen
           key={order.id}
           order={order}
           messages={messages}
           onSend={handleSend}
-          busy={busy}
+          busy={chatBusy}
           turns={turns}
           extraTurns={extraTurns}
           money={money}
@@ -232,14 +269,14 @@ export default function App() {
             cake={cake}
             setCake={setCake}
             onSubmit={submit}
-            busy={busy}
+            busy={judgeBusy}
           />
           {chatPopupOpen && (
             <ChatPopup
               order={order}
               messages={messages}
               onSend={handleSend}
-              busy={busy}
+              busy={chatBusy}
               turns={turns}
               extraTurns={extraTurns}
               money={money}
@@ -291,7 +328,10 @@ export default function App() {
         </div>
       )}
 
-      {/* 개발용 배경 토글 — 프로덕션에서 숨김 */}
+      {/* 로딩 오버레이 — 화면 위에 얹는다 */}
+      {loading && <LoadingScreen visible={loading} message={loadMsg} />}
+
+      {/* 개발용 배경 토글 */}
       {import.meta.env.DEV && (
         <button
           className="dev-bg-toggle"
@@ -301,7 +341,7 @@ export default function App() {
         </button>
       )}
 
-      {/* 개발용 스테이지 점프 — intro/outro 와 손님 번호로 바로 이동 */}
+      {/* 개발용 스테이지 점프 — in(인트로)·굿/배드(엔딩 강제) 포함 */}
       {import.meta.env.DEV && (
         <div className="dev-stage-jump">
           <button
@@ -317,7 +357,7 @@ export default function App() {
           {orders.map((o, i) => (
             <button
               key={o.id}
-              className={i === orderIndex && !["TITLE", "INTRO", "ENDING"].includes(screen) ? "on" : ""}
+              className={i === orderIndex && screen !== "TITLE" ? "on" : ""}
               title={o.id + " · " + o.monster}
               onClick={() => jumpTo(i)}
             >

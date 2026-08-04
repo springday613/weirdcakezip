@@ -124,31 +124,23 @@ export default function IngredientPalette({ step, cake, setCake }) {
       )}
 
       {cur.id === "lettering" && (
-        <>
-          <div className="palette-row">
-            <span className="palette-label">문구</span>
-            <button
-              className={"chip" + (!cake.lettering.text ? " on" : "")}
-              onClick={() => set({ lettering: { text: "", color: null } })}
-            >
-              안 올림
-            </button>
-            <input
-              className="lettering-input"
-              type="text"
-              maxLength={12}
-              placeholder="케이크 위 문구"
-              value={cake.lettering.text}
-              onChange={(e) => set({ lettering: { ...cake.lettering, text: e.target.value } })}
-            />
-          </div>
-          <div className="palette-row">
-            <span className="palette-label">글자 맛</span>
-            {colorChips(cake.lettering.color, (id) =>
-              set({ lettering: { ...cake.lettering, color: id } })
-            )}
-          </div>
-        </>
+        <div className="palette-row">
+          <span className="palette-label">문구</span>
+          <button
+            className={"chip" + (!cake.lettering.text ? " on" : "")}
+            onClick={() => set({ lettering: { text: "", color: null } })}
+          >
+            안 씀
+          </button>
+          <input
+            className="lettering-input"
+            type="text"
+            maxLength={12}
+            placeholder="쪽지에 쓸 문구"
+            value={cake.lettering.text}
+            onChange={(e) => set({ lettering: { ...cake.lettering, text: e.target.value } })}
+          />
+        </div>
       )}
       </div>
     </div>

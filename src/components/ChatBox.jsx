@@ -62,7 +62,7 @@ export default function ChatBox({ order, messages = [], onSend, busy = false, tu
           ) : (
             <>
               <span className="script-ask">{script[scriptIdx].ask}</span>
-              <button className="btn small" onClick={onAdvanceScript}>확인</button>
+              <button className="btn small" onClick={onAdvanceScript} disabled={busy}>확인</button>
             </>
           )}
           <span className="script-badge">무료 · 턴 ✕</span>

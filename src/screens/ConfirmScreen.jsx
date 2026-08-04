@@ -1,4 +1,5 @@
 import CakeView from "../components/CakeView.jsx";
+import Img from "../components/Img.jsx";
 import { describeCake, MONSTERS } from "../data/ingredients.js";
 
 export default function ConfirmScreen({ order, cake, onBack, onSubmit }) {
@@ -8,7 +9,7 @@ export default function ConfirmScreen({ order, cake, onBack, onSubmit }) {
       <div className="confirm-scroll">
         {/* 손님 + 주문 말풍선 (말줄임 없이 전문) */}
         <div className="confirm-order-row">
-          <img className="confirm-monster" src={monster.img.normal} alt={monster.name} />
+          <Img className="confirm-monster" src={monster.img.normal} alt={monster.name} />
           <p className="confirm-bubble stk">{order.dialogue}</p>
         </div>
 

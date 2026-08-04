@@ -43,7 +43,6 @@ export default function App() {
   const [orderIndex, setOrderIndex] = useState(0);
   const [cake, setCake] = useState(emptyCake());
   const [result, setResult] = useState(null);
-  const [totalScore, setTotalScore] = useState(0);
   const [money, setMoney] = useState(0);
   const [chatBusy, setChatBusy] = useState(false);
   const [judgeBusy, setJudgeBusy] = useState(false);
@@ -78,7 +77,6 @@ export default function App() {
   function start() {
     setOrderIndex(0);
     setCake(emptyCake());
-    setTotalScore(0);
     setMoney(0);
     setTurns(0);
     setExtraTurns(0);
@@ -113,7 +111,6 @@ export default function App() {
       const earned = isReplay ? 0 : coinsFor(r.score);
       setResult({ ...r, earned, counted: !isReplay }); // counted = 이번 판이 실제로 적립됐는가
       if (!isReplay) {
-        setTotalScore((s) => s + r.score);
         setMoney((m) => m + earned);
         setCollected((prev) => {
           const next = [...prev];
@@ -207,7 +204,6 @@ export default function App() {
   function retry() {
     // 이번 판이 적립된 경우만 되돌린다 — 재플레이 판(수익 0)을 또 빼면 총점이 왜곡된다
     if (result?.counted) {
-      setTotalScore((s) => s - result.score);
       setMoney((m) => m - result.earned);
       setCollected((prev) => {
         const next = [...prev];
@@ -320,19 +316,30 @@ export default function App() {
         />
       )}
 
-      {screen === "BUILD" && (
+      {/* BUILD+CONFIRM — OrderScreen 을 계속 마운트해 step/made 보존 */}
+      {["BUILD", "CONFIRM"].includes(screen) && (
         <div className="layer-ui layer-ui--grow">
-          <OrderScreen
-            key={order.id}
-            order={order}
-            index={orderIndex}
-            total={orders.length}
-            money={money}
-            cake={cake}
-            setCake={setCake}
-            onSubmit={toConfirm}
-            busy={judgeBusy}
-          />
+          <div style={screen === "CONFIRM" ? { display: "none" } : undefined}>
+            <OrderScreen
+              key={order.id}
+              order={order}
+              index={orderIndex}
+              total={orders.length}
+              money={money}
+              cake={cake}
+              setCake={setCake}
+              onSubmit={toConfirm}
+              busy={judgeBusy}
+            />
+          </div>
+          {screen === "CONFIRM" && (
+            <ConfirmScreen
+              order={order}
+              cake={cake}
+              onBack={() => setScreen("BUILD")}
+              onSubmit={submit}
+            />
+          )}
           {chatPopupOpen && (
             <ChatPopup
               order={order}
@@ -349,17 +356,6 @@ export default function App() {
               onAdvanceScript={advanceScript}
             />
           )}
-        </div>
-      )}
-
-      {screen === "CONFIRM" && (
-        <div className="layer-ui layer-ui--grow">
-          <ConfirmScreen
-            order={order}
-            cake={cake}
-            onBack={() => setScreen("BUILD")}
-            onSubmit={submit}
-          />
         </div>
       )}
 

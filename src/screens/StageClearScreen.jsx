@@ -1,5 +1,6 @@
 import { orders } from "../data/orders.js";
 import { MONSTERS } from "../data/ingredients.js";
+import Img from "../components/Img.jsx";
 import Stars from "../components/Stars.jsx";
 
 export default function StageClearScreen({ stars, money, onEnding, onRestart }) {
@@ -17,7 +18,7 @@ export default function StageClearScreen({ stars, money, onEnding, onRestart }) 
             const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
             return (
               <div key={order.id} className="clear-customer-row stk">
-                <img
+                <Img
                   className="clear-monster-face"
                   src={monster.img.normal}
                   alt={monster.name}

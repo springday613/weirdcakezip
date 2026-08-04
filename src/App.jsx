@@ -245,7 +245,12 @@ export default function App() {
 
       {screen === "INTRO" && (
         <div className="layer-ui story-layer">
-          <StoryScreen cuts={STORY.begin} name={playerName} onDone={() => setScreen("STAGE")} />
+          {/* 인트로 직후엔 맵을 거치지 않고 튜토리얼로 바로 — 첫 손님(핑크)이 이미 문을 열고 들어왔다 */}
+          <StoryScreen
+            cuts={STORY.begin}
+            name={playerName}
+            onDone={() => (stars[0] > 0 ? setScreen("STAGE") : selectNode(0))}
+          />
         </div>
       )}
 

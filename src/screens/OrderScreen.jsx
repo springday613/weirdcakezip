@@ -113,6 +113,7 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
   }, [busy]);
 
   // 되돌리기 — 쌓이는 단계(생크림·토핑·데코)에서 마지막 원소 하나만 pop
+  const stepId = STEPS[step]?.id;
   function undoLast() {
     if (stepId === "cream") {
       const dollops = cake.cream?.dollops ?? [];
@@ -155,7 +156,6 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
 
   // 튜토리얼 하이라이트 — 이 단계에서 다음에 눌러야 할 것 하나만 빛낸다.
   // 치트 시트 정답을 아직 안 골랐으면 정답 재료를, 골랐으면 → 를, 마음대로 단계는 → 만.
-  const stepId = STEPS[step]?.id;
   let tutBasic = false, tutChips = null, tutArrow = false, tutSubmit = false;
   if (tut && tutIntro == null && !making) {
     const hasTopping = (t) => cake.toppings.some((x) => x.type === t);

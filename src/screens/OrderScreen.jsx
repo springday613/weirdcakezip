@@ -103,7 +103,11 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
   function handleSubmit() {
     if (folding || busy) return;
     setFolding(true);
-    foldTimer.current = setTimeout(onSubmit, 300);
+    foldTimer.current = setTimeout(() => {
+      setFolding(false);
+      setStep(lastStep - 1); // 돌아오면 케이크(preview="cake")가 보이도록
+      onSubmit();
+    }, 300);
   }
   // 제출이 실패로 돌아오면(busy true→false) 접힌 채로 남지 않게 펴 준다
   const wasBusy = useRef(false);

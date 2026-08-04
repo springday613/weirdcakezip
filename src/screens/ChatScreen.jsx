@@ -2,12 +2,10 @@ import { useEffect, useState } from "react";
 import { MONSTERS } from "../data/ingredients.js";
 import ChatBox from "../components/ChatBox.jsx";
 import Img from "../components/Img.jsx";
+import { TUTORIAL_GUIDE } from "../data/tutorial.js";
 
-// 튜토리얼 가이드(커스터드물범) 대사 — 대본 손님(첫 주문)에서만
-const GUIDE_LINES = {
-  1: "괴물이 주문을 하고 있어! 첫 번째 주문에 있는 요구사항을 유심히 보자.",
-  2: "그런데 좀 애매한 게 있지? 한 번 물어서 확인해 보자",
-};
+// 튜토리얼 가이드(커스터드물범) 대사는 tutorial.js 에서 — 대본이 한 곳에 모이게
+const GUIDE_LINES = TUTORIAL_GUIDE.chatGuide;
 
 // 채팅(주문) 화면 — 괴물 + 주문 카드 + 대화 + '케이크 만들기'
 export default function ChatScreen({

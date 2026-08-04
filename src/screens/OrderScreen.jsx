@@ -37,8 +37,10 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
     if (nc.cakeBase !== cake.cakeBase) return nc.cakeBase === TUTORIAL_GUIDE.picks.color;
     if (nc.cream !== cake.cream) return nc.cream?.color === TUTORIAL_GUIDE.picks.cream;
     if (nc.toppings !== cake.toppings) {
+      // 정답 토핑만, 종류당 1개까지 — 치트 시트와 똑같은 케이크가 나오게
       const added = nc.toppings[nc.toppings.length - 1];
-      return TUTORIAL_GUIDE.picks.topping.includes(added?.type);
+      if (!TUTORIAL_GUIDE.picks.topping.includes(added?.type)) return false;
+      return cake.toppings.every((t) => t.type !== added.type);
     }
     return true; // 데코·쪽지는 마음대로
   }
@@ -91,6 +93,7 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
     setMade(false);
     setMaking(false);
     setStep(0);
+    setTutWarn(false); // 오답 경고도 함께 지운다
   };
 
   // 튜토리얼 하이라이트 — 이 단계에서 다음에 눌러야 할 것 하나만 빛낸다.
@@ -98,11 +101,9 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
   const stepId = STEPS[step]?.id;
   let tutBasic = false, tutChips = null, tutArrow = false, tutSubmit = false;
   if (tut && tutIntro == null && !making) {
-    const isBasic =
-      BASIC_BASE.length === cake.base.length && BASIC_BASE.every((b) => cake.base.includes(b));
     const hasTopping = (t) => cake.toppings.some((x) => x.type === t);
     if (stepId === "sheet") {
-      if (isBasic) tutArrow = true;
+      if (isBasicOf(cake.base)) tutArrow = true;
       else tutBasic = true;
     } else if (stepId === "color") {
       if (cake.cakeBase === TUTORIAL_GUIDE.picks.color) tutArrow = true;

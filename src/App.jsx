@@ -9,6 +9,7 @@ import ChatScreen from "./screens/ChatScreen.jsx";
 import OrderScreen from "./screens/OrderScreen.jsx";
 import ResultScreen from "./screens/ResultScreen.jsx";
 import TutorialEndScreen from "./screens/TutorialEndScreen.jsx";
+import { TUTORIAL_GUIDE } from "./data/tutorial.js";
 import Hud from "./components/Hud.jsx";
 import ChatPopup from "./components/ChatPopup.jsx";
 
@@ -219,7 +220,7 @@ export default function App() {
             result={result}
             order={order}
             cake={cake}
-            onNext={order.script ? () => setScreen("TUTEND") : next}
+            onNext={order.id === TUTORIAL_GUIDE.orderId ? () => setScreen("TUTEND") : next}
           />
         </div>
       )}

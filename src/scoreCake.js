@@ -39,7 +39,9 @@ function toppingFrac(want, made) {
   const extra = types.filter((t) => !want.includes(t)).length;
   return Math.min(1, Math.max(0, (hit - extra * 0.5) / want.length));
 }
-// 생크림 '가득' 기준 — cakeLayout.json cream.slots 수와 같아야 한다 (슬롯 19자리)
+// 생크림 '가득' 기준 — cakeLayout.json cream.slots 수와 같아야 한다 (슬롯 19자리).
+// 채점(creamFrac)은 이제 양을 안 보지만, '가득'의 정의로 남겨둔다(양 채점 재도입 대비).
+// 테스트가 layout 과의 동기화를 계속 감시한다.
 export const CREAM_FULL = 19;
 function creamFrac(want, made) {
   if (want == null) return made ? 0 : 1; // 크림 없어야 함

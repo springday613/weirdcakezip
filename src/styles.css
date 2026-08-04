@@ -603,7 +603,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   justify-content: center;
 }
 .arrow:disabled { opacity: var(--disabled-opacity); cursor: default; }
-.edit-row { display: flex; gap: 8px; justify-content: center; }
+.edit-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .note { font-size: var(--fs-note); color: var(--text-muted); }
 
 /* 결과 화면 */

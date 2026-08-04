@@ -112,6 +112,27 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
     wasBusy.current = busy;
   }, [busy]);
 
+  // 되돌리기 — 쌓이는 단계(생크림·토핑·데코)에서 마지막 원소 하나만 pop
+  function undoLast() {
+    if (stepId === "cream") {
+      const dollops = cake.cream?.dollops ?? [];
+      if (dollops.length === 0) return;
+      const next = dollops.slice(0, -1);
+      setCake({ ...cake, cream: next.length > 0 ? { ...cake.cream, dollops: next } : null });
+    } else if (stepId === "topping") {
+      if (cake.toppings.length === 0) return;
+      setCake({ ...cake, toppings: cake.toppings.slice(0, -1) });
+    } else if (stepId === "deco") {
+      if (cake.deco.length === 0) return;
+      setCake({ ...cake, deco: cake.deco.slice(0, -1) });
+    }
+  }
+  const showUndo = ["cream", "topping", "deco"].includes(stepId);
+  const undoEmpty =
+    stepId === "cream"   ? (cake.cream?.dollops?.length ?? 0) === 0 :
+    stepId === "topping" ? cake.toppings.length === 0 :
+    stepId === "deco"    ? cake.deco.length === 0 : true;
+
   const sheetReady = cake.base.length > 0 && cake.cakeBase;
   const clearBoard = () => setCake({ ...cake, toppings: [], deco: [], cream: null });
   // 지금 보고 있는 단계의 재료만 비운다 — 다른 단계는 건드리지 않는다 (S20)
@@ -230,6 +251,10 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
 
       <div className={"edit-row" + introDim}>
         {/* 굽는 중엔 잠근다 — 타이머가 살아 있어 빈 반죽이 구워지는 사고 방지(KAN-34) */}
+        {/* ↺ 되돌리기 — 쌓이는 단계(생크림·토핑·데코)에만 표시. tut-pulse 없음(튜토리얼 흐름 불개입) */}
+        {showUndo && (
+          <button className="chip ghost" disabled={making || undoEmpty} onClick={undoLast}>↺ 되돌리기</button>
+        )}
         <button className="chip ghost" disabled={making} onClick={resetAll}>다시시작</button>
         <button className="chip ghost" disabled={making} onClick={clearBoard}>케이크위 다 지우기</button>
         <button className="chip ghost" disabled={making} onClick={clearStep}>현재 단계만 지우기</button>

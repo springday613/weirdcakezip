@@ -1303,3 +1303,11 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   font-size: var(--fs-body);
   font-weight: 700;
 }
+
+/* 결과 화면 버튼 줄 (S20) — 다음 손님 / 다시하기 */
+.result-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}

@@ -54,6 +54,9 @@ export default function App() {
 
   // 손님별 최고 별점. 인덱스 = orders 배열 순서. 0 = 아직 안 함
   const [stars, setStars] = useState(() => orders.map(() => 0));
+  // 손님별 수익 적립 여부 — 재플레이 판정을 별점이 아니라 이걸로 한다.
+  // 별점 기준이면 다시하기(retry)로 적립을 되돌린 뒤 재제출해도 수익 0 이 되어 버린다.
+  const [collected, setCollected] = useState(() => orders.map(() => false));
 
   // 로딩 오버레이
   const { loading, loadMsg, withLoading } = useLoading();
@@ -76,6 +79,7 @@ export default function App() {
     setTurns(0);
     setExtraTurns(0);
     setStars(orders.map(() => 0));
+    setCollected(orders.map(() => false));
     setCheered(false);
     setDevEnding(null); // 개발용 엔딩 강제가 실플레이로 새지 않게
     setScreen("NAME"); // 이름 → 인트로 스토리 → 스테이지 맵
@@ -101,12 +105,17 @@ export default function App() {
       setJudgeBusy(false);
       // ⚠ 임시 — 재플레이 수익 0. 최종 정책은 8/4 미팅 (재수익 0 vs 최고 기록 초과분만)
       // 지금 안 막으면 완료 노드 반복으로 코인 무한 파밍 → S19 의 엔딩 조건이 무력화된다
-      const isReplay = stars[orderIndex] > 0;
+      const isReplay = collected[orderIndex];
       const earned = isReplay ? 0 : coinsFor(r.score);
-      setResult({ ...r, earned });
+      setResult({ ...r, earned, counted: !isReplay }); // counted = 이번 판이 실제로 적립됐는가
       if (!isReplay) {
         setTotalScore((s) => s + r.score);
         setMoney((m) => m + earned);
+        setCollected((prev) => {
+          const next = [...prev];
+          next[orderIndex] = true;
+          return next;
+        });
       }
       // 별점 갱신 — 기존보다 높을 때만 (재플레이도 갱신)
       const newStars = starsFor(r.score);
@@ -168,6 +177,23 @@ export default function App() {
       return;
     }
     setScreen("STAGE");
+  }
+
+  // 다시하기 — 이번 채점의 점수·코인을 물리고 같은 손님의 제작으로 돌아간다.
+  // 대화 기록과 질문 수(감점)는 유지 — 재도전이 공짜 정보가 되지 않게.
+  function retry() {
+    // 이번 판이 적립된 경우만 되돌린다 — 재플레이 판(수익 0)을 또 빼면 총점이 왜곡된다
+    if (result?.counted) {
+      setTotalScore((s) => s - result.score);
+      setMoney((m) => m - result.earned);
+      setCollected((prev) => {
+        const next = [...prev];
+        next[orderIndex] = false;
+        return next;
+      });
+    }
+    setResult(null);
+    setScreen("BUILD");
   }
 
   const buyTurn = () => {
@@ -292,7 +318,7 @@ export default function App() {
 
       {screen === "RESULT" && (
         <div className="layer-ui layer-ui--grow">
-          <ResultScreen result={result} order={order} cake={cake} onNext={next} />
+          <ResultScreen result={result} order={order} cake={cake} onNext={next} onRetry={retry} />
         </div>
       )}
 

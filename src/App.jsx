@@ -88,11 +88,16 @@ export default function App() {
       setJudgeBusy(true);
       const r = await judge(order.id, cake, turns);
       setJudgeBusy(false);
-      const earned = coinsFor(r.score);
+      // ⚠ 임시 — 재플레이 수익 0. 최종 정책은 8/4 미팅 (재수익 0 vs 최고 기록 초과분만)
+      // 지금 안 막으면 완료 노드 반복으로 코인 무한 파밍 → S19 의 엔딩 조건이 무력화된다
+      const isReplay = stars[orderIndex] > 0;
+      const earned = isReplay ? 0 : coinsFor(r.score);
       setResult({ ...r, earned });
-      setTotalScore((s) => s + r.score);
-      setMoney((m) => m + earned);
-      // 별점 갱신 — 기존보다 높을 때만
+      if (!isReplay) {
+        setTotalScore((s) => s + r.score);
+        setMoney((m) => m + earned);
+      }
+      // 별점 갱신 — 기존보다 높을 때만 (재플레이도 갱신)
       const newStars = starsFor(r.score);
       setStars((prev) => {
         const next = [...prev];

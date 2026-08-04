@@ -20,6 +20,7 @@ export default function NameScreen({ onDone }) {
           placeholder="이름을 지어줘"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && ok && onDone(name.trim())}
         />
         <div className="name-actions">
           <button className="chip ghost" onClick={() => setName(roll())}>랜덤</button>

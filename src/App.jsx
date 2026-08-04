@@ -65,6 +65,7 @@ export default function App() {
     setTurns(0);
     setExtraTurns(0);
     setCheered(false);
+    setDevEnding(null); // 개발용 엔딩 강제가 실플레이로 새지 않게
     seedMessages(orders[0]);
     setScreen("NAME"); // 이름 → 인트로 스토리 → 첫 주문(CHAT). 스토리는 건너뛰기 가능
   }

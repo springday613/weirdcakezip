@@ -40,17 +40,20 @@ export function useLoading() {
   const [loadMsg, setLoadMsg] = useState("준비 중…");
 
   // 로딩 시작 + 비동기 작업 래핑. 최소 MIN_MS 동안 표시.
+  // asyncFn 이 예외를 던져도 finally 에서 오버레이를 반드시 닫는다. 에러는 호출부로 재전파.
   async function withLoading(msg, asyncFn) {
     setLoadMsg(msg);
     setLoading(true);
     const start = Date.now();
-    const result = await asyncFn();
-    const elapsed = Date.now() - start;
-    if (elapsed < MIN_MS) {
-      await new Promise((r) => setTimeout(r, MIN_MS - elapsed));
+    try {
+      return await asyncFn();
+    } finally {
+      const elapsed = Date.now() - start;
+      if (elapsed < MIN_MS) {
+        await new Promise((r) => setTimeout(r, MIN_MS - elapsed));
+      }
+      setLoading(false);
     }
-    setLoading(false);
-    return result;
   }
 
   return { loading, loadMsg, setLoading, withLoading };

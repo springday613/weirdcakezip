@@ -11,6 +11,8 @@ import StageMapScreen from "./screens/StageMapScreen.jsx";
 import ChatScreen from "./screens/ChatScreen.jsx";
 import OrderScreen from "./screens/OrderScreen.jsx";
 import ResultScreen from "./screens/ResultScreen.jsx";
+import ConfirmScreen from "./screens/ConfirmScreen.jsx";
+import StageClearScreen from "./screens/StageClearScreen.jsx";
 import LoadingScreen, { useLoading } from "./screens/LoadingScreen.jsx";
 import Hud from "./components/Hud.jsx";
 import ChatPopup from "./components/ChatPopup.jsx";
@@ -34,7 +36,7 @@ const BG_MODES = ["solid", "day", "night"];
 const BG_LABELS = { solid: "단색", day: "낮", night: "밤" };
 
 export default function App() {
-  const [screen, setScreen] = useState("TITLE"); // TITLE | NAME | INTRO | STAGE | CHAT | BUILD | RESULT | END | ENDING | CREDITS
+  const [screen, setScreen] = useState("TITLE"); // TITLE | NAME | INTRO | STAGE | CHAT | BUILD | CONFIRM | RESULT | END | ENDING | CREDITS
   const [playerName, setPlayerName] = useState(""); // 스토리 주인공 이름 (NAME 화면에서 받는다)
   const [devEnding, setDevEnding] = useState(null); // 개발용 엔딩 강제("good"|"bad") — 실플레이는 null
   const [cheered, setCheered] = useState(false); // 크레딧 CTA(합격시키기) 눌렀는가
@@ -128,6 +130,13 @@ export default function App() {
       });
     });
     setScreen("RESULT");
+  }
+
+  // 완성 확인 화면으로 — 튜토리얼(order.script)은 치트 시트가 정답을 알려주므로 건너뛴다.
+  // submit() 내부는 건드리지 않는다. 호출 지점만 옮긴다.
+  function toConfirm() {
+    if (order.script) return submit();
+    setScreen("CONFIRM");
   }
 
   // 대본 진행 — ChatBox 에서 호출. 연타 가드로 같은 대사 중복 방지.
@@ -226,7 +235,7 @@ export default function App() {
       <div className="layer-veil" />
 
       {/* 게임 진행 화면들엔 기본 배경(구름 하늘) — CHAT 상단은 ChatScreen 이 가게 배경을 얹는다 */}
-      {["STAGE", "CHAT", "BUILD", "RESULT", "END"].includes(screen) && <div className="screen-bg" />}
+      {["STAGE", "CHAT", "BUILD", "CONFIRM", "RESULT", "END"].includes(screen) && <div className="screen-bg" />}
 
       {/* HUD — 타이틀·이름·스토리·에필로그 이외 화면에 상주 */}
       {!["TITLE", "NAME", "INTRO", "ENDING", "CREDITS", "TUTEND"].includes(screen) && (
@@ -321,7 +330,7 @@ export default function App() {
             money={money}
             cake={cake}
             setCake={setCake}
-            onSubmit={submit}
+            onSubmit={toConfirm}
             busy={judgeBusy}
           />
           {chatPopupOpen && (
@@ -340,6 +349,17 @@ export default function App() {
               onAdvanceScript={advanceScript}
             />
           )}
+        </div>
+      )}
+
+      {screen === "CONFIRM" && (
+        <div className="layer-ui layer-ui--grow">
+          <ConfirmScreen
+            order={order}
+            cake={cake}
+            onBack={() => setScreen("BUILD")}
+            onSubmit={submit}
+          />
         </div>
       )}
 
@@ -364,15 +384,12 @@ export default function App() {
 
       {screen === "END" && (
         <div className="layer-ui layer-ui--grow">
-          <div className="screen center">
-            <h1>영업 종료</h1>
-            <p className="big">오늘 매출 {money.toLocaleString()}코인</p>
-            <p className="hint">총점 {totalScore}점</p>
-            <button className="btn" onClick={() => setScreen("ENDING")}>
-              엔딩 보기
-            </button>
-            <button className="chip ghost" onClick={start}>다시하기</button>
-          </div>
+          <StageClearScreen
+            stars={stars}
+            money={money}
+            onEnding={() => setScreen("ENDING")}
+            onRestart={start}
+          />
         </div>
       )}
 

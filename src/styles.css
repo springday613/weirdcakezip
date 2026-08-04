@@ -1465,3 +1465,9 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 }
 /* 에필로그의 물범 말풍선은 아래쪽에 */
 .tutend .tut-guide { top: auto; bottom: 10%; }
+
+/* 튜토리얼 건너뛰기 (S21) — 대화 아래 작은 탈출구 */
+.tut-skip {
+  align-self: center;
+  flex-shrink: 0;
+}

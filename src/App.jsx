@@ -181,6 +181,18 @@ export default function App() {
     setScreen("STAGE");
   }
 
+  // 튜토리얼 건너뛰기 — 노드 T 를 ★1 완료로 표시해 레벨 1 을 열고 맵으로.
+  // 수익·적립은 없다(collected 유지) — 나중에 튜토리얼을 플레이하면 코인은 그대로 벌 수 있다.
+  function skipTutorial() {
+    setStars((prev) => {
+      if (prev[0] > 0) return prev;
+      const next = [...prev];
+      next[0] = 1;
+      return next;
+    });
+    setScreen("STAGE");
+  }
+
   // 다시하기 — 이번 채점의 점수·코인을 물리고 같은 손님의 제작으로 돌아간다.
   // 대화 기록과 질문 수(감점)는 유지 — 재도전이 공짜 정보가 되지 않게.
   function retry() {
@@ -288,6 +300,7 @@ export default function App() {
           onMake={() => setScreen("BUILD")}
           scriptIdx={scriptIdx}
           onAdvanceScript={advanceScript}
+          onSkipTutorial={skipTutorial}
         />
       )}
 

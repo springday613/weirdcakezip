@@ -21,6 +21,7 @@ export default function ChatScreen({
   onMake,
   scriptIdx,
   onAdvanceScript,
+  onSkipTutorial,
 }) {
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
 
@@ -75,6 +76,13 @@ export default function ChatScreen({
           dimmed={spotOrder}
           tutFocus={guide === 3 ? "script" : null}
         />
+
+        {/* 튜토리얼 건너뛰기 — 대화 아래, 탈출구라 가이드 중에도 밝게 둔다 */}
+        {order.script && onSkipTutorial && (
+          <button className="chip ghost tut-skip" onClick={onSkipTutorial}>
+            튜토리얼 건너뛰기
+          </button>
+        )}
 
         {/* 케이크 만들기 */}
         <button

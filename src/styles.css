@@ -63,6 +63,9 @@
 
   /* 상태 */
   --disabled-opacity: .4;
+
+  /* 쪽지 글씨 — 테두리 크레용과 같은 브라운 (S16) */
+  --note-ink: #7B4A26;
 }
 
 /* ── 2. 리셋 / 글로벌 ────────────────────────────────────── */
@@ -438,6 +441,23 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   transform: translate(-50%, -100%);
   transform-origin: center bottom;
   z-index: 3;
+}
+/* 쪽지(S16) — 펼친 쪽지 그림 위에 글자. 케이크 윗면 중앙에 얹힌다 */
+.lettering-note {
+  position: absolute;
+  left: 50%;
+  top: 36%;
+  transform: translate(-50%, -50%);
+  width: 38%;
+}
+.lettering-note img { width: 100%; display: block; }
+.lettering-note .lettering {
+  position: absolute;
+  left: 50%;
+  top: 46%;                      /* 쪽지 종이 면 중앙(하트·모서리 피해서) */
+  transform: translate(-50%, -50%) rotate(-2deg);
+  max-width: 86%;
+  color: var(--note-ink);
 }
 .lettering {
   position: absolute;
@@ -1058,4 +1078,37 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   font-size: var(--fs-note);
   padding: 2px 10px;
   min-height: 28px;
+}
+
+/* 쪽지 쓰기 모드(S16) — 쪽지 차례엔 케이크 대신 쪽지가 무대 중앙에 */
+.note-stage {
+  position: relative;
+  width: min(78%, 300px);
+  margin: 0 auto;
+}
+.note-stage img { width: 100%; display: block; }
+.note-stage .note-text {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%) rotate(-2deg);
+  max-width: 80%;
+  font-family: "Gaegu", cursive;
+  font-size: var(--fs-title);
+  font-weight: 700;
+  text-align: center;
+  word-break: keep-all;
+  color: var(--note-ink);
+}
+
+/* 완성 직전 접힌 쪽지(0.3초) — 펼친 쪽지와 같은 자리에서 접힌다 */
+.note-stage--folded { width: min(58%, 220px); }
+
+/* 결과 화면 — 접힌 쪽지가 케이크 옆에 놓인다 */
+.note-beside {
+  position: absolute;
+  right: -4%;
+  bottom: 2%;
+  width: 30%;
+  transform: rotate(9deg);
 }

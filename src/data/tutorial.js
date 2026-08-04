@@ -19,8 +19,6 @@ export const TUTORIAL_GUIDE = {
   ],
   // 단계별 정답 — 시트는 기본 조합 버튼, 색/생크림/토핑은 재료 id
   picks: { color: "vanilla", cream: "cherry", topping: ["peach", "cherry"] },
-  // 쪽지(마음대로 단계)에 미리 적혀 있는 인사말 — 쪽지가 뭔지 예시로 보여준다
-  noteText: "안녕! 잘 부탁해",
   // 생크림은 이만큼 올릴 때까지 칩이 계속 빛난다 — 한 덩이로 끝이 아니라 짜서 채우는 것임을 가르친다
   creamDollops: 13,
 };

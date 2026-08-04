@@ -5,15 +5,15 @@
 
 /* ── 1. 토큰 ──────────────────────────────────────────────── */
 :root {
-  /* 잉크 — 에셋 아웃라인과 동일 */
-  --ink: #1A1A1A;
+  /* 잉크 — 에셋(색연필) 아웃라인에서 샘플한 브라운 (S25, 구 #1A1A1A) */
+  --ink: #523412;
   --ink-line: 2.2px;
   --ink-line-thin: 1.6px;
   --ink-line-sel: 3.4px;
 
-  /* 면 */
-  --paper: #FFFFFF;
-  --paper-warm: #FAF6EE;
+  /* 면 — 배경 위 그림이 살짝 비치게 90% 불투명 (S25) */
+  --paper: rgba(255, 255, 255, 0.9);
+  --paper-warm: rgba(250, 246, 238, 0.9);
   --veil: rgba(255,255,255,.55);
   --dim: rgba(26,26,26,.45);
 
@@ -311,6 +311,20 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 /* 기존 HUD 행 */
 .hud { color: var(--text-muted); font-size: var(--fs-note); }
 .hud-row { display: flex; justify-content: space-between; align-items: center; }
+/* BUILD 캔버스 — 기준 비율(844 기준 748px) 고정, 남는 세로는 margin:auto 로 위아래 균등 분배.
+   배경(.screen-bg--build)도 같은 중앙 기준이라 구도가 함께 움직인다 */
+.screen--canvas {
+  flex: none;
+  height: 748px;
+  margin: auto 0;
+  position: relative;
+  overflow-y: visible;
+  /* 구도 전체를 50px 아래로 — transform 이라 중앙 정렬(위아래 동률 분배)은 유지된다.
+     배경(.screen-bg--build)도 같은 +50 을 갖는다 */
+  transform: translateY(60px);
+}
+/* '주문 n/5' 카운터만 위로 (매출 pill 은 그대로) */
+.hud-row > span:first-child { position: relative; top: -30px; }
 .money {
   font-weight: 700;
   color: var(--text);
@@ -412,7 +426,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .cake-stage { display: flex; justify-content: center; margin-top: -26px; }
 .cake {
   position: relative;
-  width: clamp(160px, 28vh, 288px);
+  width: 236px;   /* 고정 — 기준 844px 에서의 28vh. 화면이 길어져도 안 커진다 */
   /* cakeLayout.json 의 캔버스 비율과 같아야 한다 — 슬롯 좌표가 이 상자 기준 %라서,
      비율이 어긋나면 그림이 레터박스되며 토핑이 전부 밀린다. */
   aspect-ratio: 961 / 1086;
@@ -484,11 +498,9 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 }
 
 /* 팔레트 */
-.palette { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.palette { display: flex; flex-direction: column; gap: 8px; margin-top: -46px; }
 .step-box {
-  background: var(--paper);
-  border: var(--ink-line) solid var(--ink);
-  border-radius: var(--r-card);
+  /* 상자 없이 앞치마 위에 바로 얹는다 (S25) */
   padding: 8px 10px;
   display: flex;
   flex-direction: column;
@@ -504,10 +516,68 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   background: none;
   border: none;
   cursor: default;
+  transform: translate(-78px, -6px);
 }
-.step-title em { font-style: normal; color: var(--text-muted); font-size: var(--fs-note); }
-.palette-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.palette-label { width: 44px; font-size: var(--fs-note); color: var(--text-muted); }
+.step-title em { font-style: normal; color: var(--text-muted); font-size: var(--fs-note); position: relative; left: 160px; }
+.palette-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  /* 중앙정렬 + 한 줄 6개 (이미지 칩 40px + gap 기준 폭 제한) */
+  justify-content: center;
+  max-width: 278px;
+  margin: 0 auto;
+  /* 칩만 아래로 — transform 이라 제목·완성하기 위치엔 영향 없음 */
+  transform: translateY(30px);
+}
+.palette-label { display: none; }
+/* 편집 버튼 3종 — 그림 아이콘 (다시시작 ↩ · 빗자루 · Ctrl-Z), 배경 50% 반투명.
+   .chip.edit-btn: 뒤에 오는 .chip 의 --paper 배경(0.9)을 특이도로 이긴다 */
+.chip.edit-btn { position: relative; line-height: 0; background: rgba(255, 255, 255, 0.5); }
+.edit-icon { width: 24px; height: 24px; object-fit: contain; display: block; }
+/* hover 툴팁 — data-tip 텍스트를 버튼 위에 띄운다 */
+.edit-btn::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  white-space: nowrap;
+  background: var(--paper);
+  border: var(--ink-line-thin) solid var(--ink);
+  border-radius: var(--r-pill);
+  padding: 3px 10px;
+  font-size: var(--fs-note);
+  line-height: 1.3;
+  color: var(--text);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s;
+  z-index: 6;
+}
+.edit-btn:hover::after { opacity: 1; }
+
+/* 쪽지 단계의 안 씀/문구 입력 줄 — transform 이라 아래 완성하기 위치엔 영향 없음.
+   margin-bottom 42px: 다른 단계의 두 줄짜리 팔레트와 flow 높이를 맞춰
+   완성하기가 같은 자리(실측 542px)에 오게 한다 */
+.palette-row--note { transform: translateY(150px); margin-bottom: 42px; }
+
+/* 기본 조합 힌트 — 앞치마 밑단 위 스티커 (.stk 가 종이+잉크 테두리) */
+.basic-hint {
+  position: absolute;
+  /* .screen--canvas 기준 고정 — 캔버스가 중앙 정렬돼도 구도와 함께 움직인다 */
+  left: calc(50% - 70px);
+  top: 191px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: var(--fs-note);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: var(--r-pill);
+  padding: 3px 12px;
+  z-index: 2;
+}
 
 /* 칩 */
 .chip {
@@ -585,7 +655,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 }
 
 /* 네비게이션 */
-.make-nav { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 22px; }
+.make-nav { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 92px; }
 .make-nav .submit { flex: 1; max-width: 260px; margin-top: 0; }
 .arrow {
   width: var(--tap-min);
@@ -777,9 +847,44 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   flex: 1;
   padding: var(--pad-screen);
 }
+
+/* 마을 그림(S25) — 그림 안 노란 길이 곧 스테이지 경로다.
+   화면 세로에 맞추고 좌우를 잘라낸다(cover). 노드가 그림과 같은 캔버스 안에
+   들어 있어서, 잘리든 늘어나든 노드는 길 위에 그대로 붙어 있다. */
+.stage-art {
+  position: absolute;
+  /* 위로 -72px: HUD 뒤까지 그림 하늘이 이어지게 (.chat-shop-zone 과 같은 트릭).
+     app-shell overflow 가 잘라줘서 안전하다 */
+  inset: -72px 0 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.stage-canvas {
+  position: relative;
+  flex: none;
+  height: 100%;
+  aspect-ratio: 1024 / 1536;   /* 원본 그림 비율 — 노드 %좌표의 기준 */
+}
+/* 그림은 ::before 에 — 노드는 선명하게 두고 배경만 살짝 눌러
+   pop-out 을 줄인다 (흐림 1.5px + 채도 살짝↓, 밝기 살짝↑로 산뜻함 유지) */
+.stage-canvas::before {
+  content: "";
+  position: absolute;
+  inset: -6px;                 /* 흐림 가장자리 번짐 여유 — .stage-art 가 잘라준다 */
+  background: url("/assets/bg_stage1.webp") center / 100% 100% no-repeat;
+  filter: blur(1.5px) saturate(0.93) brightness(1.04);
+}
+
+/* 제목 — 그림이 알록달록해서 종이 판을 깔아야 읽힌다 */
 .stage-header {
+  position: relative;   /* 그림 위로 */
+  align-self: center;
   text-align: center;
-  margin-bottom: clamp(8px, 2vh, 20px);
+  padding: 2px 18px 6px;
+  border-radius: var(--r-card);
+  background: rgba(255, 255, 255, .74);
 }
 .stage-title {
   font-size: var(--fs-title);
@@ -788,56 +893,31 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .stage-sub {
   font-size: var(--fs-label);
   color: var(--text-muted);
-  margin: 4px 0 0;
+  margin: 2px 0 0;
 }
 
-.stage-path {
-  display: flex;
-  flex-direction: column-reverse;
-  flex: 1;
-  justify-content: space-evenly;
-  padding: 0 var(--pad-screen);
-}
-
-.stage-row {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-/* 노드 사이 점선 */
-.stage-dots {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  margin-bottom: 4px;
-}
-.stage-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--ink);
-  opacity: 0.3;
-}
-
-/* 노드 컨테이너 */
+/* 노드 — 그림 좌표(%)에 원의 **중심**을 맞춘다.
+   별점·라벨을 absolute 로 빼는 이유: 노드 박스가 원 크기 그대로여야
+   translate(-50%,-50%) 가 원 중심을 좌표에 정확히 얹는다. */
 .stage-node {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  transform: translate(-50%, -50%);
+}
+.stage-node--now {
+  width: 76px;
+  height: 76px;
 }
 .stage-node--locked {
-  opacity: var(--disabled-opacity);
+  /* 기본 disabled(.4)로는 그림 위에서 안 보인다 */
+  opacity: .62;
 }
 
 /* 노드 원 */
 .stage-circle {
-  width: 64px;
-  height: 64px;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -850,8 +930,6 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   cursor: default;
 }
 .stage-circle--now {
-  width: 76px;
-  height: 76px;
   border-width: var(--ink-line-sel);
 }
 
@@ -864,11 +942,24 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   width: 58px;
 }
 
+/* 원 아래 딸린 것들 — 종이 알약을 깔아 그림 위에서도 읽히게 */
+.stage-stars,
+.stage-now-label,
+.stage-lock-num {
+  position: absolute;
+  top: calc(100% + 3px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, .82);
+}
+
 /* 별점 행 */
 .stage-stars {
   display: flex;
   gap: 0;
-  margin-top: 2px;
+  padding: 0 4px;
 }
 .stage-star-icon {
   width: 16px !important;
@@ -884,14 +975,16 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   font-size: var(--fs-label);
   font-weight: 700;
   color: var(--text);
-  margin-top: 2px;
+  background: var(--paper);
+  border: var(--ink-line-thin) solid var(--ink);
+  padding: 0 8px;
 }
 
 /* 잠긴 노드 번호 */
 .stage-lock-num {
   font-size: var(--fs-note);
   color: var(--text-muted);
-  margin-top: 2px;
+  padding: 0 8px;
 }
 
 /* ── 15. 로딩 오버레이 ───────────────────────────────────── */
@@ -1123,8 +1216,10 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 /* 쪽지 쓰기 모드(S16) — 쪽지 차례엔 케이크 대신 쪽지가 무대 중앙에 */
 .note-stage {
   position: relative;
-  width: min(78%, 300px);
-  margin: 0 auto;
+  width: min(55%, 210px);   /* 기존 78%/300px 의 70% */
+  /* 아래 여백 94px: 케이크 박스보다 작은 쪽지 그림의 차이를 쪽지 쪽에서 메워서
+     제목이 다른 단계와 같은 자리(실측 313px)에 오게 한다 */
+  margin: -10px auto 94px;
 }
 .note-stage img { width: 100%; display: block; }
 .note-stage .note-text {
@@ -1198,6 +1293,19 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   z-index: 1;
   background: url("/assets/bg_default.webp") center / cover no-repeat;
   pointer-events: none;
+}
+/* BUILD(베이킹) 전용 — 위쪽 우드 작업대, 아래쪽 앞치마 (S25).
+   bg_baking_2 는 앞치마 윤곽 위가 투명(RGBA)이라, 뒤에 깔린 우드가 그대로 비친다 */
+.screen-bg--build {
+  /* 기준 비율(844px)의 구도. 화면이 더 길면 남는 공간을 위아래로 균등 분배하고(centered),
+     더 짧으면 max() 가 844 시점 값으로 고정해 위쪽은 안 눌리고 아래쪽 fill 부터 잘린다 —
+     .screen--canvas 의 margin:auto(짧으면 0)와 같은 거동.
+     위쪽 fill 은 우드 이미지를 top 에 한 번 더 깔아 밴드로 받치고, 아래쪽은 bg_default */
+  background:
+    url("/assets/bg_baking_2.webp") center max(calc(50% + 139px), 364px) / 100% auto no-repeat,
+    url("/assets/bg_baking_1.webp") center max(calc(50% - 166px), -24px) / 100% auto no-repeat,
+    url("/assets/bg_baking_1.webp") center top / 100% auto no-repeat,
+    url("/assets/bg_default.webp") center / cover no-repeat;
 }
 /* 주문(CHAT) 화면 상단 — 괴물~주문 카드 구간만 케이크 가게 안 */
 .chat-shop-zone {
@@ -1305,9 +1413,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   align-items: center;
 }
 
-/* 제작 화면 경고 — 괴물이 상단 버튼으로 옮겨가 말풍선만 가운데 뜬다 */
-.warn-bubble--center { align-self: center; margin-top: 16px; }
-.warn-bubble--center::after { display: none; }
+/* (구 warn-bubble--center 는 물범 tut-guide 말풍선으로 통일되어 제거 — S25) */
 
 /* HUD 대화 버튼 속 손님 바스트샷 */
 .chat-trigger-face { width: 24px; height: 24px; }
@@ -1411,6 +1517,10 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 
 /* 치트 시트 (S21) — 튜토리얼 정답 쪽지, 케이크 왼편 */
 .cake-wrap { position: relative; }
+/* 구도 미세조정 — BUILD(매트 배경) 한정. RESULT 의 케이크는 안 움직인다 (S25) */
+.cake-wrap .cake--baked { transform: translateY(-100px); }
+.cake-wrap .cake--bowl { transform: translateY(-70px); }
+.cake-wrap .cake--making { transform: translateY(-80px); }
 .tut-cheat {
   position: absolute;
   left: 2px;

@@ -96,7 +96,8 @@ export default function CakeView({ cake, preview = "cake", notePlacement = "top"
 
   return (
     <div className="cake-stage">
-      <div className="cake">
+      {/* 구도 미세조정 — 완성 케이크·보울·반죽 손을 각각 배경(매트)에 맞춘다 */}
+      <div className={"cake" + (isCake ? " cake--baked" : preview.startsWith("bowl") ? " cake--bowl" : preview === "making" ? " cake--making" : "")}>
         <img className="cake-base" src={src} alt="케이크" />
 
         {isCake &&

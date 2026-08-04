@@ -19,7 +19,6 @@ export const STEPS = [
 
 // 재료 이미지 칩 (이모지·글자 대신 그림). lock 이 있으면 흐림+자물쇠, 클릭은 툴팁만.
 // 파일 수준 컴포넌트 — 렌더 안에서 정의하면 매번 새 타입이 되어 리마운트된다(리뷰 지적).
-// 바닐라는 전용 재료 그림이 없어 바닐라색 생크림 그림으로 그린다.
 function ImgChip({ id, on, onClick, lock, tipOpen, onLockTap, hl }) {
   return (
     <button
@@ -29,7 +28,7 @@ function ImgChip({ id, on, onClick, lock, tipOpen, onLockTap, hl }) {
     >
       <img
         className="ing-img"
-        src={id === "vanilla" ? "/assets/cream_vanilla.webp" : `/assets/ing_${id}.webp`}
+        src={`/assets/ing_${id}.webp`}
         alt=""
       />
       {lock && <img className="lock-badge" src="/assets/ui_lock.svg" alt="잠김" />}
@@ -128,10 +127,8 @@ export default function IngredientPalette({ step, cake, setCake, orderIndex = 0,
               />
             ))}
           </div>
-          <div className="palette-row">
-            <span className="palette-label" />
-            <span className="note">기본 조합 = 밀가루 + 우유 + 계란 + 버터</span>
-          </div>
+          {/* 앞치마 밑단 위 스티커로 고정 (S25) */}
+          <span className="basic-hint stk">기본 조합 = 밀가루 + 우유 + 계란 + 버터</span>
         </>
       )}
 
@@ -172,11 +169,25 @@ export default function IngredientPalette({ step, cake, setCake, orderIndex = 0,
           {DECO.map((d) => (
             <ImgChip key={d.id} id={d.id} onClick={() => addDeco(d.id)} />
           ))}
+          {/* 잠긴 자리 3개 — 후속 스테이지에서 열릴 데코 placeholder (S25) */}
+          {[1, 2, 3].map((n) => (
+            <button
+              key={`ph-${n}`}
+              className="chip img-chip locked"
+              onClick={() => tapLock(`deco-ph-${n}`)}
+            >
+              <span className="ing-img" />
+              <img className="lock-badge" src="/assets/ui_lock.svg" alt="잠김" />
+              <span className={"lock-tip" + (tipId === `deco-ph-${n}` ? " show" : "")}>
+                스테이지 2에서 해제!
+              </span>
+            </button>
+          ))}
         </div>
       )}
 
       {cur.id === "lettering" && (
-        <div className="palette-row">
+        <div className="palette-row palette-row--note">
           <span className="palette-label">문구</span>
           <button
             className={"chip" + (!cake.lettering.text ? " on" : "")}

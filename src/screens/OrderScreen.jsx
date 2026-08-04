@@ -51,13 +51,27 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
     }
     return true; // 데코·쪽지는 마음대로
   }
+  // 실행취소 히스토리 — 케이크를 바꾸기 직전 상태를 쌓는다. 직전 실행취소(Ctrl-Z 버튼)가 pop.
+  const history = useRef([]);
+  const pushHistory = () => {
+    history.current.push(cake);
+    if (history.current.length > 60) history.current.shift();
+  };
   const guardedSetCake = (nc) => {
     if (tut && tutIntro == null && !tutAllows(nc)) {
       setTutWarn(true);
       return;
     }
     setTutWarn(false);
+    pushHistory();
     setCake(nc);
+  };
+  // 직전 실행취소 — 마지막으로 누른 조작 하나를 되돌린다 (개수 늘리기였으면 개수가 준다)
+  const undoLast = () => {
+    const prev = history.current.pop();
+    if (!prev) return;
+    setTutWarn(false);
+    setCake(prev);
   };
   // 튜토리얼에서 이 단계가 아직 정답이 아니면 → 로 못 넘어간다
   function tutStepDone() {
@@ -113,18 +127,12 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
   }, [busy]);
 
   const sheetReady = cake.base.length > 0 && cake.cakeBase;
-  const clearBoard = () => setCake({ ...cake, toppings: [], deco: [], cream: null });
-  // 지금 보고 있는 단계의 재료만 비운다 — 다른 단계는 건드리지 않는다 (S20)
-  const clearStep = () => {
-    const id = STEPS[step]?.id;
-    if (id === "sheet") setCake({ ...cake, base: [] });
-    else if (id === "color") setCake({ ...cake, cakeBase: null });
-    else if (id === "cream") setCake({ ...cake, cream: null });
-    else if (id === "topping") setCake({ ...cake, toppings: [] });
-    else if (id === "deco") setCake({ ...cake, deco: [] });
-    else if (id === "lettering") setCake({ ...cake, lettering: { text: "", color: null } });
+  const clearBoard = () => {
+    pushHistory();
+    setCake({ ...cake, toppings: [], deco: [], cream: null });
   };
   const resetAll = () => {
+    history.current = []; // 리셋은 실행취소 대상이 아니다
     setCake({ base: [], cakeBase: "vanilla", cream: null, toppings: [], deco: [], lettering: { text: "", color: null } });
     setMade(false);
     setMaking(false);
@@ -164,15 +172,22 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
   const introDim = tut && tutIntro != null ? " tut-dim-el" : ""; // 물범 인사 중 배경 어둡게
 
   return (
-    <div className="screen">
+    <div className="screen screen--canvas">
       <div className={"hud hud-row" + introDim}>
         <span>주문 {index + 1} / {total}</span>
-        <span className="money">매출 {(money ?? 0).toLocaleString()}코인</span>
       </div>
 
       {/* 괴물은 상단 '대화' 버튼(바스트샷)으로 이동 — 제작 화면은 케이크가 주인공 */}
+      {/* 물범이 말하는 것으로 통일 — 튜토리얼 가이드와 같은 말풍선 (S25) */}
       {warn && step === 0 && (
-        <div className="warn-bubble warn-bubble--center">시트가 뭔가 이상해! 다시 보자</div>
+        <div className="tut-guide stk" onClick={() => setWarn(false)}>
+          <span className="tut-guide-face">
+            <img src="/assets/story_face_assistant.webp" alt="" />
+            <span className="tut-guide-name">커스터드물범</span>
+          </span>
+          <p className="tut-guide-line">시트가 뭔가 이상해! 다시 보자</p>
+          <span className="tut-guide-adv">≫</span>
+        </div>
       )}
       <div className={"cake-wrap" + introDim}>
         {/* 치트 시트 — 물범 인사가 끝나면 케이크 왼편에 붙는다 */}
@@ -222,9 +237,15 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
 
       <div className={"edit-row" + introDim}>
         {/* 굽는 중엔 잠근다 — 타이머가 살아 있어 빈 반죽이 구워지는 사고 방지(KAN-34) */}
-        <button className="chip ghost" disabled={making} onClick={resetAll}>다시시작</button>
-        <button className="chip ghost" disabled={making} onClick={clearBoard}>케이크위 다 지우기</button>
-        <button className="chip ghost" disabled={making} onClick={clearStep}>현재 단계만 지우기</button>
+        <button className="chip ghost edit-btn" disabled={making} onClick={resetAll} data-tip="처음부터 다시" aria-label="처음부터 다시">
+          <img className="edit-icon" src="/assets/ui_undo.webp" alt="" />
+        </button>
+        <button className="chip ghost edit-btn" disabled={making} onClick={clearBoard} data-tip="케이크 위 다 지우기" aria-label="케이크 위 다 지우기">
+          <img className="edit-icon" src="/assets/ui_broom.webp" alt="" />
+        </button>
+        <button className="chip ghost edit-btn" disabled={making || history.current.length === 0} onClick={undoLast} data-tip="실행취소" aria-label="실행취소">
+          <img className="edit-icon" src="/assets/ui_ctrlz.webp" alt="" />
+        </button>
       </div>
 
       {/* 오답 선택 — 물범이 치트 시트를 다시 보게 한다 */}

@@ -63,6 +63,9 @@
 
   /* 상태 */
   --disabled-opacity: .4;
+
+  /* 쪽지 글씨 — 테두리 크레용과 같은 브라운 (S16) */
+  --note-ink: #7B4A26;
 }
 
 /* ── 2. 리셋 / 글로벌 ────────────────────────────────────── */
@@ -454,7 +457,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   top: 46%;                      /* 쪽지 종이 면 중앙(하트·모서리 피해서) */
   transform: translate(-50%, -50%) rotate(-2deg);
   max-width: 86%;
-  color: #7B4A26;                /* 쪽지 글씨는 브라운 고정 — 테두리 크레용과 같은 톤 */
+  color: var(--note-ink);
 }
 .lettering {
   position: absolute;
@@ -862,7 +865,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   font-weight: 700;
   text-align: center;
   word-break: keep-all;
-  color: #7B4A26;                /* 쪽지 글씨는 브라운 고정 — 테두리 크레용과 같은 톤 */
+  color: var(--note-ink);
 }
 
 /* 완성 직전 접힌 쪽지(0.3초) — 펼친 쪽지와 같은 자리에서 접힌다 */

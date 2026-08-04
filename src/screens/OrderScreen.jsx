@@ -51,10 +51,12 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
   }
 
   // 완성하기 — 쪽지를 접는 모습(0.3초)을 보여준 뒤 제출한다
+  const foldTimer = useRef(null);
+  useEffect(() => () => clearTimeout(foldTimer.current), []); // 언마운트 시 stale 제출 방지
   function handleSubmit() {
     if (folding || busy) return;
     setFolding(true);
-    setTimeout(onSubmit, 300);
+    foldTimer.current = setTimeout(onSubmit, 300);
   }
   // 제출이 실패로 돌아오면(busy true→false) 접힌 채로 남지 않게 펴 준다
   const wasBusy = useRef(false);

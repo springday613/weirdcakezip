@@ -127,6 +127,7 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
       if (cake.deco.length === 0) return;
       setCake({ ...cake, deco: cake.deco.slice(0, -1) });
     }
+    setTutWarn(false);
   }
   const showUndo = ["cream", "topping", "deco"].includes(stepId);
   const undoEmpty =
@@ -218,7 +219,7 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
         <CakeView cake={cake} preview={preview} />
       </div>
 
-      <div className={introDim || undefined}>
+      <div className={"palette-slot" + introDim}>
         <IngredientPalette
           step={step}
           cake={cake}

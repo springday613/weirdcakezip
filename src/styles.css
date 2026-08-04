@@ -208,7 +208,7 @@ body {
   background: var(--paper);
 }
 .seg.done { background: var(--ink); }
-.seg.now  { background: var(--paper); border-width: var(--ink-line-sel); }
+.seg.now  { background: var(--accent); border-width: var(--ink-line-sel); }
 .stepbar-wrap { display: flex; flex-direction: column; gap: 4px; }
 
 /* ── 8. 스와치 ───────────────────────────────────────────── */
@@ -589,6 +589,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 /* BUILD 전용 스크롤 재편 — 팔레트 칩 영역만 스크롤, 케이크·버튼은 고정 */
 /* ⚠ .screen 자체는 건드리지 않는다 (RESULT·END·TUTEND 공용) */
 .screen--build { overflow-y: hidden; }
+.screen--build .palette-slot { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .screen--build .palette  { flex: 1; min-height: 0; }
 .screen--build .step-box { flex: 1; min-height: 0; }
 .palette-scroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
@@ -1332,9 +1333,10 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   margin: 0;
   font-size: var(--fs-label);
   flex: 1;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* 제작 화면 경고 — 괴물이 상단 버튼으로 옮겨가 말풍선만 가운데 뜬다 */

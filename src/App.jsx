@@ -232,12 +232,20 @@ export default function App() {
       {!["TITLE", "NAME", "INTRO", "ENDING", "CREDITS", "TUTEND"].includes(screen) && (
         <div className="layer-ui">
           <Hud coins={money}>
-            {screen === "BUILD" && (
-              <button className="btn-ghost chat-popup-trigger" onClick={() => setChatPopupOpen(true)}>
-                <img className="bubble-face chat-trigger-face" src={monster.img.normal} alt="" />
-                대화
-              </button>
-            )}
+            <div className="hud-left-col">
+              {screen === "BUILD" && (
+                <button className="btn-ghost chat-popup-trigger" onClick={() => setChatPopupOpen(true)}>
+                  <img className="bubble-face chat-trigger-face" src={monster.img.normal} alt="" />
+                  대화
+                </button>
+              )}
+              {/* 튜토리얼 건너뛰기 — 왼쪽 상단, 제작 중엔 대화 버튼 아래 */}
+              {order.script && ["CHAT", "BUILD"].includes(screen) && (
+                <button className="chip ghost tut-skip" onClick={skipTutorial}>
+                  튜토리얼 건너뛰기
+                </button>
+              )}
+            </div>
           </Hud>
         </div>
       )}
@@ -300,7 +308,6 @@ export default function App() {
           onMake={() => setScreen("BUILD")}
           scriptIdx={scriptIdx}
           onAdvanceScript={advanceScript}
-          onSkipTutorial={skipTutorial}
         />
       )}
 

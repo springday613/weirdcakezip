@@ -4,7 +4,9 @@ import { judge } from "./judgeClient.js";
 import { chat } from "./chatClient.js";
 import { coinsFor, starsFor, EXTRA_TURN_BUNDLE, extraTurnPrice } from "./scoreCake.js";
 import TitleScreen from "./screens/TitleScreen.jsx";
+import NameScreen from "./screens/NameScreen.jsx";
 import TutorialEndScreen from "./screens/TutorialEndScreen.jsx";
+import StoryScreen from "./screens/StoryScreen.jsx";
 import StageMapScreen from "./screens/StageMapScreen.jsx";
 import ChatScreen from "./screens/ChatScreen.jsx";
 import OrderScreen from "./screens/OrderScreen.jsx";
@@ -13,10 +15,12 @@ import LoadingScreen, { useLoading } from "./screens/LoadingScreen.jsx";
 import Hud from "./components/Hud.jsx";
 import ChatPopup from "./components/ChatPopup.jsx";
 import { MONSTERS } from "./data/ingredients.js";
+import { STORY, GOOD_ENDING_COINS } from "./data/story.js";
 import { TUTORIAL_GUIDE } from "./data/tutorial.js";
 
 // 게임 루프 = 상태머신
-//   TITLE → STAGE → CHAT → BUILD → RESULT → STAGE (또는 END)
+//   TITLE → NAME(이름) → INTRO(스토리) → STAGE → CHAT → BUILD → RESULT → STAGE 순환
+//   → 코인 목표(GOOD_ENDING_COINS) 달성 또는 5명 완료 시: END(정산) → ENDING(스토리) → CREDITS
 const emptyCake = () => ({
   base: [],
   cakeBase: null,
@@ -30,7 +34,10 @@ const BG_MODES = ["solid", "day", "night"];
 const BG_LABELS = { solid: "단색", day: "낮", night: "밤" };
 
 export default function App() {
-  const [screen, setScreen] = useState("TITLE"); // TITLE | STAGE | CHAT | BUILD | RESULT | END
+  const [screen, setScreen] = useState("TITLE"); // TITLE | NAME | INTRO | STAGE | CHAT | BUILD | RESULT | END | ENDING | CREDITS
+  const [playerName, setPlayerName] = useState(""); // 스토리 주인공 이름 (NAME 화면에서 받는다)
+  const [devEnding, setDevEnding] = useState(null); // 개발용 엔딩 강제("good"|"bad") — 실플레이는 null
+  const [cheered, setCheered] = useState(false); // 크레딧 CTA(합격시키기) 눌렀는가
   const [orderIndex, setOrderIndex] = useState(0);
   const [cake, setCake] = useState(emptyCake());
   const [result, setResult] = useState(null);
@@ -49,6 +56,9 @@ export default function App() {
 
   // 손님별 최고 별점. 인덱스 = orders 배열 순서. 0 = 아직 안 함
   const [stars, setStars] = useState(() => orders.map(() => 0));
+  // 손님별 수익 적립 여부 — 재플레이 판정을 별점이 아니라 이걸로 한다.
+  // 별점 기준이면 다시하기(retry)로 적립을 되돌린 뒤 재제출해도 수익 0 이 되어 버린다.
+  const [collected, setCollected] = useState(() => orders.map(() => false));
 
   // 로딩 오버레이
   const { loading, loadMsg, withLoading } = useLoading();
@@ -71,7 +81,10 @@ export default function App() {
     setTurns(0);
     setExtraTurns(0);
     setStars(orders.map(() => 0));
-    setScreen("STAGE");
+    setCollected(orders.map(() => false));
+    setCheered(false);
+    setDevEnding(null); // 개발용 엔딩 강제가 실플레이로 새지 않게
+    setScreen("NAME"); // 이름 → 인트로 스토리 → 스테이지 맵
   }
 
   // 스테이지 맵에서 노드 선택
@@ -94,12 +107,17 @@ export default function App() {
       setJudgeBusy(false);
       // ⚠ 임시 — 재플레이 수익 0. 최종 정책은 8/4 미팅 (재수익 0 vs 최고 기록 초과분만)
       // 지금 안 막으면 완료 노드 반복으로 코인 무한 파밍 → S19 의 엔딩 조건이 무력화된다
-      const isReplay = stars[orderIndex] > 0;
+      const isReplay = collected[orderIndex];
       const earned = isReplay ? 0 : coinsFor(r.score);
-      setResult({ ...r, earned });
+      setResult({ ...r, earned, counted: !isReplay }); // counted = 이번 판이 실제로 적립됐는가
       if (!isReplay) {
         setTotalScore((s) => s + r.score);
         setMoney((m) => m + earned);
+        setCollected((prev) => {
+          const next = [...prev];
+          next[orderIndex] = true;
+          return next;
+        });
       }
       // 별점 갱신 — 기존보다 높을 때만 (재플레이도 갱신)
       const newStars = starsFor(r.score);
@@ -152,8 +170,32 @@ export default function App() {
   }
 
   function next() {
-    // 정산 후 스테이지 맵으로 돌아간다
+    // 코인 목표를 모으면 귀환 주문 완성 — 엔딩으로. 5명을 다 돌고도 못 모았으면 배드 엔딩.
+    // (재플레이 수익 0 이라 5명 완료 후엔 더 벌 수 없다)
+    const allDone = stars.every((v) => v > 0);
+    if (money >= GOOD_ENDING_COINS || allDone) {
+      setDevEnding(null); // 실플레이 엔딩은 코인으로만 가른다
+      setScreen("END"); // 영업 종료(정산) → 엔딩 스토리
+      return;
+    }
     setScreen("STAGE");
+  }
+
+  // 다시하기 — 이번 채점의 점수·코인을 물리고 같은 손님의 제작으로 돌아간다.
+  // 대화 기록과 질문 수(감점)는 유지 — 재도전이 공짜 정보가 되지 않게.
+  function retry() {
+    // 이번 판이 적립된 경우만 되돌린다 — 재플레이 판(수익 0)을 또 빼면 총점이 왜곡된다
+    if (result?.counted) {
+      setTotalScore((s) => s - result.score);
+      setMoney((m) => m - result.earned);
+      setCollected((prev) => {
+        const next = [...prev];
+        next[orderIndex] = false;
+        return next;
+      });
+    }
+    setResult(null);
+    setScreen("BUILD");
   }
 
   const buyTurn = () => {
@@ -174,8 +216,8 @@ export default function App() {
       {/* 게임 진행 화면들엔 기본 배경(구름 하늘) — CHAT 상단은 ChatScreen 이 가게 배경을 얹는다 */}
       {["STAGE", "CHAT", "BUILD", "RESULT", "END"].includes(screen) && <div className="screen-bg" />}
 
-      {/* HUD — 타이틀·에필로그 이외 화면에 상주 */}
-      {!["TITLE", "TUTEND"].includes(screen) && (
+      {/* HUD — 타이틀·이름·스토리·에필로그 이외 화면에 상주 */}
+      {!["TITLE", "NAME", "INTRO", "ENDING", "CREDITS", "TUTEND"].includes(screen) && (
         <div className="layer-ui">
           <Hud coins={money}>
             {screen === "BUILD" && (
@@ -189,6 +231,38 @@ export default function App() {
       )}
 
       {screen === "TITLE" && <TitleScreen onStart={start} />}
+
+      {screen === "NAME" && (
+        <div className="layer-ui story-layer">
+          <NameScreen
+            onDone={(n) => {
+              setPlayerName(n);
+              setScreen("INTRO");
+            }}
+          />
+        </div>
+      )}
+
+      {screen === "INTRO" && (
+        <div className="layer-ui story-layer">
+          <StoryScreen cuts={STORY.begin} name={playerName} onDone={() => setScreen("STAGE")} />
+        </div>
+      )}
+
+      {screen === "ENDING" && (
+        <div className="layer-ui story-layer">
+          <StoryScreen
+            cuts={
+              (devEnding ?? (money >= GOOD_ENDING_COINS ? "good" : "bad")) === "good"
+                ? STORY.endGood
+                : STORY.endBad
+            }
+            name={playerName}
+            money={money}
+            onDone={() => setScreen("CREDITS")}
+          />
+        </div>
+      )}
 
       {screen === "STAGE" && (
         <StageMapScreen stars={stars} onSelect={selectNode} />
@@ -251,14 +325,15 @@ export default function App() {
             order={order}
             cake={cake}
             onNext={order.id === TUTORIAL_GUIDE.orderId ? () => setScreen("TUTEND") : next}
+            onRetry={retry}
           />
         </div>
       )}
 
-      {/* 튜토리얼 에필로그 — 물범이 감점 제도를 알려주고 스테이지 맵으로 */}
+      {/* 튜토리얼 에필로그 — 물범이 감점 제도를 알려주고 다음으로 */}
       {screen === "TUTEND" && (
         <div className="layer-ui tutend-layer">
-          <TutorialEndScreen onDone={next} />
+          <TutorialEndScreen name={playerName || undefined} onDone={next} />
         </div>
       )}
 
@@ -268,9 +343,28 @@ export default function App() {
             <h1>영업 종료</h1>
             <p className="big">오늘 매출 {money.toLocaleString()}코인</p>
             <p className="hint">총점 {totalScore}점</p>
-            <button className="btn" onClick={start}>
-              다시 하기
+            <button className="btn" onClick={() => setScreen("ENDING")}>
+              엔딩 보기
             </button>
+            <button className="chip ghost" onClick={start}>다시하기</button>
+          </div>
+        </div>
+      )}
+
+      {/* 엔딩 크레딧 — 아웃트로 뒤, 배경 위에 주인공과 CTA */}
+      {screen === "CREDITS" && (
+        <div className="layer-ui story-layer">
+          <div className="credits">
+            <img className="credits-char" src="/assets/story_user_full.webp" alt="주인공" />
+            <p className="credits-q">{playerName || "주인공"}의 앞으로의 여정이 궁금하다면?</p>
+            {cheered ? (
+              <p className="credits-thanks">감사합니다! 뭉게뭉게 마을에서 기다릴게요 🍰</p>
+            ) : (
+              <button className="btn" onClick={() => setCheered(true)}>
+                프롬프트 파티시에 팀 합격시키기
+              </button>
+            )}
+            <button className="chip ghost" onClick={start}>처음부터 다시 하기</button>
           </div>
         </div>
       )}
@@ -288,9 +382,19 @@ export default function App() {
         </button>
       )}
 
-      {/* 개발용 스테이지 점프 */}
+      {/* 개발용 스테이지 점프 — in(인트로)·굿/배드(엔딩 강제) 포함 */}
       {import.meta.env.DEV && (
         <div className="dev-stage-jump">
+          <button
+            className={screen === "INTRO" ? "on" : ""}
+            title="인트로 스토리"
+            onClick={() => {
+              if (!playerName) setPlayerName("달콤한체리"); // 이름 없이 점프해도 대사가 깨지지 않게
+              setScreen("INTRO");
+            }}
+          >
+            in
+          </button>
           {orders.map((o, i) => (
             <button
               key={o.id}
@@ -301,6 +405,28 @@ export default function App() {
               {i === 0 ? "T" : i}
             </button>
           ))}
+          <button
+            className={screen === "ENDING" && devEnding === "good" ? "on" : ""}
+            title="굿 엔딩 스토리"
+            onClick={() => {
+              if (!playerName) setPlayerName("달콤한체리");
+              setDevEnding("good");
+              setScreen("ENDING");
+            }}
+          >
+            굿
+          </button>
+          <button
+            className={screen === "ENDING" && devEnding === "bad" ? "on" : ""}
+            title="배드 엔딩 스토리"
+            onClick={() => {
+              if (!playerName) setPlayerName("달콤한체리");
+              setDevEnding("bad");
+              setScreen("ENDING");
+            }}
+          >
+            배드
+          </button>
         </div>
       )}
     </div>

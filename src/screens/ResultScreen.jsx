@@ -2,7 +2,7 @@ import { describeCake, MONSTERS, moodOf } from "../data/ingredients.js";
 import { answerMap } from "../scoreCake.js";
 import CakeView from "../components/CakeView.jsx";
 
-export default function ResultScreen({ result, order, cake, onNext }) {
+export default function ResultScreen({ result, order, cake, onNext, onRetry }) {
   const good = result.passed;
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
   const mood = moodOf(result.score);
@@ -62,9 +62,13 @@ export default function ResultScreen({ result, order, cake, onNext }) {
 
       {result._mock && <p className="hint">※ mock 판정 (실서버 아님)</p>}
 
-      <button className="btn" onClick={onNext}>
-        다음 손님
-      </button>
+      <div className="result-actions">
+        <button className="btn" onClick={onNext}>
+          다음 손님
+        </button>
+        {/* 다시하기 — 이번 채점을 물리고 같은 손님에게 재도전 */}
+        <button className="chip ghost" onClick={onRetry}>다시하기</button>
+      </div>
     </div>
   );
 }

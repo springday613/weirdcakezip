@@ -1,5 +1,5 @@
 import { MONSTERS, moodOf } from "../data/ingredients.js";
-import { answerMap, starsFor } from "../scoreCake.js";
+import { starsFor } from "../scoreCake.js";
 import { SCORE_LABELS } from "../data/scoreLabels.js";
 import CakeView from "../components/CakeView.jsx";
 import Stars from "../components/Stars.jsx";
@@ -28,28 +28,27 @@ export default function ResultScreen({ result, order, cake, onNext, onRetry }) {
 
   return (
     <div className="screen result-screen">
-      {/* 1. 괴물 (표정 3종 — mood 로 선택) */}
+      {/* 1. 괴물 (표정 3종) */}
       <img className="result-monster" src={monster.img[mood]} alt="손님 반응" />
 
-      {/* 2. 말풍선 — 괴물이 말하고 그 대상이 아래 케이크 */}
+      {/* 2. 말풍선 — 평가가 먼저, 물건이 나중 */}
       <p className="result-bubble stk">{result.reaction}</p>
 
-      {/* 3. 케이크 — 괴물보다 크게 */}
-      <div className="result-cake-wrap">
-        <CakeView cake={cake} preview="cake" notePlacement="beside" />
-      </div>
-
-      {/* 4. 손님 만족도 라벨 + 별점 */}
-      <span className="result-sat-label">손님 만족도</span>
+      {/* 3. 별점 */}
       <Stars value={starValue} size="md" />
 
-      {/* 5. 코인 배지 */}
+      {/* 4. 코인 */}
       <div className="result-coin">
         <Icon name="coin" size="sm" />
         <span>{coinMsg}</span>
       </div>
 
-      {/* 6. 채점 2열 그리드 — 6항목 3줄 */}
+      {/* 5. 케이크 */}
+      <div className="result-cake-wrap">
+        <CakeView cake={cake} preview="cake" notePlacement="beside" />
+      </div>
+
+      {/* 6. 채점 1열 — 6항목 6줄 */}
       {result.parts && (
         <div className="result-spec stk">
           <div className="result-grid">
@@ -77,17 +76,6 @@ export default function ResultScreen({ result, order, cake, onNext, onRetry }) {
             </div>
           )}
         </div>
-      )}
-
-      {/* 손님의 진짜 마음은? — 채점 검증용. 프로덕션에서는 표시하지 않는다 (D-24) */}
-      {import.meta.env.DEV && (
-        <details className="reveal">
-          <summary>손님의 진짜 마음은?</summary>
-          <pre className="reveal-intent">{JSON.stringify(answerMap(order), null, 2)}</pre>
-          <p className="reveal-legend">
-            <code>"dont care"</code> 상관없음 · <code>"none"</code> 없어야 함 · 그 외는 그 값이 정답
-          </p>
-        </details>
       )}
 
       {result._mock && <p className="hint">※ mock 판정 (실서버 아님)</p>}

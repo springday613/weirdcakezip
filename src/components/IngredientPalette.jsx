@@ -106,6 +106,7 @@ export default function IngredientPalette({ step, cake, setCake, orderIndex = 0,
       <div className="step-box">
       <StepBar step={step} steps={STEPS} />
 
+      <div className="palette-scroll">
       {cur.id === "sheet" && (
         <>
           <div className="palette-row">
@@ -196,6 +197,7 @@ export default function IngredientPalette({ step, cake, setCake, orderIndex = 0,
         </div>
       )}
 
+      </div>{/* palette-scroll */}
       </div>
     </div>
   );

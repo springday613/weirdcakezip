@@ -185,7 +185,7 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
   const introDim = tut && tutIntro != null ? " tut-dim-el" : ""; // 물범 인사 중 배경 어둡게
 
   return (
-    <div className="screen">
+    <div className="screen screen--build">
       <div className={"hud hud-row" + introDim}>
         <span>주문 {index + 1} / {total}</span>
         <span className="money">매출 {(money ?? 0).toLocaleString()}코인</span>

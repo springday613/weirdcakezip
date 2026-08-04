@@ -586,6 +586,15 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   min-height: var(--tap-min);
 }
 
+/* BUILD 전용 스크롤 재편 — 팔레트 칩 영역만 스크롤, 케이크·버튼은 고정 */
+/* ⚠ .screen 자체는 건드리지 않는다 (RESULT·END·TUTEND 공용) */
+.screen--build { overflow-y: hidden; }
+.screen--build .palette  { flex: 1; min-height: 0; }
+.screen--build .step-box { flex: 1; min-height: 0; }
+.palette-scroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+/* make-nav margin-top 이 가장 크다 — 667px 에서 여기부터 줄인다 */
+.screen--build .make-nav { margin-top: 8px; }
+
 /* 네비게이션 */
 .make-nav { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 22px; }
 .make-nav .submit { flex: 1; max-width: 260px; margin-top: 0; }

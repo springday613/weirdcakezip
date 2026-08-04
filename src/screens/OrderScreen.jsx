@@ -96,9 +96,10 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
       </div>
 
       <div className="edit-row">
-        <button className="chip ghost" onClick={resetAll}>다시시작</button>
-        <button className="chip ghost" onClick={clearBoard}>케이크위 다 지우기</button>
-        <button className="chip ghost" onClick={clearStep}>현재 단계만 지우기</button>
+        {/* 굽는 중엔 잠근다 — 타이머가 살아 있어 빈 반죽이 구워지는 사고 방지(KAN-34) */}
+        <button className="chip ghost" disabled={making} onClick={resetAll}>다시시작</button>
+        <button className="chip ghost" disabled={making} onClick={clearBoard}>케이크위 다 지우기</button>
+        <button className="chip ghost" disabled={making} onClick={clearStep}>현재 단계만 지우기</button>
       </div>
     </div>
   );

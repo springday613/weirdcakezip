@@ -2,19 +2,21 @@ import { useState, useRef } from "react";
 import { orders } from "./data/orders.js";
 import { judge } from "./judgeClient.js";
 import { chat } from "./chatClient.js";
-import { coinsFor, EXTRA_TURN_BUNDLE, extraTurnPrice } from "./scoreCake.js";
-import { MONSTERS } from "./data/ingredients.js";
+import { coinsFor, starsFor, EXTRA_TURN_BUNDLE, extraTurnPrice } from "./scoreCake.js";
 import TitleScreen from "./screens/TitleScreen.jsx";
+import TutorialEndScreen from "./screens/TutorialEndScreen.jsx";
+import StageMapScreen from "./screens/StageMapScreen.jsx";
 import ChatScreen from "./screens/ChatScreen.jsx";
 import OrderScreen from "./screens/OrderScreen.jsx";
 import ResultScreen from "./screens/ResultScreen.jsx";
-import TutorialEndScreen from "./screens/TutorialEndScreen.jsx";
-import { TUTORIAL_GUIDE } from "./data/tutorial.js";
+import LoadingScreen, { useLoading } from "./screens/LoadingScreen.jsx";
 import Hud from "./components/Hud.jsx";
 import ChatPopup from "./components/ChatPopup.jsx";
+import { MONSTERS } from "./data/ingredients.js";
+import { TUTORIAL_GUIDE } from "./data/tutorial.js";
 
-// 게임 루프 = 상태머신 (척추 = 이 하나의 상태 객체)
-//   TITLE → CHAT → BUILD → RESULT → 다음 or END
+// 게임 루프 = 상태머신
+//   TITLE → STAGE → CHAT → BUILD → RESULT → STAGE (또는 END)
 const emptyCake = () => ({
   base: [],
   cakeBase: null,
@@ -28,20 +30,28 @@ const BG_MODES = ["solid", "day", "night"];
 const BG_LABELS = { solid: "단색", day: "낮", night: "밤" };
 
 export default function App() {
-  const [screen, setScreen] = useState("TITLE"); // TITLE | CHAT | BUILD | RESULT | TUTEND(튜토리얼 에필로그) | END
+  const [screen, setScreen] = useState("TITLE"); // TITLE | STAGE | CHAT | BUILD | RESULT | END
   const [orderIndex, setOrderIndex] = useState(0);
   const [cake, setCake] = useState(emptyCake());
   const [result, setResult] = useState(null);
   const [totalScore, setTotalScore] = useState(0);
   const [money, setMoney] = useState(0);
-  const [busy, setBusy] = useState(false);
-  const [turns, setTurns] = useState(0); // 이번 손님에게 던진 질문 수 — 점수에서 지불한다
-  const [extraTurns, setExtraTurns] = useState(0); // 코인으로 산 추가 질문(감점 없음, 상한 5)
-  const [bgMode, setBgMode] = useState(0); // 개발용 배경 토글
+  const [chatBusy, setChatBusy] = useState(false);
+  const [judgeBusy, setJudgeBusy] = useState(false);
+  const [turns, setTurns] = useState(0);
+  const [extraTurns, setExtraTurns] = useState(0);
+  const [bgMode, setBgMode] = useState(0);
   const [messages, setMessages] = useState([]); // 대화 기록 — 화면 전환에도 유지
   const [scriptIdx, setScriptIdx] = useState(0); // 대본 진행도 — ChatBox 와 동기
   const [chatPopupOpen, setChatPopupOpen] = useState(false);
-  const nextMsgId = useRef(1); // 메시지별 안정적 key
+  const nextMsgId = useRef(1);
+  const scriptAdvancing = useRef(false); // 대본 연타 가드
+
+  // 손님별 최고 별점. 인덱스 = orders 배열 순서. 0 = 아직 안 함
+  const [stars, setStars] = useState(() => orders.map(() => 0));
+
+  // 로딩 오버레이
+  const { loading, loadMsg, withLoading } = useLoading();
 
   const order = orders[orderIndex];
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
@@ -60,25 +70,54 @@ export default function App() {
     setMoney(0);
     setTurns(0);
     setExtraTurns(0);
-    seedMessages(orders[0]);
-    setScreen("CHAT");
+    setStars(orders.map(() => 0));
+    setScreen("STAGE");
+  }
+
+  // 스테이지 맵에서 노드 선택
+  function selectNode(i) {
+    setOrderIndex(i);
+    setCake(emptyCake());
+    setResult(null);
+    setTurns(0);
+    setExtraTurns(0);
+    seedMessages(orders[i]);
+    withLoading("손님이 오고 있어요…", async () => {}).then(() => {
+      setScreen("CHAT");
+    });
   }
 
   async function submit() {
-    setBusy(true);
-    const r = await judge(order.id, cake, turns);
-    setBusy(false);
-    const earned = coinsFor(r.score);
-    setResult({ ...r, earned });
-    setTotalScore((s) => s + r.score);
-    setMoney((m) => m + earned);
+    await withLoading("케이크 채점 중…", async () => {
+      setJudgeBusy(true);
+      const r = await judge(order.id, cake, turns);
+      setJudgeBusy(false);
+      // ⚠ 임시 — 재플레이 수익 0. 최종 정책은 8/4 미팅 (재수익 0 vs 최고 기록 초과분만)
+      // 지금 안 막으면 완료 노드 반복으로 코인 무한 파밍 → S19 의 엔딩 조건이 무력화된다
+      const isReplay = stars[orderIndex] > 0;
+      const earned = isReplay ? 0 : coinsFor(r.score);
+      setResult({ ...r, earned });
+      if (!isReplay) {
+        setTotalScore((s) => s + r.score);
+        setMoney((m) => m + earned);
+      }
+      // 별점 갱신 — 기존보다 높을 때만 (재플레이도 갱신)
+      const newStars = starsFor(r.score);
+      setStars((prev) => {
+        const next = [...prev];
+        if (newStars > next[orderIndex]) next[orderIndex] = newStars;
+        return next;
+      });
+    });
     setScreen("RESULT");
   }
 
-  // 대본 진행 — ChatBox 에서 호출
+  // 대본 진행 — ChatBox 에서 호출. 연타 가드로 같은 대사 중복 방지.
   function advanceScript() {
     const script = order.script;
     if (!script || scriptIdx >= script.length) return;
+    if (scriptAdvancing.current) return; // 연타 방어
+    scriptAdvancing.current = true;
     const { ask, reply } = script[scriptIdx];
     setMessages((m) => [
       ...m,
@@ -86,21 +125,22 @@ export default function App() {
       { id: nextMsgId.current++, role: "monster", content: reply },
     ]);
     setScriptIdx((n) => n + 1);
+    // 다음 렌더 후 해제
+    requestAnimationFrame(() => { scriptAdvancing.current = false; });
   }
 
-  // 대화 보내기 — ChatBox 에서 호출. 일반 대화만
+  // 대화 보내기 — ChatBox 에서 호출. 일반 대화만 (chatBusy)
   async function handleSend(text) {
-    // 일반 대화 — LLM 호출
     const userMsg = { id: nextMsgId.current++, role: "user", content: text };
     const next = [...messages, userMsg];
     setMessages(next);
-    setBusy(true);
+    setChatBusy(true);
     const { reply, raw } = await chat(order.id, next);
-    setBusy(false);
+    setChatBusy(false);
     setMessages((m) => [...m, { id: nextMsgId.current++, role: "monster", content: reply, raw }]);
   }
 
-  // 개발용: 스테이지 점프 — 순차 진행 없이 특정 손님으로 바로
+  // 개발용: 스테이지 점프
   function jumpTo(i) {
     setOrderIndex(i);
     setCake(emptyCake());
@@ -112,18 +152,8 @@ export default function App() {
   }
 
   function next() {
-    const ni = orderIndex + 1;
-    if (ni >= orders.length) {
-      setScreen("END");
-      return;
-    }
-    setOrderIndex(ni);
-    setCake(emptyCake());
-    setResult(null);
-    setTurns(0);
-    setExtraTurns(0); // 예산은 손님마다 새로 준다
-    seedMessages(orders[ni]);
-    setScreen("CHAT");
+    // 정산 후 스테이지 맵으로 돌아간다
+    setScreen("STAGE");
   }
 
   const buyTurn = () => {
@@ -138,16 +168,13 @@ export default function App() {
 
   return (
     <div className={`app-shell ${bgClass}`}>
-      {/* ① 배경 그림 (교체 예정) */}
       <div className="layer-art" />
-
-      {/* 배경 위 베일 — 어두운 배경에서도 UI가 읽히게 */}
       <div className="layer-veil" />
 
-      {/* 게임 진행 화면들도 기본 배경(구름 하늘)을 깐다 — CHAT 상단은 ChatScreen 이 가게 배경을 얹는다 */}
-      {["CHAT", "BUILD", "RESULT", "END"].includes(screen) && <div className="screen-bg" />}
+      {/* 게임 진행 화면들엔 기본 배경(구름 하늘) — CHAT 상단은 ChatScreen 이 가게 배경을 얹는다 */}
+      {["STAGE", "CHAT", "BUILD", "RESULT", "END"].includes(screen) && <div className="screen-bg" />}
 
-      {/* HUD — 타이틀·에필로그 이외 화면에 상주하는 크롬 */}
+      {/* HUD — 타이틀·에필로그 이외 화면에 상주 */}
       {!["TITLE", "TUTEND"].includes(screen) && (
         <div className="layer-ui">
           <Hud coins={money}>
@@ -161,8 +188,11 @@ export default function App() {
         </div>
       )}
 
-      {/* 화면이 필요한 층을 직접 렌더한다 (§2) */}
       {screen === "TITLE" && <TitleScreen onStart={start} />}
+
+      {screen === "STAGE" && (
+        <StageMapScreen stars={stars} onSelect={selectNode} />
+      )}
 
       {screen === "CHAT" && (
         <ChatScreen
@@ -170,7 +200,7 @@ export default function App() {
           order={order}
           messages={messages}
           onSend={handleSend}
-          busy={busy}
+          busy={chatBusy}
           turns={turns}
           extraTurns={extraTurns}
           money={money}
@@ -193,14 +223,14 @@ export default function App() {
             cake={cake}
             setCake={setCake}
             onSubmit={submit}
-            busy={busy}
+            busy={judgeBusy}
           />
           {chatPopupOpen && (
             <ChatPopup
               order={order}
               messages={messages}
               onSend={handleSend}
-              busy={busy}
+              busy={chatBusy}
               turns={turns}
               extraTurns={extraTurns}
               money={money}
@@ -225,7 +255,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 튜토리얼 에필로그 — 물범이 감점 제도를 알려주고 다음 손님으로 */}
+      {/* 튜토리얼 에필로그 — 물범이 감점 제도를 알려주고 스테이지 맵으로 */}
       {screen === "TUTEND" && (
         <div className="layer-ui tutend-layer">
           <TutorialEndScreen onDone={next} />
@@ -245,7 +275,10 @@ export default function App() {
         </div>
       )}
 
-      {/* 개발용 배경 토글 — 프로덕션에서 숨김 */}
+      {/* 로딩 오버레이 — 화면 위에 얹는다 */}
+      {loading && <LoadingScreen visible={loading} message={loadMsg} />}
+
+      {/* 개발용 배경 토글 */}
       {import.meta.env.DEV && (
         <button
           className="dev-bg-toggle"
@@ -255,7 +288,7 @@ export default function App() {
         </button>
       )}
 
-      {/* 개발용 스테이지 점프 — 번호 클릭으로 해당 손님 바로 시작 */}
+      {/* 개발용 스테이지 점프 */}
       {import.meta.env.DEV && (
         <div className="dev-stage-jump">
           {orders.map((o, i) => (

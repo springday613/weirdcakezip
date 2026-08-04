@@ -67,7 +67,7 @@ export default function ChatBox({ order, messages = [], onSend, busy = false, tu
               <>
                 <span className="script-ask">{script[scriptIdx].ask}</span>
                 {/* 확인은 매 턴 빛나게 — 다음 행동이 항상 이 버튼이라는 걸 알려준다 */}
-                <button className="btn small tut-pulse" onClick={onAdvanceScript}>
+                <button className="btn small tut-pulse" onClick={onAdvanceScript} disabled={busy}>
                   확인
                 </button>
               </>

@@ -1,4 +1,4 @@
-import { hexOf, sheetType, COLORS } from "../data/ingredients.js";
+import { sheetType, COLORS } from "../data/ingredients.js";
 import layout from "../data/cakeLayout.json";
 
 // 배치는 전부 cakeLayout.json 에 미리 계산돼 있다(손그림에서 실측한 윗면 타원 기준).
@@ -29,10 +29,16 @@ function warmVariants() {
       im.src = p;
     }
   }
+  // 쪽지 2장도 미리 — 접는 연출이 0.3초뿐이라, 그 순간 처음 받으면 접힌 컷을 못 보고 지나간다
+  for (const p of ["/assets/note_open.webp", "/assets/note_closed.webp"]) {
+    const im = new Image();
+    im.src = p;
+  }
 }
 
-// preview 상태: "bowl-empty" | "bowl-dough" | "making" | "cake"
-export default function CakeView({ cake, preview = "cake" }) {
+// preview 상태: "bowl-empty" | "bowl-dough" | "making" | "cake" | "note" | "note-folded"
+// notePlacement: "top"(기본, 케이크 위에 얹기) | "beside"(결과 화면 — 접힌 쪽지를 케이크 옆에)
+export default function CakeView({ cake, preview = "cake", notePlacement = "top" }) {
   warmVariants();
   const sheet = cake.cakeBase || "vanilla";
   const cakeType = sheetType(cake.base) || "cake";
@@ -43,6 +49,29 @@ export default function CakeView({ cake, preview = "cake" }) {
     : preview === "making" ? "/assets/dough_knead.webp"
     : `/assets/${cakeType}_${sheet}.webp`;
   const isCake = preview === "cake";
+
+  // 쪽지 쓰기 모드 — 케이크 대신 펼친 쪽지가 무대를 차지한다 (S16)
+  if (preview === "note") {
+    return (
+      <div className="cake-stage">
+        <div className="note-stage">
+          <img src="/assets/note_open.webp" alt="쪽지" />
+          <span className="note-text">{cake.lettering.text || "…"}</span>
+        </div>
+      </div>
+    );
+  }
+
+  // 완성 직전 — 쪽지를 접는 연출(0.3초). 글자는 접혀서 안 보인다.
+  if (preview === "note-folded") {
+    return (
+      <div className="cake-stage">
+        <div className="note-stage note-stage--folded">
+          <img src="/assets/note_closed.webp" alt="접힌 쪽지" />
+        </div>
+      </div>
+    );
+  }
 
   // 생크림 — fill_order 앞에서부터. 몇 개를 올리든 링 전체에 고르게 퍼진다.
   const dollops = cake.cream?.dollops ?? [];
@@ -126,10 +155,17 @@ export default function CakeView({ cake, preview = "cake" }) {
             );
           })}
 
-        {isCake && cake.lettering.text && (
-          <span className="lettering" style={{ color: hexOf(cake.lettering.color) }}>
-            {cake.lettering.text}
+        {isCake && cake.lettering.text && notePlacement === "top" && (
+          <span className="lettering-note">
+            {/* 쪽지 컨셉(S16) — 글자를 크림으로 쓰는 게 아니라 쪽지에 써서 얹는다 */}
+            <img src="/assets/note_open.webp" alt="" />
+            <span className="lettering">{cake.lettering.text}</span>
           </span>
+        )}
+
+        {/* 결과 화면 — 함께 배달된 접힌 쪽지를 케이크 옆에 놓는다. 안 썼으면 쪽지도 없다 */}
+        {isCake && cake.lettering.text && notePlacement === "beside" && (
+          <img className="note-beside" src="/assets/note_closed.webp" alt="쪽지" />
         )}
       </div>
     </div>

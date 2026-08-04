@@ -24,7 +24,14 @@ from PIL import Image
 from scipy import ndimage as ndi
 
 # 스크립트는 리포 안(tools/assets/cake), 원본 그림·빌드 산출물은 리포 밖 assets/assets-cake (S17)
-REPO = Path(__file__).resolve().parents[3]            # cake-shop/
+# 리포 루트 탐색 — parents[N] 하드코딩은 폴더가 깊어지면 조용히 어긋난다(리뷰 지적).
+# package.json 이 있는 곳을 리포 루트로 삼는다.
+def _find_repo(start: Path) -> Path:
+    for p in [start, *start.parents]:
+        if (p / "package.json").exists():
+            return p
+    raise RuntimeError("리포 루트(cake-shop)를 찾지 못했습니다")
+REPO = _find_repo(Path(__file__).resolve())           # cake-shop/
 HERE = REPO.parent / "assets" / "assets-cake"         # 원본 그림 + build/ 산출물
 OUT = HERE / "split"
 

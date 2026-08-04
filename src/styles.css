@@ -1406,20 +1406,21 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 /* ── 정산 화면 레이아웃 확정 (H14) — 스크롤 없이 한 화면 ── */
 /*
   세로 예산 (iPhone SE 667px):
-  HUD 44 / 말풍선 56 / 손님만족도 20 / 별 44 / 코인 32
-  / 채점 96 / 질문비용 26 / 버튼 52 / gap 8×9=72 → 442
-  나머지 225px: 괴물 11vh(73) + 케이크 19vh(127) = 200 (25px 여유)
+  HUD 44 / 말풍선 56 / 별 44 / 코인 32 / 채점 174 / 질문비용 26
+  / 버튼 52 / gap 6×6=36 → 464
+  나머지 203px: 괴물 8.5vh(57) + 케이크 16.8vh(112→127h) = 184 (19px 여유)
 */
 .result-screen {
   overflow-y: hidden;
   align-items: center;
   text-align: center;
+  gap: 6px;
 }
 .result-screen .stars { margin-top: 0; }
 
 /* 괴물 — 표정만 읽히면 된다. 케이크보다 작게 */
 .result-monster {
-  height: clamp(64px, 10vh, 96px);
+  height: clamp(56px, 8.5vh, 84px);
   width: auto;
   display: block;
   flex-shrink: 0;
@@ -1446,9 +1447,9 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   flex-shrink: 0;
   height: clamp(108px, 16vh, 165px);
 }
-/* 케이크 폭: 16vh 높이에 맞게 축소 (14.3vh 폭 → aspect-ratio(961/1086)로 16vh 높이) */
+/* 케이크 폭: 16.8vh → aspect-ratio(961/1086)로 높이 ~19vh */
 .result-cake-wrap .cake {
-  width: clamp(92px, 14.3vh, 143px);
+  width: clamp(112px, 16.8vh, 158px);
 }
 
 .result-coin {

@@ -5,6 +5,7 @@ import { chat } from "./chatClient.js";
 import { coinsFor, starsFor, EXTRA_TURN_BUNDLE, extraTurnPrice } from "./scoreCake.js";
 import TitleScreen from "./screens/TitleScreen.jsx";
 import NameScreen from "./screens/NameScreen.jsx";
+import TutorialEndScreen from "./screens/TutorialEndScreen.jsx";
 import StoryScreen from "./screens/StoryScreen.jsx";
 import StageMapScreen from "./screens/StageMapScreen.jsx";
 import ChatScreen from "./screens/ChatScreen.jsx";
@@ -15,6 +16,7 @@ import Hud from "./components/Hud.jsx";
 import ChatPopup from "./components/ChatPopup.jsx";
 import { MONSTERS } from "./data/ingredients.js";
 import { STORY, GOOD_ENDING_COINS } from "./data/story.js";
+import { TUTORIAL_GUIDE } from "./data/tutorial.js";
 
 // 게임 루프 = 상태머신
 //   TITLE → NAME(이름) → INTRO(스토리) → STAGE → CHAT → BUILD → RESULT → STAGE 순환
@@ -179,6 +181,18 @@ export default function App() {
     setScreen("STAGE");
   }
 
+  // 튜토리얼 건너뛰기 — 노드 T 를 ★1 완료로 표시해 레벨 1 을 열고 맵으로.
+  // 수익·적립은 없다(collected 유지) — 나중에 튜토리얼을 플레이하면 코인은 그대로 벌 수 있다.
+  function skipTutorial() {
+    setStars((prev) => {
+      if (prev[0] > 0) return prev;
+      const next = [...prev];
+      next[0] = 1;
+      return next;
+    });
+    setScreen("STAGE");
+  }
+
   // 다시하기 — 이번 채점의 점수·코인을 물리고 같은 손님의 제작으로 돌아간다.
   // 대화 기록과 질문 수(감점)는 유지 — 재도전이 공짜 정보가 되지 않게.
   function retry() {
@@ -214,16 +228,24 @@ export default function App() {
       {/* 게임 진행 화면들엔 기본 배경(구름 하늘) — CHAT 상단은 ChatScreen 이 가게 배경을 얹는다 */}
       {["STAGE", "CHAT", "BUILD", "RESULT", "END"].includes(screen) && <div className="screen-bg" />}
 
-      {/* HUD — 타이틀·이름·스토리 이외 화면에 상주 */}
-      {!["TITLE", "NAME", "INTRO", "ENDING", "CREDITS"].includes(screen) && (
+      {/* HUD — 타이틀·이름·스토리·에필로그 이외 화면에 상주 */}
+      {!["TITLE", "NAME", "INTRO", "ENDING", "CREDITS", "TUTEND"].includes(screen) && (
         <div className="layer-ui">
           <Hud coins={money}>
-            {screen === "BUILD" && (
-              <button className="btn-ghost chat-popup-trigger" onClick={() => setChatPopupOpen(true)}>
-                <img className="bubble-face chat-trigger-face" src={monster.img.normal} alt="" />
-                대화
-              </button>
-            )}
+            <div className="hud-left-col">
+              {screen === "BUILD" && (
+                <button className="btn-ghost chat-popup-trigger" onClick={() => setChatPopupOpen(true)}>
+                  <img className="bubble-face chat-trigger-face" src={monster.img.normal} alt="" />
+                  대화
+                </button>
+              )}
+              {/* 튜토리얼 건너뛰기 — 왼쪽 상단, 제작 중엔 대화 버튼 아래 */}
+              {order.script && ["CHAT", "BUILD"].includes(screen) && (
+                <button className="chip ghost tut-skip" onClick={skipTutorial}>
+                  튜토리얼 건너뛰기
+                </button>
+              )}
+            </div>
           </Hud>
         </div>
       )}
@@ -243,7 +265,12 @@ export default function App() {
 
       {screen === "INTRO" && (
         <div className="layer-ui story-layer">
-          <StoryScreen cuts={STORY.begin} name={playerName} onDone={() => setScreen("STAGE")} />
+          {/* 인트로 직후엔 맵을 거치지 않고 튜토리얼로 바로 — 첫 손님(핑크)이 이미 문을 열고 들어왔다 */}
+          <StoryScreen
+            cuts={STORY.begin}
+            name={playerName}
+            onDone={() => (stars[0] > 0 ? setScreen("STAGE") : selectNode(0))}
+          />
         </div>
       )}
 
@@ -318,7 +345,20 @@ export default function App() {
 
       {screen === "RESULT" && (
         <div className="layer-ui layer-ui--grow">
-          <ResultScreen result={result} order={order} cake={cake} onNext={next} onRetry={retry} />
+          <ResultScreen
+            result={result}
+            order={order}
+            cake={cake}
+            onNext={order.id === TUTORIAL_GUIDE.orderId ? () => setScreen("TUTEND") : next}
+            onRetry={retry}
+          />
+        </div>
+      )}
+
+      {/* 튜토리얼 에필로그 — 물범이 감점 제도를 알려주고 다음으로 */}
+      {screen === "TUTEND" && (
+        <div className="layer-ui tutend-layer">
+          <TutorialEndScreen name={playerName || undefined} onDone={next} />
         </div>
       )}
 

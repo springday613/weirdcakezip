@@ -20,10 +20,10 @@ export const STEPS = [
 // 재료 이미지 칩 (이모지·글자 대신 그림). lock 이 있으면 흐림+자물쇠, 클릭은 툴팁만.
 // 파일 수준 컴포넌트 — 렌더 안에서 정의하면 매번 새 타입이 되어 리마운트된다(리뷰 지적).
 // 바닐라는 전용 재료 그림이 없어 바닐라색 생크림 그림으로 그린다.
-function ImgChip({ id, on, onClick, lock, tipOpen, onLockTap }) {
+function ImgChip({ id, on, onClick, lock, tipOpen, onLockTap, hl }) {
   return (
     <button
-      className={"chip img-chip" + (on ? " on" : "") + (lock ? " locked" : "")}
+      className={"chip img-chip" + (on ? " on" : "") + (lock ? " locked" : "") + (hl ? " tut-pulse" : "")}
       onClick={lock ? onLockTap : onClick}
       title={lock ? undefined : id}
     >
@@ -43,7 +43,8 @@ function ImgChip({ id, on, onClick, lock, tipOpen, onLockTap }) {
 }
 
 // 재료 팔레트 — 한 단계씩만 보여준다. orderIndex 는 잠금 판정용(0 = 튜토리얼).
-export default function IngredientPalette({ step, cake, setCake, orderIndex = 0 }) {
+// tutBasic/tutChips: 튜토리얼 하이라이트 — 기본 시트 버튼 / 정답 재료 id 목록 (S21)
+export default function IngredientPalette({ step, cake, setCake, orderIndex = 0, tutBasic = false, tutChips = null }) {
   const set = (patch) => setCake({ ...cake, ...patch });
 
   // 잠긴 재료 → 호버로 해제 시점 툴팁. 터치(호버 없음)는 탭하면 잠깐 띄운다 (S18 — 실제 언락은 후속)
@@ -92,6 +93,7 @@ export default function IngredientPalette({ step, cake, setCake, orderIndex = 0 
         id={c.id}
         on={selectedId === c.id}
         lock={kind ? lockOf(kind, c.id, orderIndex) : null}
+        hl={tutChips?.includes(c.id)}
         tipOpen={tipId === c.id}
         onLockTap={() => tapLock(c.id)}
         onClick={() => onPick(c.id)}
@@ -108,7 +110,7 @@ export default function IngredientPalette({ step, cake, setCake, orderIndex = 0 
           <div className="palette-row">
             <span className="palette-label">섞기</span>
             <button
-              className={"chip" + (isBasic ? " on" : "")}
+              className={"chip" + (isBasic ? " on" : "") + (tutBasic ? " tut-pulse" : "")}
               onClick={() => set({ base: isBasic ? [] : [...BASIC_BASE] })}
             >
               기본 시트
@@ -119,6 +121,7 @@ export default function IngredientPalette({ step, cake, setCake, orderIndex = 0 
                 id={b.id}
                 on={cake.base.includes(b.id)}
                 lock={lockOf("sheet", b.id, orderIndex)}
+                hl={tutChips?.includes(b.id)}
                 tipOpen={tipId === b.id}
                 onLockTap={() => tapLock(b.id)}
                 onClick={() => toggleBase(b.id)}
@@ -154,6 +157,7 @@ export default function IngredientPalette({ step, cake, setCake, orderIndex = 0 
               key={t.id}
               id={t.id}
               lock={lockOf("topping", t.id, orderIndex)}
+              hl={tutChips?.includes(t.id)}
               tipOpen={tipId === t.id}
               onLockTap={() => tapLock(t.id)}
               onClick={() => addTopping(t.id)}

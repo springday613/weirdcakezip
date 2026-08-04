@@ -1421,39 +1421,121 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   font-weight: 700;
 }
 
-/* ── 정산 화면 재작성 (H14) ─────────────────────────────── */
-.result-screen { overflow-y: hidden; }
-.result-scroll {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
+/* ── 정산 화면 레이아웃 확정 (H14) — 스크롤 없이 한 화면 ── */
+/*
+  세로 예산 (iPhone SE 667px):
+  HUD 44 / 말풍선 56 / 손님만족도 20 / 별 44 / 코인 32
+  / 채점 96 / 질문비용 26 / 버튼 52 / gap 8×9=72 → 442
+  나머지 225px: 괴물 11vh(73) + 케이크 19vh(127) = 200 (25px 여유)
+*/
+.result-screen {
+  overflow-y: hidden;
   align-items: center;
-  gap: 8px;
-  padding-bottom: 8px;
+  text-align: center;
 }
-.result-top {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding-top: 12px;
-}
-.result-top .monster-big { margin: 0; }
-.result-top .stars { margin-top: 0; }
-.result-screen .spec { width: 100%; }
-.result-screen .reaction { text-align: center; }
-.result-screen .earned { text-align: center; margin: 0; }
-.result-penalty { color: var(--text-muted); }
+.result-screen .stars { margin-top: 0; }
 
-/* 결과 화면 버튼 줄 (S20) — 다음 손님 / 다시하기 */
+/* 괴물 — 표정만 읽히면 된다. 케이크보다 작게 */
+.result-monster {
+  height: clamp(72px, 11vh, 110px);
+  width: auto;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* 말풍선 — 꼬리를 위 왼쪽에. 괴물이 말하고 케이크가 그 대상 */
+.result-bubble {
+  border-radius: 14px;
+  border-top-left-radius: 4px;
+  padding: 10px 14px;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  line-height: 1.5;
+  word-break: keep-all;
+  flex-shrink: 0;
+  margin: 0;
+  width: 100%;
+}
+
+/* 케이크 — 괴물보다 크다. 만든 물건이 주인공 */
+.result-cake-wrap {
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+  height: clamp(120px, 19vh, 180px);
+}
+/* 케이크 폭을 높이 예산에 맞춰 축소 — aspect-ratio 는 .cake 가 유지 */
+.result-cake-wrap .cake {
+  width: clamp(100px, 17vh, 155px);
+}
+
+.result-sat-label {
+  font-size: var(--fs-note);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.result-coin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: var(--fs-body);
+  flex-shrink: 0;
+}
+
+/* 채점 박스 */
+.result-spec {
+  width: 100%;
+  border-radius: var(--r-card);
+  padding: 8px 10px;
+  flex-shrink: 0;
+}
+/* 2열 그리드 — 6항목 3줄. 1열로 두면 SE 에서 35px 모자란다 */
+.result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 0;
+}
+/* 각 칸: [항목명] [상태 글자] [배점] */
+.result-grid-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0 6px;
+  align-items: center;
+  padding: 3px 6px;
+  font-size: var(--fs-label);
+}
+/* 미달 항목 — 색이 아닌 밝기로 구분 */
+.result-grid-item--miss { color: var(--text-muted); }
+.result-grid-name { text-align: left; }
+.result-grid-status { font-weight: 700; }
+/* 배점(p.weight) — 오른쪽 정렬, 획득 점수(p.weight*p.frac)가 아님 */
+.result-grid-weight {
+  font-size: var(--fs-note);
+  color: var(--text-muted);
+  min-width: 20px;
+  text-align: right;
+}
+/* 질문 비용 줄 — 그리드 밖 full-width. 채점 항목이 아닌 비용이라 분리 */
+.result-penalty-line {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: var(--ink-line-thin) solid var(--ink);
+  font-size: var(--fs-label);
+  color: var(--text-muted);
+  text-align: left;
+}
+
+/* 버튼 줄 */
 .result-actions {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   flex-shrink: 0;
+  width: 100%;
   padding-bottom: 8px;
 }
 

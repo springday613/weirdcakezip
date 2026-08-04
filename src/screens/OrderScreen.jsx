@@ -44,10 +44,10 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
     if (nc.cakeBase !== cake.cakeBase) return nc.cakeBase === TUTORIAL_GUIDE.picks.color;
     if (nc.cream !== cake.cream) return nc.cream?.color === TUTORIAL_GUIDE.picks.cream;
     if (nc.toppings !== cake.toppings) {
-      // 정답 토핑만, 종류당 1개까지 — 치트 시트와 똑같은 케이크가 나오게
+      // 정답 종류(복숭아·체리)면 개수 제한 없음 — 잔뜩 올려야 예쁘고, 중복은 채점 감점도 없다.
+      // 다른 종류만 차단한다.
       const added = nc.toppings[nc.toppings.length - 1];
-      if (!TUTORIAL_GUIDE.picks.topping.includes(added?.type)) return false;
-      return cake.toppings.every((t) => t.type !== added.type);
+      return TUTORIAL_GUIDE.picks.topping.includes(added?.type);
     }
     return true; // 데코·쪽지는 마음대로
   }

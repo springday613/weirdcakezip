@@ -208,6 +208,8 @@ body {
   background: var(--paper);
 }
 .seg.done { background: var(--ink); }
+.seg.now  { background: var(--paper); border-width: var(--ink-line-sel); }
+.stepbar-wrap { display: flex; flex-direction: column; gap: 4px; }
 
 /* ── 8. 스와치 ───────────────────────────────────────────── */
 .swatch {

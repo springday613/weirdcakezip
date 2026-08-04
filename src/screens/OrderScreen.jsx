@@ -112,6 +112,29 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
     wasBusy.current = busy;
   }, [busy]);
 
+  // 되돌리기 — 쌓이는 단계(생크림·토핑·데코)에서 마지막 원소 하나만 pop
+  const stepId = STEPS[step]?.id;
+  function undoLast() {
+    if (stepId === "cream") {
+      const dollops = cake.cream?.dollops ?? [];
+      if (dollops.length === 0) return;
+      const next = dollops.slice(0, -1);
+      setCake({ ...cake, cream: next.length > 0 ? { ...cake.cream, dollops: next } : null });
+    } else if (stepId === "topping") {
+      if (cake.toppings.length === 0) return;
+      setCake({ ...cake, toppings: cake.toppings.slice(0, -1) });
+    } else if (stepId === "deco") {
+      if (cake.deco.length === 0) return;
+      setCake({ ...cake, deco: cake.deco.slice(0, -1) });
+    }
+    setTutWarn(false);
+  }
+  const showUndo = ["cream", "topping", "deco"].includes(stepId);
+  const undoEmpty =
+    stepId === "cream"   ? (cake.cream?.dollops?.length ?? 0) === 0 :
+    stepId === "topping" ? cake.toppings.length === 0 :
+    stepId === "deco"    ? cake.deco.length === 0 : true;
+
   const sheetReady = cake.base.length > 0 && cake.cakeBase;
   const clearBoard = () => setCake({ ...cake, toppings: [], deco: [], cream: null });
   // 지금 보고 있는 단계의 재료만 비운다 — 다른 단계는 건드리지 않는다 (S20)
@@ -134,7 +157,6 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
 
   // 튜토리얼 하이라이트 — 이 단계에서 다음에 눌러야 할 것 하나만 빛낸다.
   // 치트 시트 정답을 아직 안 골랐으면 정답 재료를, 골랐으면 → 를, 마음대로 단계는 → 만.
-  const stepId = STEPS[step]?.id;
   let tutBasic = false, tutChips = null, tutArrow = false, tutSubmit = false;
   if (tut && tutIntro == null && !making) {
     const hasTopping = (t) => cake.toppings.some((x) => x.type === t);
@@ -164,11 +186,19 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
   const introDim = tut && tutIntro != null ? " tut-dim-el" : ""; // 물범 인사 중 배경 어둡게
 
   return (
-    <div className="screen">
+    <div className="screen screen--build">
       <div className={"hud hud-row" + introDim}>
         <span>주문 {index + 1} / {total}</span>
         <span className="money">매출 {(money ?? 0).toLocaleString()}코인</span>
       </div>
+
+      {/* 주문 띠 — 팝업 안 열고도 6단계 내내 주문 문장이 보이게. 튜토리얼은 치트 시트가 있어 생략 */}
+      {!order.script && (
+        <div className="build-order">
+          <span className="order-badge">주문</span>
+          <p className="build-order-text">{order.dialogue}</p>
+        </div>
+      )}
 
       {/* 괴물은 상단 '대화' 버튼(바스트샷)으로 이동 — 제작 화면은 케이크가 주인공 */}
       {warn && step === 0 && (
@@ -189,7 +219,7 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
         <CakeView cake={cake} preview={preview} />
       </div>
 
-      <div className={introDim || undefined}>
+      <div className={"palette-slot" + introDim}>
         <IngredientPalette
           step={step}
           cake={cake}
@@ -222,6 +252,10 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
 
       <div className={"edit-row" + introDim}>
         {/* 굽는 중엔 잠근다 — 타이머가 살아 있어 빈 반죽이 구워지는 사고 방지(KAN-34) */}
+        {/* ↺ 되돌리기 — 쌓이는 단계(생크림·토핑·데코)에만 표시. tut-pulse 없음(튜토리얼 흐름 불개입) */}
+        {showUndo && (
+          <button className="chip ghost" disabled={making || undoEmpty} onClick={undoLast}>↺ 되돌리기</button>
+        )}
         <button className="chip ghost" disabled={making} onClick={resetAll}>다시시작</button>
         <button className="chip ghost" disabled={making} onClick={clearBoard}>케이크위 다 지우기</button>
         <button className="chip ghost" disabled={making} onClick={clearStep}>현재 단계만 지우기</button>

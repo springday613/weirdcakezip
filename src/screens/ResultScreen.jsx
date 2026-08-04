@@ -10,7 +10,7 @@ export default function ResultScreen({ result, order, cake, onNext, onRetry }) {
   return (
     <div className="screen center">
       <div className="result-label">{label}</div>
-      <CakeView cake={cake} preview="cake" />
+      <CakeView cake={cake} preview="cake" notePlacement="beside" />
       <div className="result-row">
         <img className="monster-big" src={monster.img[mood]} alt="손님 반응" />
         <div className="score-ring" data-good={good}>

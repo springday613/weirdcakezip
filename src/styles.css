@@ -723,6 +723,54 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   white-space: pre-wrap; word-break: break-all; text-align: left;
 }
 
+/* ── 스테이지 클리어 화면 (H14) ─────────────────────────── */
+.clear-screen { overflow-y: hidden; }
+.clear-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 8px;
+}
+.clear-title { text-align: center; margin: 8px 0 0; }
+.clear-customers { display: flex; flex-direction: column; gap: 8px; }
+.clear-customer-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--r-card);
+}
+.clear-monster-face {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.clear-monster-name {
+  flex: 1;
+  font-size: var(--fs-body);
+  font-weight: 700;
+}
+.clear-customer-row .stars { margin-top: 0; }
+.clear-summary {
+  text-align: center;
+  padding: 14px;
+  border-radius: var(--r-card);
+}
+.clear-total-stars { font-size: var(--fs-title); font-weight: 700; margin: 0 0 4px; }
+.clear-money { margin: 0; }
+.clear-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-shrink: 0;
+  padding-bottom: 8px;
+}
+
 /* 튜토리얼 대본 모드 — 주인 말이 미리 채워져 있고 확인만 누른다 */
 .chat-scripted { align-items: center; }
 .script-ask {
@@ -876,7 +924,10 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   width: 58px;
 }
 
-/* 별점 행 */
+/* Stars 컴포넌트 — 맵·정산·클리어 공용 */
+.stars { display: flex; gap: 0; margin-top: 2px; }
+
+/* 별점 행 (StageMapScreen 레거시 — Stars 컴포넌트가 .stars 를 렌더) */
 .stage-stars {
   display: flex;
   gap: 0;
@@ -1370,12 +1421,40 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   font-weight: 700;
 }
 
+/* ── 정산 화면 재작성 (H14) ─────────────────────────────── */
+.result-screen { overflow-y: hidden; }
+.result-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+}
+.result-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+}
+.result-top .monster-big { margin: 0; }
+.result-top .stars { margin-top: 0; }
+.result-screen .spec { width: 100%; }
+.result-screen .reaction { text-align: center; }
+.result-screen .earned { text-align: center; margin: 0; }
+.result-penalty { color: var(--text-muted); }
+
 /* 결과 화면 버튼 줄 (S20) — 다음 손님 / 다시하기 */
 .result-actions {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  flex-shrink: 0;
+  padding-bottom: 8px;
 }
 
 /* ── 튜토리얼 가이드 (S21) — 물범이 첫 주문 읽는 법을 알려준다 ── */
@@ -1499,6 +1578,47 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 }
 /* 에필로그의 물범 말풍선은 아래쪽에 */
 .tutend .tut-guide { top: auto; bottom: 10%; }
+
+/* ── 완성 확인 화면 (H14) ───────────────────────────────── */
+.confirm-screen { overflow-y: hidden; }
+.confirm-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 8px;
+}
+.confirm-order-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.confirm-monster {
+  width: 72px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+.confirm-bubble {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border-bottom-left-radius: 4px;
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  word-break: keep-all;
+  margin: 0;
+}
+.confirm-cake-wrap { display: flex; justify-content: center; }
+.confirm-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-shrink: 0;
+  padding-bottom: 8px;
+}
 
 /* 튜토리얼 건너뛰기 (S21) — 왼쪽 상단 HUD 슬롯, BUILD 에선 대화 버튼 아래 */
 .hud-left-col {

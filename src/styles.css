@@ -1414,7 +1414,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   overflow-y: hidden;
   align-items: center;
   text-align: center;
-  gap: 8px;
+  gap: 16px;
 }
 .result-screen .stars { margin-top: 0; }
 

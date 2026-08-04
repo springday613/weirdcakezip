@@ -77,7 +77,7 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
     else if (id === "lettering") setCake({ ...cake, lettering: { text: "", color: null } });
   };
   const resetAll = () => {
-    setCake({ base: [], cakeBase: null, cream: null, toppings: [], deco: [], lettering: { text: "", color: null } });
+    setCake({ base: [], cakeBase: "vanilla", cream: null, toppings: [], deco: [], lettering: { text: "", color: null } });
     setMade(false);
     setMaking(false);
     setStep(0);
@@ -96,7 +96,7 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
       )}
       <CakeView cake={cake} preview={preview} />
 
-      <IngredientPalette step={step} cake={cake} setCake={setCake} />
+      <IngredientPalette step={step} cake={cake} setCake={setCake} orderIndex={index} />
 
       <div className="make-nav">
         <button className="arrow" disabled={step === 0 || making} onClick={() => setStep(step - 1)}>

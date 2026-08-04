@@ -21,7 +21,7 @@ import { STORY, GOOD_ENDING_COINS } from "./data/story.js";
 //   → 코인 목표(GOOD_ENDING_COINS) 달성 또는 5명 완료 시: END(정산) → ENDING(스토리) → CREDITS
 const emptyCake = () => ({
   base: [],
-  cakeBase: null,
+  cakeBase: "vanilla", // 기본 선택 — 튜토리얼에서 유일하게 열린 맛이기도 하다
   cream: null,
   toppings: [],
   deco: [],

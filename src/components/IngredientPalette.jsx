@@ -1,4 +1,5 @@
-import { SHEET_BASE, BASIC_BASE, COLORS, TOPPINGS, DECO } from "../data/ingredients.js";
+import { useState, useRef, useEffect } from "react";
+import { SHEET_BASE, BASIC_BASE, COLORS, TOPPINGS, DECO, lockOf } from "../data/ingredients.js";
 import { pickToppingSlot, TOPPING_SLOTS, MAX_CANDLES } from "./CakeView.jsx";
 import layout from "../data/cakeLayout.json";
 
@@ -16,9 +17,44 @@ export const STEPS = [
   { id: "lettering", label: "쪽지" },
 ];
 
-// 재료 팔레트 — 한 단계씩만 보여준다.
-export default function IngredientPalette({ step, cake, setCake }) {
+// 재료 이미지 칩 (이모지·글자 대신 그림). lock 이 있으면 흐림+자물쇠, 클릭은 툴팁만.
+// 파일 수준 컴포넌트 — 렌더 안에서 정의하면 매번 새 타입이 되어 리마운트된다(리뷰 지적).
+// 바닐라는 전용 재료 그림이 없어 바닐라색 생크림 그림으로 그린다.
+function ImgChip({ id, on, onClick, lock, tipOpen, onLockTap }) {
+  return (
+    <button
+      className={"chip img-chip" + (on ? " on" : "") + (lock ? " locked" : "")}
+      onClick={lock ? onLockTap : onClick}
+      title={lock ? undefined : id}
+    >
+      <img
+        className="ing-img"
+        src={id === "vanilla" ? "/assets/cream_vanilla.webp" : `/assets/ing_${id}.webp`}
+        alt=""
+      />
+      {lock && <img className="lock-badge" src="/assets/ui_lock.svg" alt="잠김" />}
+      {lock && (
+        <span className={"lock-tip" + (tipOpen ? " show" : "")}>
+          {lock === 1 ? "레벨 1에서 해제!" : "스테이지 2에서 해제!"}
+        </span>
+      )}
+    </button>
+  );
+}
+
+// 재료 팔레트 — 한 단계씩만 보여준다. orderIndex 는 잠금 판정용(0 = 튜토리얼).
+export default function IngredientPalette({ step, cake, setCake, orderIndex = 0 }) {
   const set = (patch) => setCake({ ...cake, ...patch });
+
+  // 잠긴 재료 → 호버로 해제 시점 툴팁. 터치(호버 없음)는 탭하면 잠깐 띄운다 (S18 — 실제 언락은 후속)
+  const [tipId, setTipId] = useState(null);
+  const lockTimer = useRef(null);
+  useEffect(() => () => clearTimeout(lockTimer.current), []); // 언마운트 후 setTipId 방지
+  function tapLock(id) {
+    clearTimeout(lockTimer.current);
+    setTipId(id);
+    lockTimer.current = setTimeout(() => setTipId(null), 1500);
+  }
 
   const toggleBase = (id) =>
     set({ base: cake.base.includes(id) ? cake.base.filter((b) => b !== id) : [...cake.base, id] });
@@ -48,19 +84,19 @@ export default function IngredientPalette({ step, cake, setCake }) {
   const isBasic =
     BASIC_BASE.length === cake.base.length && BASIC_BASE.every((b) => cake.base.includes(b));
 
-  // 재료 이미지 칩 (이모지·글자 대신 그림)
-  const ImgChip = ({ id, on, onClick }) => (
-    <button className={"chip img-chip" + (on ? " on" : "")} onClick={onClick} title={id}>
-      {id === "vanilla" ? (
-        <span className="color-dot" style={{ background: "#fff2cc" }} />
-      ) : (
-        <img className="ing-img" src={`/assets/ing_${id}.webp`} alt="" />
-      )}
-    </button>
-  );
-  // 색내기 재료 칩 (단일 선택) — 시트/생크림/쪽지 공용
-  const colorChips = (selectedId, onPick) =>
-    COLORS.map((c) => <ImgChip key={c.id} id={c.id} on={selectedId === c.id} onClick={() => onPick(c.id)} />);
+  // 색내기 재료 칩 (단일 선택) — 시트/생크림/쪽지 공용. kind 는 잠금 테이블 키(null = 잠금 없음).
+  const colorChips = (kind, selectedId, onPick) =>
+    COLORS.map((c) => (
+      <ImgChip
+        key={c.id}
+        id={c.id}
+        on={selectedId === c.id}
+        lock={kind ? lockOf(kind, c.id, orderIndex) : null}
+        tipOpen={tipId === c.id}
+        onLockTap={() => tapLock(c.id)}
+        onClick={() => onPick(c.id)}
+      />
+    ));
 
   return (
     <div className="palette">
@@ -78,7 +114,15 @@ export default function IngredientPalette({ step, cake, setCake }) {
               기본 시트
             </button>
             {SHEET_BASE.map((b) => (
-              <ImgChip key={b.id} id={b.id} on={cake.base.includes(b.id)} onClick={() => toggleBase(b.id)} />
+              <ImgChip
+                key={b.id}
+                id={b.id}
+                on={cake.base.includes(b.id)}
+                lock={lockOf("sheet", b.id, orderIndex)}
+                tipOpen={tipId === b.id}
+                onLockTap={() => tapLock(b.id)}
+                onClick={() => toggleBase(b.id)}
+              />
             ))}
           </div>
           <div className="palette-row">
@@ -91,17 +135,14 @@ export default function IngredientPalette({ step, cake, setCake }) {
       {cur.id === "color" && (
         <div className="palette-row">
           <span className="palette-label">케이크 베이스</span>
-          {colorChips(cake.cakeBase, (id) => set({ cakeBase: id }))}
+          {colorChips("color", cake.cakeBase, (id) => set({ cakeBase: id }))}
         </div>
       )}
 
       {cur.id === "cream" && (
         <div className="palette-row">
           <span className="palette-label">생크림</span>
-          <button className={"chip" + (!cake.cream ? " on" : "")} onClick={() => set({ cream: null })}>
-            안 올림
-          </button>
-          {colorChips(cake.cream?.color, addCream)}
+          {colorChips("cream", cake.cream?.color, addCream)}
         </div>
       )}
 
@@ -109,7 +150,14 @@ export default function IngredientPalette({ step, cake, setCake }) {
         <div className="palette-row">
           <span className="palette-label">토핑</span>
           {TOPPINGS.map((t) => (
-            <ImgChip key={t.id} id={t.id} onClick={() => addTopping(t.id)} />
+            <ImgChip
+              key={t.id}
+              id={t.id}
+              lock={lockOf("topping", t.id, orderIndex)}
+              tipOpen={tipId === t.id}
+              onLockTap={() => tapLock(t.id)}
+              onClick={() => addTopping(t.id)}
+            />
           ))}
         </div>
       )}
@@ -142,6 +190,7 @@ export default function IngredientPalette({ step, cake, setCake }) {
           />
         </div>
       )}
+
       </div>
     </div>
   );

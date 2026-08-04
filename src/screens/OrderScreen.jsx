@@ -64,7 +64,11 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
     const id = STEPS[step]?.id;
     if (id === "sheet") return isBasicOf(cake.base);
     if (id === "color") return cake.cakeBase === TUTORIAL_GUIDE.picks.color;
-    if (id === "cream") return cake.cream?.color === TUTORIAL_GUIDE.picks.cream;
+    if (id === "cream")
+      return (
+        cake.cream?.color === TUTORIAL_GUIDE.picks.cream &&
+        (cake.cream?.dollops?.length ?? 0) >= TUTORIAL_GUIDE.creamDollops
+      );
     if (id === "topping")
       return TUTORIAL_GUIDE.picks.topping.every((t) => cake.toppings.some((x) => x.type === t));
     return true;
@@ -145,8 +149,11 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
       if (cake.cakeBase === TUTORIAL_GUIDE.picks.color) tutArrow = true;
       else tutChips = [TUTORIAL_GUIDE.picks.color];
     } else if (stepId === "cream") {
-      if (cake.cream?.color === TUTORIAL_GUIDE.picks.cream) tutArrow = true;
-      else tutChips = [TUTORIAL_GUIDE.picks.cream];
+      const enough =
+        cake.cream?.color === TUTORIAL_GUIDE.picks.cream &&
+        (cake.cream?.dollops?.length ?? 0) >= TUTORIAL_GUIDE.creamDollops;
+      if (enough) tutArrow = true;
+      else tutChips = [TUTORIAL_GUIDE.picks.cream]; // 채울 때까지 계속 빛난다
     } else if (stepId === "topping") {
       const missing = TUTORIAL_GUIDE.picks.topping.filter((t) => !hasTopping(t));
       if (missing.length === 0) tutArrow = true;

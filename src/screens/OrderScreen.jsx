@@ -183,7 +183,14 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
       </div>
 
       <div className={introDim || undefined}>
-        <IngredientPalette step={step} cake={cake} setCake={guardedSetCake} tutBasic={tutBasic} tutChips={tutChips} />
+        <IngredientPalette
+          step={step}
+          cake={cake}
+          setCake={guardedSetCake}
+          orderIndex={index}
+          tutBasic={tutBasic}
+          tutChips={tutChips}
+        />
       </div>
 
       <div className={"make-nav" + introDim}>

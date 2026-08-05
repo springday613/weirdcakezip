@@ -319,7 +319,7 @@ export default function App() {
       {/* BUILD+CONFIRM — OrderScreen 을 계속 마운트해 step/made 보존 */}
       {["BUILD", "CONFIRM"].includes(screen) && (
         <div className="layer-ui layer-ui--grow">
-          <div style={screen === "CONFIRM" ? { display: "none" } : undefined}>
+          <div className="build-keep" style={screen === "CONFIRM" ? { display: "none" } : undefined}>
             <OrderScreen
               key={order.id}
               order={order}
@@ -338,6 +338,7 @@ export default function App() {
               cake={cake}
               onBack={() => setScreen("BUILD")}
               onSubmit={submit}
+              busy={judgeBusy}
             />
           )}
           {chatPopupOpen && (

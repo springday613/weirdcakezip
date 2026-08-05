@@ -322,7 +322,6 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   border-radius: var(--r-pill);
   font-size: var(--fs-label);
 }
-.earned { font-weight: 700; color: var(--text); }
 
 /* 몬스터 */
 .monster-bar {
@@ -588,6 +587,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 
 /* BUILD 전용 스크롤 재편 — 팔레트 칩 영역만 스크롤, 케이크·버튼은 고정 */
 /* ⚠ .screen 자체는 건드리지 않는다 (RESULT·END·TUTEND 공용) */
+.build-keep { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .screen--build { overflow-y: hidden; }
 .screen--build .palette-slot { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .screen--build .palette  { flex: 1; min-height: 0; }
@@ -615,26 +615,6 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .arrow:disabled { opacity: var(--disabled-opacity); cursor: default; }
 .edit-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .note { font-size: var(--fs-note); color: var(--text-muted); }
-
-/* 결과 화면 */
-.result-row { display: flex; align-items: center; justify-content: center; gap: 16px; }
-.result-row .monster-big { margin: 0; width: 130px; height: 130px; }
-.score-ring {
-  width: 130px;
-  height: 130px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--fs-logo);
-  font-weight: 800;
-  border: 6px solid var(--ink);
-  color: var(--text);
-}
-.score-ring[data-good="true"] { border-color: var(--ink); }
-.score-unit { font-size: var(--fs-body); margin-left: 2px; align-self: flex-end; margin-bottom: 14px; }
-.reaction { font-size: var(--fs-body); font-weight: 700; }
-.result-label { font-family: var(--font); font-size: var(--fs-body); color: var(--text-muted); }
 
 .spec {
   width: 100%;
@@ -680,7 +660,6 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 
 /* 에셋 */
 .logo { width: 100%; max-width: 340px; height: auto; }
-.monster-big { width: clamp(64px, 12vh, 100px); height: auto; aspect-ratio: 682 / 896; object-fit: contain; display: block; margin: 0 auto; }
 
 /* 스텝 방식 (레거시 stepper) */
 .stepper {
@@ -1437,14 +1416,13 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   width: 100%;
 }
 
-/* 케이크 — 괴물보다 크다. 1열 채점으로 줄어든 예산 반영 */
+/* 케이크 — 괴물보다 크다 */
 .result-cake-wrap {
   display: flex;
   justify-content: center;
+  align-items: center;
   flex-shrink: 0;
-  height: clamp(108px, 16vh, 165px);
 }
-/* 케이크 폭: 16.8vh → aspect-ratio(961/1086)로 높이 ~19vh */
 .result-cake-wrap .cake {
   width: clamp(112px, 16.8vh, 158px);
 }

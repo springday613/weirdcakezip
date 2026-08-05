@@ -2,7 +2,7 @@ import CakeView from "../components/CakeView.jsx";
 import Img from "../components/Img.jsx";
 import { describeCake, MONSTERS } from "../data/ingredients.js";
 
-export default function ConfirmScreen({ order, cake, onBack, onSubmit }) {
+export default function ConfirmScreen({ order, cake, onBack, onSubmit, busy }) {
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
   return (
     <div className="screen confirm-screen">
@@ -29,7 +29,7 @@ export default function ConfirmScreen({ order, cake, onBack, onSubmit }) {
 
       {/* 버튼 — 하단 고정 */}
       <div className="confirm-actions">
-        <button className="btn" onClick={onSubmit}>주기</button>
+        <button className="btn" onClick={onSubmit} disabled={busy}>주기</button>
         <button className="chip ghost" onClick={onBack}>다시 만들기</button>
       </div>
     </div>

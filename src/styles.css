@@ -210,6 +210,8 @@ body {
   background: var(--paper);
 }
 .seg.done { background: var(--ink); }
+.seg.now  { background: var(--accent); border-width: var(--ink-line-sel); }
+.stepbar-wrap { display: flex; flex-direction: column; gap: 4px; }
 
 /* ── 8. 스와치 ───────────────────────────────────────────── */
 .swatch {
@@ -541,9 +543,9 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   background: none;
   border: none;
   cursor: default;
-  transform: translate(-78px, -6px);
+  /* (구 '시트 1/6' 제목의 transform 튜닝은 StepBar(H13) 채택으로 제거 — S25 머지) */
 }
-.step-title em { font-style: normal; color: var(--text-muted); font-size: var(--fs-note); position: relative; left: 160px; }
+.step-title em { font-style: normal; color: var(--text-muted); font-size: var(--fs-note); }
 .palette-row {
   display: flex;
   flex-wrap: wrap;
@@ -680,8 +682,21 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   min-height: var(--tap-min);
 }
 
+/* BUILD 전용 스크롤 재편 — 팔레트 칩 영역만 스크롤, 케이크·버튼은 고정 */
+/* ⚠ .screen 자체는 건드리지 않는다 (RESULT·END·TUTEND 공용) */
+.screen--build { overflow-y: hidden; }
+.screen--build .palette-slot { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.screen--build .palette  { flex: 1; min-height: 0; }
+.screen--build .step-box { flex: 1; min-height: 0; }
+/* 캔버스(748px 고정) 안에서는 팔레트 스크롤이 필요 없다 — H13 의 스크롤 재편은
+   .screen--build 전용이었고, 캔버스에선 flex-shrink 로 칩이 잘리는 원인이 되어 무력화 (S25 머지) */
+.palette-scroll { display: flex; flex-direction: column; gap: 6px; }
+/* make-nav margin-top 이 가장 크다 — 667px 에서 여기부터 줄인다 */
+.screen--build .make-nav { margin-top: 8px; }
+
 /* 네비게이션 */
-.make-nav { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 92px; }
+/* margin 92 → 52: StepBar(H13, ~40px) 유입분 보상 — 완성하기 위치 유지 (S25 머지) */
+.make-nav { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 52px; }
 .make-nav .submit { flex: 1; max-width: 260px; margin-top: 0; }
 .arrow {
   width: var(--tap-min);
@@ -697,7 +712,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   justify-content: center;
 }
 .arrow:disabled { opacity: var(--disabled-opacity); cursor: default; }
-.edit-row { display: flex; gap: 8px; justify-content: center; }
+.edit-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .note { font-size: var(--fs-note); color: var(--text-muted); }
 
 /* 결과 화면 */
@@ -1444,6 +1459,32 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   align-items: center;
 }
 
+/* BUILD 주문 띠(H13) — 최대 2줄, 말줄임. 캔버스 상단에 absolute 로 띄워
+   구도(보울 -70px 등)와 겹치지 않게 한다 (S25 머지) */
+.build-order {
+  position: absolute;
+  top: 24px;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 10px 3px 6px;
+  background: var(--paper);
+  border: var(--ink-line) solid var(--ink);
+  border-radius: var(--r-card);
+  overflow: hidden;
+}
+.build-order-text {
+  margin: 0;
+  font-size: var(--fs-label);
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 /* (구 warn-bubble--center 는 물범 tut-guide 말풍선으로 통일되어 제거 — S25) */
 
 /* HUD 대화 버튼 속 손님 바스트샷 */

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { SHEET_BASE, BASIC_BASE, COLORS, TOPPINGS, DECO, lockOf } from "../data/ingredients.js";
 import { pickToppingSlot, TOPPING_SLOTS, MAX_CANDLES } from "./CakeView.jsx";
 import layout from "../data/cakeLayout.json";
+import StepBar from "./StepBar.jsx";
 
 const CANDLE_TYPES = Object.keys(layout.candle.size);
 const CREAM_SLOTS = layout.cream.slots.length;
@@ -102,8 +103,9 @@ export default function IngredientPalette({ step, cake, setCake, orderIndex = 0,
   return (
     <div className="palette">
       <div className="step-box">
-      <div className="step-title">{cur.label} <em>{step + 1}/{STEPS.length}</em></div>
+      <StepBar step={step} steps={STEPS} />
 
+      <div className="palette-scroll">
       {cur.id === "sheet" && (
         <>
           <div className="palette-row">
@@ -206,6 +208,7 @@ export default function IngredientPalette({ step, cake, setCake, orderIndex = 0,
         </div>
       )}
 
+      </div>{/* palette-scroll */}
       </div>
     </div>
   );

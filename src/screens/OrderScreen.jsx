@@ -139,6 +139,9 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
     wasBusy.current = busy;
   }, [busy]);
 
+  // (H13 의 ↺ 마지막-하나 취소는 히스토리 실행취소가 흡수 — undoLast 는 위에서 정의)
+  const stepId = STEPS[step]?.id;
+
   const sheetReady = cake.base.length > 0 && cake.cakeBase;
   const clearBoard = () => {
     pushHistory();
@@ -155,7 +158,6 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
 
   // 튜토리얼 하이라이트 — 이 단계에서 다음에 눌러야 할 것 하나만 빛낸다.
   // 치트 시트 정답을 아직 안 골랐으면 정답 재료를, 골랐으면 → 를, 마음대로 단계는 → 만.
-  const stepId = STEPS[step]?.id;
   let tutBasic = false, tutChips = null, tutArrow = false, tutSubmit = false;
   if (tut && tutIntro == null && !making) {
     const hasTopping = (t) => cake.toppings.some((x) => x.type === t);
@@ -190,6 +192,14 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
         <span>주문 {index + 1} / {total}</span>
       </div>
 
+      {/* 주문 띠 — 팝업 안 열고도 6단계 내내 주문 문장이 보이게. 튜토리얼은 치트 시트가 있어 생략 */}
+      {!order.script && (
+        <div className="build-order">
+          <span className="order-badge">주문</span>
+          <p className="build-order-text">{order.dialogue}</p>
+        </div>
+      )}
+
       {/* 괴물은 상단 '대화' 버튼(바스트샷)으로 이동 — 제작 화면은 케이크가 주인공 */}
       {/* 물범이 말하는 것으로 통일 — 튜토리얼 가이드와 같은 말풍선 (S25) */}
       {warn && step === 0 && (
@@ -217,7 +227,7 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
         <CakeView cake={cake} preview={preview} />
       </div>
 
-      <div className={introDim || undefined}>
+      <div className={"palette-slot" + introDim}>
         <IngredientPalette
           step={step}
           cake={cake}
@@ -250,6 +260,7 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
 
       <div className={"edit-row" + introDim}>
         {/* 굽는 중엔 잠근다 — 타이머가 살아 있어 빈 반죽이 구워지는 사고 방지(KAN-34) */}
+        {/* ↺(H13, 마지막 하나 취소)는 히스토리 실행취소(Ctrl-Z)가 상위호환이라 흡수 — S25 머지 */}
         <button className="chip ghost edit-btn" disabled={making} onClick={resetAll} data-tip="처음부터 다시" aria-label="처음부터 다시">
           <img className="edit-icon" src="/assets/ui_undo.webp" alt="" />
         </button>

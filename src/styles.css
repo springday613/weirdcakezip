@@ -444,10 +444,20 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   height: auto;
   pointer-events: none;
   z-index: 1;
+  transform-origin: center center;
+}
+/* E7: 재료 톡 튀기 — 새로 추가된 원소만 */
+.ing-pop {
+  animation: ing-pop 0.24s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes ing-pop {
+  0%   { opacity: 0; transform: scale(0); }
+  70%  { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 1; transform: scale(1); }
 }
 /* 초처럼 세워 꽂는 것은 기준점이 중심이 아니라 바닥이다 */
 .cake-item--stand {
-  transform: translate(-50%, -100%);
+  translate: -50% -100%;
   transform-origin: center bottom;
   z-index: 3;
 }
@@ -1030,7 +1040,8 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
     animation: none;
     opacity: 0.5;
   }
-  .star-icon {
+  .star-icon,
+  .ing-pop {
     animation: none;
     opacity: 1;
     transform: none;

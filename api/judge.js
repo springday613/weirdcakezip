@@ -8,8 +8,10 @@
 
 import { orders } from "../src/data/orders.js";
 import { judgeResult } from "../src/scoreCake.js";
+import { cors } from "./_cors.js";
 
 export default function handler(req, res) {
+  if (cors(req, res)) return; // 프리플라이트 (S28 — GitHub Pages)
   if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
   const { orderId, cake, turns } = req.body ?? {};
   const order = orders.find((o) => o.id === orderId);

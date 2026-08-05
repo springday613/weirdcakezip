@@ -9,8 +9,10 @@ import { orders } from "../src/data/orders.js";
 import { COLORS, TOPPINGS, DECO, labelOf, MONSTERS } from "../src/data/ingredients.js";
 import { buildMonsterSystem, toApiMessages, answerMap } from "./_monsterPrompt.js";
 import { callLLM, hasLLM } from "./_llm.js";
+import { cors } from "./_cors.js";
 
 export default async function handler(req, res) {
+  if (cors(req, res)) return; // 프리플라이트 (S28 — GitHub Pages)
   if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
 
   const { orderId, history = [] } = req.body ?? {};

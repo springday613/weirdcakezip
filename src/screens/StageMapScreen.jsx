@@ -35,7 +35,7 @@ export default function StageMapScreen({ stars, onSelect }) {
               <div
                 key={order.id}
                 className={`stage-node stage-node--${state}`}
-                style={NODE_OFFSETS[i]}
+                style={NODE_OFFSETS[i] ?? NODE_OFFSETS[NODE_OFFSETS.length - 1]}
               >
                 <button
                   className={`stage-circle stk ${state === "now" ? "stage-circle--now" : ""}`}

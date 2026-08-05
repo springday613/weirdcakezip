@@ -4,7 +4,7 @@ import IngredientPalette, { STEPS } from "../components/IngredientPalette.jsx";
 import { sheetType, BASIC_BASE } from "../data/ingredients.js";
 import { TUTORIAL_GUIDE } from "../data/tutorial.js";
 
-export default function OrderScreen({ order, index, total, money, cake, setCake, onSubmit, busy }) {
+export default function OrderScreen({ order, index, total, cake, setCake, onSubmit, busy }) {
   const [step, setStep] = useState(0);
   const [made, setMade] = useState(false);   // 시트가 케이크로 구워졌는가
   const [making, setMaking] = useState(false); // 굽는 중(1초 연출)
@@ -51,10 +51,21 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
     }
     return true; // 데코·쪽지는 마음대로
   }
-  // 실행취소 히스토리 — 케이크를 바꾸기 직전 상태를 쌓는다. 직전 실행취소(Ctrl-Z 버튼)가 pop.
+  // 실행취소 히스토리 — 조작 직전의 {cake, made, step}을 쌓는다. 직전 실행취소(Ctrl-Z 버튼)가 pop.
+  // made·step까지 되돌리는 이유: base 를 undo 하면 baseKey 이펙트가 made 를 풀어버려,
+  // cake 만 복원하면 "안 구운 반죽으로 후반 단계 진행" 같은 반쪽 상태가 남는다.
   const history = useRef([]);
   const pushHistory = () => {
-    history.current.push(cake);
+    // 문구 타이핑은 1타 1엔트리가 되지 않게 합침 — 직전 엔트리와 lettering.text 만 다르면 안 쌓는다
+    const last = history.current[history.current.length - 1];
+    if (
+      last &&
+      last.cake.lettering.text !== cake.lettering.text &&
+      JSON.stringify({ ...last.cake, lettering: null }) === JSON.stringify({ ...cake, lettering: null })
+    ) {
+      return;
+    }
+    history.current.push({ cake, made, step });
     if (history.current.length > 60) history.current.shift();
   };
   const guardedSetCake = (nc) => {
@@ -71,7 +82,9 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
     const prev = history.current.pop();
     if (!prev) return;
     setTutWarn(false);
-    setCake(prev);
+    setCake(prev.cake);
+    setMade(prev.made);
+    setStep(prev.step);
   };
   // 튜토리얼에서 이 단계가 아직 정답이 아니면 → 로 못 넘어간다
   function tutStepDone() {

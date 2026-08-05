@@ -233,7 +233,7 @@ export default function App() {
 
       {/* HUD — 타이틀·이름·스토리·에필로그 이외 화면에 상주 */}
       {!["TITLE", "NAME", "INTRO", "ENDING", "CREDITS", "TUTEND"].includes(screen) && (
-        <div className="layer-ui">
+        <div className="layer-ui layer-ui--hud">
           <Hud coins={money}>
             <div className="hud-left-col">
               {screen === "BUILD" && (
@@ -321,7 +321,6 @@ export default function App() {
             order={order}
             index={orderIndex}
             total={orders.length}
-            money={money}
             cake={cake}
             setCake={setCake}
             onSubmit={submit}

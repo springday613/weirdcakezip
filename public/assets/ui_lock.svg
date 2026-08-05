@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 26">
   <!-- 손그림 크레용 느낌의 자물쇠 — 재료 잠금 배지 (S18). 몸통은 연회색, 선은 잉크 -->
-  <g stroke="#1A1A1A" stroke-linecap="round" stroke-linejoin="round">
+  <g stroke="#523412" stroke-linecap="round" stroke-linejoin="round">
     <!-- 고리 — 좌우가 살짝 비대칭이게 -->
     <path d="M7.1 11.3 C6.5 6.9 8.2 3.9 12 3.8 C15.9 3.7 17.6 6.6 16.9 11.1" fill="none" stroke-width="2.1"/>
     <!-- 몸통 — 반듯하지 않은 손그림 사각형 -->
     <path d="M5.3 11.4 C4.6 11.6 4.3 12.3 4.4 13.1 L4.6 20.7 C4.6 21.9 5.3 22.6 6.4 22.6 L17.8 22.5 C18.9 22.5 19.6 21.8 19.6 20.6 L19.4 12.9 C19.4 11.9 18.8 11.3 17.9 11.3 Z" fill="#D9D9D9" stroke-width="1.9"/>
     <!-- 열쇠 구멍 -->
-    <circle cx="12" cy="15.6" r="1.7" fill="#1A1A1A" stroke="none"/>
+    <circle cx="12" cy="15.6" r="1.7" fill="#523412" stroke="none"/>
     <path d="M12 16.7 L11.7 19.1" fill="none" stroke-width="1.8"/>
   </g>
 </svg>

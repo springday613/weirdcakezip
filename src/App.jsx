@@ -230,12 +230,15 @@ export default function App() {
       <div className="layer-art" />
       <div className="layer-veil" />
 
-      {/* 게임 진행 화면들엔 기본 배경(구름 하늘) — CHAT 상단은 ChatScreen 이 가게 배경을 얹는다 */}
-      {["STAGE", "CHAT", "BUILD", "CONFIRM", "RESULT", "END"].includes(screen) && <div className="screen-bg" />}
+      {/* 게임 진행 화면들엔 기본 배경(구름 하늘) — CHAT 상단은 ChatScreen 이 가게 배경을 얹고,
+          BUILD 는 작업대·앞치마 배경으로 통째로 갈아입는다(S25) */}
+      {["STAGE", "CHAT", "BUILD", "CONFIRM", "RESULT", "END"].includes(screen) && (
+        <div className={`screen-bg${screen === "BUILD" ? " screen-bg--build" : ""}`} />
+      )}
 
       {/* HUD — 타이틀·이름·스토리·에필로그 이외 화면에 상주 */}
       {!["TITLE", "NAME", "INTRO", "ENDING", "CREDITS", "TUTEND"].includes(screen) && (
-        <div className="layer-ui">
+        <div className="layer-ui layer-ui--hud">
           <Hud coins={money}>
             <div className="hud-left-col">
               {screen === "BUILD" && (
@@ -325,7 +328,6 @@ export default function App() {
               order={order}
               index={orderIndex}
               total={orders.length}
-              money={money}
               cake={cake}
               setCake={setCake}
               onSubmit={toConfirm}
@@ -433,6 +435,13 @@ export default function App() {
             }}
           >
             in
+          </button>
+          <button
+            className={screen === "STAGE" ? "on" : ""}
+            title="스테이지 맵"
+            onClick={() => setScreen("STAGE")}
+          >
+            맵
           </button>
           {orders.map((o, i) => (
             <button

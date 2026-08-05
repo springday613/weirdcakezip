@@ -10,6 +10,7 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
   const [making, setMaking] = useState(false); // 굽는 중(1초 연출)
   const [warn, setWarn] = useState(false);    // 이상한 시트 조합 경고
   const [folding, setFolding] = useState(false); // 완성 직전, 쪽지 접는 연출(0.3초) — S16
+  const [submitted, setSubmitted] = useState(false); // CONFIRM 으로 넘겼음 — 쪽지 프리뷰 억제
 
   // 튜토리얼(첫 주문) — 물범 인사 두 마디 뒤 치트 시트를 케이크 왼편에 붙인다
   const tut = order.id === TUTORIAL_GUIDE.orderId;
@@ -21,7 +22,7 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
   useEffect(() => { setMade(false); setWarn(false); }, [baseKey]);
 
   // 쪽지 쓰는 차례엔 케이크를 치우고 쪽지를 크게 (S16)
-  const writingNote = made && STEPS[step]?.id === "lettering";
+  const writingNote = made && !submitted && STEPS[step]?.id === "lettering";
   const preview = making
     ? "making"
     : folding
@@ -74,6 +75,7 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
       return;
     }
     setTutWarn(false);
+    setSubmitted(false); // CONFIRM 다녀온 뒤 첫 조작부터 쪽지 프리뷰 복귀 (H14)
     pushHistory();
     setCake(nc);
   };
@@ -121,6 +123,7 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
       }
       return;
     }
+    setSubmitted(false);
     setStep(Math.min(step + 1, lastStep));
   }
 
@@ -130,7 +133,11 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
   function handleSubmit() {
     if (folding || busy) return;
     setFolding(true);
-    foldTimer.current = setTimeout(onSubmit, 300);
+    foldTimer.current = setTimeout(() => {
+      setFolding(false);
+      setSubmitted(true);
+      onSubmit();
+    }, 300);
   }
   // 제출이 실패로 돌아오면(busy true→false) 접힌 채로 남지 않게 펴 준다
   const wasBusy = useRef(false);

@@ -2,6 +2,7 @@ import { orders } from "../data/orders.js";
 import { MONSTERS } from "../data/ingredients.js";
 import Img from "../components/Img.jsx";
 import Icon from "../components/Icon.jsx";
+import Stars from "../components/Stars.jsx";
 
 // 노드 상태: done(별점 있음) | now(현재 플레이할 차례) | locked(잠김)
 function nodeState(i, stars) {
@@ -54,19 +55,8 @@ export default function StageMapScreen({ stars, onSelect }) {
                   )}
                 </button>
 
-                {/* 별점 (완료 노드) */}
-                {state === "done" && (
-                  <div className="stage-stars">
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <Icon
-                        key={s}
-                        name={s <= stars[i] ? "star" : "star-empty"}
-                        size="sm"
-                        className="stage-star-icon"
-                      />
-                    ))}
-                  </div>
-                )}
+                {/* 별점 (완료 노드) — 맵·정산·클리어 공용 Stars (H14) */}
+                {state === "done" && <Stars value={stars[i]} className="stage-star-icon" />}
 
                 {/* 현재 노드 표시 */}
                 {state === "now" && <span className="stage-now-label">지금!</span>}

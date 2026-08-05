@@ -11,6 +11,8 @@ import StageMapScreen from "./screens/StageMapScreen.jsx";
 import ChatScreen from "./screens/ChatScreen.jsx";
 import OrderScreen from "./screens/OrderScreen.jsx";
 import ResultScreen from "./screens/ResultScreen.jsx";
+import ConfirmScreen from "./screens/ConfirmScreen.jsx";
+import StageClearScreen from "./screens/StageClearScreen.jsx";
 import LoadingScreen, { useLoading } from "./screens/LoadingScreen.jsx";
 import Hud from "./components/Hud.jsx";
 import ChatPopup from "./components/ChatPopup.jsx";
@@ -34,14 +36,13 @@ const BG_MODES = ["solid", "day", "night"];
 const BG_LABELS = { solid: "단색", day: "낮", night: "밤" };
 
 export default function App() {
-  const [screen, setScreen] = useState("TITLE"); // TITLE | NAME | INTRO | STAGE | CHAT | BUILD | RESULT | END | ENDING | CREDITS
+  const [screen, setScreen] = useState("TITLE"); // TITLE | NAME | INTRO | STAGE | CHAT | BUILD | CONFIRM | RESULT | END | ENDING | CREDITS
   const [playerName, setPlayerName] = useState(""); // 스토리 주인공 이름 (NAME 화면에서 받는다)
   const [devEnding, setDevEnding] = useState(null); // 개발용 엔딩 강제("good"|"bad") — 실플레이는 null
   const [cheered, setCheered] = useState(false); // 크레딧 CTA(합격시키기) 눌렀는가
   const [orderIndex, setOrderIndex] = useState(0);
   const [cake, setCake] = useState(emptyCake());
   const [result, setResult] = useState(null);
-  const [totalScore, setTotalScore] = useState(0);
   const [money, setMoney] = useState(0);
   const [chatBusy, setChatBusy] = useState(false);
   const [judgeBusy, setJudgeBusy] = useState(false);
@@ -76,7 +77,6 @@ export default function App() {
   function start() {
     setOrderIndex(0);
     setCake(emptyCake());
-    setTotalScore(0);
     setMoney(0);
     setTurns(0);
     setExtraTurns(0);
@@ -111,7 +111,6 @@ export default function App() {
       const earned = isReplay ? 0 : coinsFor(r.score);
       setResult({ ...r, earned, counted: !isReplay }); // counted = 이번 판이 실제로 적립됐는가
       if (!isReplay) {
-        setTotalScore((s) => s + r.score);
         setMoney((m) => m + earned);
         setCollected((prev) => {
           const next = [...prev];
@@ -128,6 +127,13 @@ export default function App() {
       });
     });
     setScreen("RESULT");
+  }
+
+  // 완성 확인 화면으로 — 튜토리얼(order.script)은 치트 시트가 정답을 알려주므로 건너뛴다.
+  // submit() 내부는 건드리지 않는다. 호출 지점만 옮긴다.
+  function toConfirm() {
+    if (order.script) return submit();
+    setScreen("CONFIRM");
   }
 
   // 대본 진행 — ChatBox 에서 호출. 연타 가드로 같은 대사 중복 방지.
@@ -198,7 +204,6 @@ export default function App() {
   function retry() {
     // 이번 판이 적립된 경우만 되돌린다 — 재플레이 판(수익 0)을 또 빼면 총점이 왜곡된다
     if (result?.counted) {
-      setTotalScore((s) => s - result.score);
       setMoney((m) => m - result.earned);
       setCollected((prev) => {
         const next = [...prev];
@@ -227,7 +232,7 @@ export default function App() {
 
       {/* 게임 진행 화면들엔 기본 배경(구름 하늘) — CHAT 상단은 ChatScreen 이 가게 배경을 얹고,
           BUILD 는 작업대·앞치마 배경으로 통째로 갈아입는다(S25) */}
-      {["STAGE", "CHAT", "BUILD", "RESULT", "END"].includes(screen) && (
+      {["STAGE", "CHAT", "BUILD", "CONFIRM", "RESULT", "END"].includes(screen) && (
         <div className={`screen-bg${screen === "BUILD" ? " screen-bg--build" : ""}`} />
       )}
 
@@ -314,18 +319,30 @@ export default function App() {
         />
       )}
 
-      {screen === "BUILD" && (
+      {/* BUILD+CONFIRM — OrderScreen 을 계속 마운트해 step/made 보존 */}
+      {["BUILD", "CONFIRM"].includes(screen) && (
         <div className="layer-ui layer-ui--grow">
-          <OrderScreen
-            key={order.id}
-            order={order}
-            index={orderIndex}
-            total={orders.length}
-            cake={cake}
-            setCake={setCake}
-            onSubmit={submit}
-            busy={judgeBusy}
-          />
+          <div className="build-keep" style={screen === "CONFIRM" ? { display: "none" } : undefined}>
+            <OrderScreen
+              key={order.id}
+              order={order}
+              index={orderIndex}
+              total={orders.length}
+              cake={cake}
+              setCake={setCake}
+              onSubmit={toConfirm}
+              busy={judgeBusy}
+            />
+          </div>
+          {screen === "CONFIRM" && (
+            <ConfirmScreen
+              order={order}
+              cake={cake}
+              onBack={() => setScreen("BUILD")}
+              onSubmit={submit}
+              busy={judgeBusy}
+            />
+          )}
           {chatPopupOpen && (
             <ChatPopup
               order={order}
@@ -366,15 +383,12 @@ export default function App() {
 
       {screen === "END" && (
         <div className="layer-ui layer-ui--grow">
-          <div className="screen center">
-            <h1>영업 종료</h1>
-            <p className="big">오늘 매출 {money.toLocaleString()}코인</p>
-            <p className="hint">총점 {totalScore}점</p>
-            <button className="btn" onClick={() => setScreen("ENDING")}>
-              엔딩 보기
-            </button>
-            <button className="chip ghost" onClick={start}>다시하기</button>
-          </div>
+          <StageClearScreen
+            stars={stars}
+            money={money}
+            onEnding={() => setScreen("ENDING")}
+            onRestart={start}
+          />
         </div>
       )}
 

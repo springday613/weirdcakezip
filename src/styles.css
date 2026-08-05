@@ -543,9 +543,12 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   background: none;
   border: none;
   cursor: default;
-  /* (구 '시트 1/6' 제목의 transform 튜닝은 StepBar(H13) 채택으로 제거 — S25 머지) */
+  transform: translate(-78px, -6px);
 }
-.step-title em { font-style: normal; color: var(--text-muted); font-size: var(--fs-note); }
+.step-title em { font-style: normal; color: var(--text-muted); font-size: var(--fs-note); position: relative; left: 160px; }
+/* StepBar 내장 라벨은 숨기고 진행바만 쓴다 — 제목은 팔레트의 기존 튜닝 위치 (S25) */
+.stepbar-wrap .step-title { display: none; }
+.stepbar-wrap { transform: translateY(-40px); }
 .palette-row {
   display: flex;
   flex-wrap: wrap;
@@ -588,14 +591,14 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 /* 쪽지 단계의 안 씀/문구 입력 줄 — transform 이라 아래 완성하기 위치엔 영향 없음.
    margin-bottom 42px: 다른 단계의 두 줄짜리 팔레트와 flow 높이를 맞춰
    완성하기가 같은 자리(실측 542px)에 오게 한다 */
-.palette-row--note { transform: translateY(150px); margin-bottom: 42px; }
+.palette-row--note { transform: translateY(20px); margin-bottom: 42px; }
 
 /* 기본 조합 힌트 — 앞치마 밑단 위 스티커 (.stk 가 종이+잉크 테두리) */
 .basic-hint {
   position: absolute;
   /* .screen--canvas 기준 고정 — 캔버스가 중앙 정렬돼도 구도와 함께 움직인다 */
   left: calc(50% - 70px);
-  top: 191px;
+  top: 171px;
   transform: translateX(-50%);
   white-space: nowrap;
   font-size: var(--fs-note);
@@ -695,8 +698,8 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .screen--build .make-nav { margin-top: 8px; }
 
 /* 네비게이션 */
-/* margin 92 → 52: StepBar(H13, ~40px) 유입분 보상 — 완성하기 위치 유지 (S25 머지) */
-.make-nav { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 52px; }
+/* margin 92 → 78: StepBar 진행바(+제목 복원) flow 유입분 보상 — 완성하기 위치 유지 (S25 머지) */
+.make-nav { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 78px; }
 .make-nav .submit { flex: 1; max-width: 260px; margin-top: 0; }
 .arrow {
   width: var(--tap-min);
@@ -1273,6 +1276,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   font-size: var(--fs-title);
   font-weight: 700;
   text-align: center;
+  white-space: pre-line;   /* 6글자 단위 줄바꿈(\n) 표시 */
   word-break: keep-all;
   color: var(--note-ink);
 }
@@ -1463,7 +1467,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
    구도(보울 -70px 등)와 겹치지 않게 한다 (S25 머지) */
 .build-order {
   position: absolute;
-  top: 24px;
+  top: -81px;
   left: 0;
   right: 0;
   z-index: 2;
@@ -1471,7 +1475,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   align-items: center;
   gap: 8px;
   padding: 3px 10px 3px 6px;
-  background: var(--paper);
+  background: rgba(255, 255, 255, 0.5);
   border: var(--ink-line) solid var(--ink);
   border-radius: var(--r-card);
   overflow: hidden;

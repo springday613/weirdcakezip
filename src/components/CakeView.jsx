@@ -56,7 +56,10 @@ export default function CakeView({ cake, preview = "cake", notePlacement = "top"
       <div className="cake-stage">
         <div className="note-stage">
           <img src="/assets/note_open.webp" alt="쪽지" />
-          <span className="note-text">{cake.lettering.text || "…"}</span>
+          {/* 6글자 단위 줄바꿈 — 입력은 12자 제한이라 최대 2줄 */}
+          <span className="note-text">
+            {(cake.lettering.text || "…").match(/.{1,6}/g)?.join("\n")}
+          </span>
         </div>
       </div>
     );

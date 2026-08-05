@@ -104,6 +104,8 @@ export default function IngredientPalette({ step, cake, setCake, orderIndex = 0,
     <div className="palette">
       <div className="step-box">
       <StepBar step={step} steps={STEPS} />
+      {/* 제목은 StepBar 내장 라벨 대신 기존 튜닝 위치의 두 조각(시트 / 1/6)을 유지 (S25) */}
+      <div className="step-title">{cur.label} <em>{step + 1}/{STEPS.length}</em></div>
 
       <div className="palette-scroll">
       {cur.id === "sheet" && (

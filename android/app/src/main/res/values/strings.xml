@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">이상한 케이크집</string>
+    <string name="title_activity_main">이상한 케이크집</string>
+    <string name="package_name">com.weirdcakezip.app</string>
+    <string name="custom_url_scheme">com.weirdcakezip.app</string>
+</resources>

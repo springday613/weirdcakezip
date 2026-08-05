@@ -920,14 +920,12 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   height: 100%;
   aspect-ratio: 1024 / 1536;   /* 원본 그림 비율 — 노드 %좌표의 기준 */
 }
-/* 그림은 ::before 에 — 노드는 선명하게 두고 배경만 살짝 눌러
-   pop-out 을 줄인다 (흐림 1.5px + 채도 살짝↓, 밝기 살짝↑로 산뜻함 유지) */
+/* 그림은 ::before 에 — 파스텔판 원화로 교체하며 블러 제거 (S25) */
 .stage-canvas::before {
   content: "";
   position: absolute;
-  inset: -6px;                 /* 흐림 가장자리 번짐 여유 — .stage-art 가 잘라준다 */
+  inset: 0;
   background: url("/assets/bg_stage1.webp") center / 100% 100% no-repeat;
-  filter: blur(1.5px) saturate(0.93) brightness(1.04);
 }
 
 /* 제목 — 그림이 알록달록해서 종이 판을 깔아야 읽힌다 */

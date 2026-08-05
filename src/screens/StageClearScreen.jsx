@@ -24,7 +24,7 @@ export default function StageClearScreen({ stars, money, onEnding, onRestart }) 
                   alt={monster.name}
                 />
                 <span className="clear-monster-name">{monster.name}</span>
-                <Stars value={stars[i] ?? 0} />
+                <Stars value={stars[i] ?? 0} animate />
               </div>
             );
           })}

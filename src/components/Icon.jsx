@@ -87,7 +87,7 @@ const SHAPE_FALLBACKS = {
 
 const SIZE_MAP = { sm: 20, md: 28, lg: 36 };
 
-export default function Icon({ name, size = "sm", color, className = "", alt = "" }) {
+export default function Icon({ name, size = "sm", color, className = "", alt = "", style }) {
   // name 이 바뀌면 자동 추종 — Set에서 매 렌더 파생시킨다
   const [, bump] = useState(0);
   const useFallback = _svgMissing.has(name);
@@ -97,7 +97,7 @@ export default function Icon({ name, size = "sm", color, className = "", alt = "
   // SVG 파일이 있으면 그걸 쓴다
   if (!useFallback) {
     return (
-      <span className={`${sizeClass} ${className}`}>
+      <span className={`${sizeClass} ${className}`} style={style}>
         <img
           src={`/assets/ui_${name}.svg`}
           alt={alt}
@@ -117,12 +117,12 @@ export default function Icon({ name, size = "sm", color, className = "", alt = "
   const fallback = SHAPE_FALLBACKS[name];
   if (fallback) {
     return (
-      <span className={`${sizeClass} ${className}`}>
+      <span className={`${sizeClass} ${className}`} style={style}>
         {fallback(px, color)}
       </span>
     );
   }
 
   // 빈칸
-  return <span className={`${sizeClass} ${className}`} />;
+  return <span className={`${sizeClass} ${className}`} style={style} />;
 }

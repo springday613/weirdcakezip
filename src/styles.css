@@ -888,6 +888,17 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 /* Stars 컴포넌트 — 맵·정산·클리어 공용 */
 .stars { display: flex; gap: 0; margin-top: 2px; }
 
+/* E4: 별점 순차 등장 — animate prop 이 true 인 곳(정산·클리어)에서만 적용 */
+.star-icon {
+  animation: star-pop 0.36s cubic-bezier(.34,1.56,.64,1) backwards;
+  animation-delay: calc(var(--i) * 0.12s);
+}
+@keyframes star-pop {
+  0%   { opacity: 0; transform: scale(0.6); }
+  60%  { opacity: 1; transform: scale(1.15); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
 .stage-star-icon {
   width: 16px !important;
   height: 16px !important;
@@ -1018,6 +1029,11 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   .loading-bar-fill {
     animation: none;
     opacity: 0.5;
+  }
+  .star-icon {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }
 

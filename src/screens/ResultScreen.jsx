@@ -42,7 +42,7 @@ export default function ResultScreen({ result, order, cake, onNext, onRetry }) {
         <p className="result-bubble stk">{result.reaction}</p>
 
         {/* 3. 별점 */}
-        <Stars value={starValue} size="md" />
+        <Stars value={starValue} size="md" animate />
 
         {/* 4. 코인 */}
         <div className="result-coin">

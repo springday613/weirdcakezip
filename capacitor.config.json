@@ -1,0 +1,9 @@
+{
+  "appId": "com.weirdcakezip.app",
+  "appName": "이상한 케이크집",
+  "webDir": "dist",
+  "server": {
+    "url": "https://cake-shop-black.vercel.app",
+    "cleartext": false
+  }
+}

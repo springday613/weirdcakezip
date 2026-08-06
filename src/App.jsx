@@ -214,6 +214,14 @@ export default function App() {
     setScreen("CHAT");
   }
 
+  // 아직 안 판 다음 손님 — RESULT 의 '다음 손님' 은 맵을 거치지 않고 바로 그 라운드를 연다 (S33).
+  // 뒤쪽부터가 아니라 현재 다음 칸부터 훑어, 맵의 순서와 같게 한다.
+  function nextUnplayedIndex() {
+    for (let i = orderIndex + 1; i < orders.length; i++) if (stars[i] === 0) return i;
+    for (let i = 0; i < orders.length; i++) if (stars[i] === 0) return i; // 건너뛴 앞 손님이 남아 있으면
+    return -1;
+  }
+
   function next() {
     // 코인 목표를 모으면 귀환 주문 완성 — 엔딩으로. 5명을 다 돌고도 못 모았으면 배드 엔딩.
     // (재플레이 수익 0 이라 5명 완료 후엔 더 벌 수 없다)
@@ -228,6 +236,14 @@ export default function App() {
       return;
     }
     setScreen("STAGE");
+  }
+
+  // RESULT 의 '다음 손님' — 맵을 거치지 않고 다음 라운드를 바로 연다 (S33).
+  // 남은 손님이 없으면 기존 next() 로 넘겨 END/엔딩 판정을 그대로 태운다.
+  function goNextCustomer() {
+    const i = nextUnplayedIndex();
+    if (i < 0) return next();
+    selectNode(i);
   }
 
   // 튜토리얼 건너뛰기 — 노드 T 를 ★1 완료로 표시해 레벨 1 을 열고 맵으로.
@@ -446,13 +462,16 @@ export default function App() {
         </div>
       )}
 
-      {screen === "RESULT" && (
+      {/* result 가드 — '다음 손님' 은 selectNode 로 가는데, 로딩 오버레이 뒤에 화면이 바뀌므로
+          그 사이 RESULT 가 result=null 로 한 번 더 렌더된다 (S33) */}
+      {screen === "RESULT" && result && (
         <div className="layer-ui layer-ui--grow">
           <ResultScreen
             result={result}
             order={order}
             cake={cake}
-            onNext={order.id === TUTORIAL_GUIDE.orderId ? () => setScreen("TUTEND") : next}
+            onNext={order.id === TUTORIAL_GUIDE.orderId ? () => setScreen("TUTEND") : goNextCustomer}
+            onMap={order.id === TUTORIAL_GUIDE.orderId ? null : () => { setResult(null); setScreen("STAGE"); }}
             onRetry={retry}
           />
         </div>

@@ -81,9 +81,16 @@ export default function App() {
 
   const order = orders[orderIndex];
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
+  // 지금 손님 — 비동기 응답이 돌아왔을 때 "아직 같은 손님인가"를 판정한다(클로저는 옛 값을 본다).
+  // 렌더 중 갱신해도 되는 값이다. effect 로 미루면 그 사이 도착한 응답이 옛 손님으로 판정된다.
+  const orderIdRef = useRef(order.id);
+  orderIdRef.current = order.id;
 
-  // 손님 시드 — 최초 주문 대사로 대화 시작
+  // 손님 시드 — 최초 주문 대사로 대화 시작.
+  // 손님이 바뀌면 이전 요청의 대기 상태도 푼다 — 안 그러면 새 대화창이 응답 올 때까지 잠긴다(S29).
+  // 그 응답 자체는 handleSend 의 orderIdRef 검사에서 버려진다.
   function seedMessages(o) {
+    setChatBusy(false);
     nextMsgId.current = 1;
     setMessages([{ id: 0, role: "monster", content: o.dialogue }]);
     setScriptIdx(0);
@@ -182,10 +189,14 @@ export default function App() {
   async function handleSend(text) {
     const userMsg = { id: nextMsgId.current++, role: "user", content: text };
     const next = [...messages, userMsg];
+    const sentFor = order.id;            // 응답이 돌아올 때 손님이 그대로인지 확인용
     setMessages(next);
     setChatBusy(true);
     const { reply, raw } = await chat(order.id, next);
     setChatBusy(false);
+    // 대기 중에 손님이 바뀌었으면(메뉴 → 맵 → 다른 손님) 응답을 버린다 — S29.
+    // 안 버리면 새 손님 대화창에 이전 손님 답변이 붙고, 다음 질문에 그 이력이 서버로 넘어간다.
+    if (orderIdRef.current !== sentFor) return;
     setMessages((m) => [...m, { id: nextMsgId.current++, role: "monster", content: reply, raw }]);
   }
 

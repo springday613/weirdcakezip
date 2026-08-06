@@ -308,8 +308,7 @@ body {
   border-radius: 50%;
   border: var(--ink-line) solid var(--ink);
   background: var(--paper);
-  object-fit: cover;
-  flex-shrink: 0;
+  flex-shrink: 0;   /* object-fit 은 Img.jsx 인라인 contain 이 이긴다 — 여기 쓰면 죽은 규칙 */
 }
 
 /* ── 10-1. 환경설정 팝업 (S29) ───────────────────────────── */

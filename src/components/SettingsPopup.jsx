@@ -21,9 +21,11 @@ export default function SettingsPopup({
     return () => window.removeEventListener("keydown", handleKey);
   }, [onClose]);
 
+  // 공백만 남은 이름은 저장하지 않는다 — 버튼도 함께 비활성이라 조용히 무시되지 않는다
   const saveName = () => {
     const v = draft.trim();
-    if (v) onRename(v);
+    if (!v) return;
+    onRename(v);
     setEditing(false);
   };
 
@@ -53,10 +55,21 @@ export default function SettingsPopup({
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") saveName();
-                  if (e.key === "Escape") { setDraft(playerName); setEditing(false); }
+                  // Escape 는 편집만 취소한다 — window 리스너까지 가면 팝업이 통째로 닫힌다
+                  if (e.key === "Escape") {
+                    e.stopPropagation();
+                    setDraft(playerName);
+                    setEditing(false);
+                  }
                 }}
               />
-              <button className="chip sm settings-name-save" onClick={saveName}>확인</button>
+              <button
+                className="chip sm settings-name-save"
+                disabled={!draft.trim()}
+                onClick={saveName}
+              >
+                확인
+              </button>
             </>
           ) : (
             <>
@@ -78,7 +91,7 @@ export default function SettingsPopup({
             className={"settings-sound stk" + (sfxMuted ? " off" : "")}
             onClick={onToggleSfx}
             aria-pressed={!sfxMuted}
-            aria-label={sfxMuted ? "효과음 켜기" : "효과음 끄기"}
+            aria-label="효과음"
           >
             <Icon name="sound-on" size="md" />
             <span className="settings-sound-label">효과음</span>
@@ -87,7 +100,7 @@ export default function SettingsPopup({
             className={"settings-sound stk" + (bgmMuted ? " off" : "")}
             onClick={onToggleBgm}
             aria-pressed={!bgmMuted}
-            aria-label={bgmMuted ? "음악 켜기" : "음악 끄기"}
+            aria-label="음악"
           >
             <Icon name="music" size="md" />
             <span className="settings-sound-label">음악</span>

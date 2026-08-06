@@ -345,7 +345,6 @@ export default function App() {
               order={order}
               index={orderIndex}
               total={orders.length}
-              money={money}
               cake={cake}
               setCake={setCake}
               onSubmit={toConfirm}

@@ -4,7 +4,7 @@ import IngredientPalette, { STEPS } from "../components/IngredientPalette.jsx";
 import { sheetType, BASIC_BASE } from "../data/ingredients.js";
 import { TUTORIAL_GUIDE } from "../data/tutorial.js";
 
-export default function OrderScreen({ order, index, total, money, cake, setCake, onSubmit, busy }) {
+export default function OrderScreen({ order, index, total, cake, setCake, onSubmit, busy }) {
   const [step, setStep] = useState(0);
   const [made, setMade] = useState(false);   // 시트가 케이크로 구워졌는가
   const [making, setMaking] = useState(false); // 굽는 중(1초 연출)
@@ -196,7 +196,6 @@ export default function OrderScreen({ order, index, total, money, cake, setCake,
     <div className="screen screen--build">
       <div className={"hud hud-row" + introDim}>
         <span>주문 {index + 1} / {total}</span>
-        <span className="money">매출 {(money ?? 0).toLocaleString()}코인</span>
       </div>
 
       {/* 주문 띠 — 팝업 안 열고도 6단계 내내 주문 문장이 보이게. 튜토리얼은 치트 시트가 있어 생략 */}

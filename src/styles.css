@@ -301,6 +301,90 @@ body {
   min-height: 28px;
 }
 .hud-spacer { flex: 1; }
+/* 왼쪽 상단 내 캐릭터(푸딩괴물) — 아바타로만 쓰고 클릭은 없다 (S29) */
+.hud-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: var(--ink-line) solid var(--ink);
+  background: var(--paper);
+  flex-shrink: 0;   /* object-fit 은 Img.jsx 인라인 contain 이 이긴다 — 여기 쓰면 죽은 규칙 */
+}
+
+/* ── 10-1. 환경설정 팝업 (S29) ───────────────────────────── */
+.settings-backdrop { display: flex; align-items: center; justify-content: center; padding: var(--pad-screen); }
+.settings-popup {
+  width: 100%;
+  max-width: 320px;
+  border-radius: var(--r-popup);
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.settings-header { display: flex; align-items: center; }
+.settings-title { font-size: var(--fs-title); font-weight: 700; flex: 1; text-align: center; }
+.settings-close { flex-shrink: 0; }
+
+.settings-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--r-card);
+  background: var(--paper-warm);
+}
+.settings-avatar {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  border: var(--ink-line) solid var(--ink);
+  background: var(--paper);
+  flex-shrink: 0;
+}
+.settings-name { flex: 1; font-weight: 700; font-size: var(--fs-body); word-break: break-all; }
+.settings-name-input { flex: 1; min-width: 0; }
+.settings-edit, .settings-name-save { flex-shrink: 0; }
+
+.settings-sounds { display: flex; gap: 10px; }
+.settings-sound {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 4px;
+  border-radius: var(--r-card);
+  cursor: pointer;
+  position: relative;
+}
+.settings-sound-label { font-size: var(--fs-note); }
+/* 끈 상태 — 아이콘 위에 큰 빗금 하나 */
+.settings-sound.off { opacity: .55; }
+.settings-sound.off::after {
+  content: "";
+  position: absolute;
+  left: 50%; top: 25px;
+  width: 42px; height: 3.2px;
+  background: var(--ink);
+  border-radius: 2px;
+  transform: translateX(-50%) rotate(-45deg);
+}
+
+.settings-actions { display: flex; flex-direction: column; gap: 8px; }
+.settings-item { width: 100%; font-size: var(--fs-body); min-height: var(--tap-min); }
+.settings-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  border-radius: var(--r-card);
+  background: var(--paper-warm);
+  font-size: var(--fs-label);
+  text-align: center;
+}
+.settings-confirm > span { flex-basis: 100%; }
 
 /* ── 11. 아이콘 공통 ─────────────────────────────────────── */
 .icon-box {
@@ -1740,6 +1824,22 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   padding: 10px 34px 10px 10px;
   cursor: pointer;
 }
+/* 건너뛰기 보상 말풍선 — 맵 위. 기본 top(48%)을 풀어 내용만큼만 차지하게 (S29).
+   ⚠ .tut-guide 와 특이도가 같으므로 반드시 이 뒤에 와야 한다 */
+/* 맵 하단에 얹되 노드를 막지 않는다 — 어디에 두든 노드나 '지금!' 라벨과 겹치므로,
+   위치로 피하는 대신 클릭을 통과시키고 버튼만 받는다 (S29) */
+.skip-gift {
+  top: auto;
+  bottom: 16%;   /* 화면 맨 아래는 홈 인디케이터·dev 바와 겹쳐 버튼이 눌리기 나쁘다 */
+  z-index: 9;
+  cursor: default;
+  padding-right: 10px;
+  pointer-events: none;
+}
+.skip-gift-claim { pointer-events: auto; }
+.skip-gift-body { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.skip-gift-claim { align-self: center; }
+
 .tut-guide-face {
   flex-shrink: 0;
   width: 60px;

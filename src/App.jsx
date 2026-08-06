@@ -16,6 +16,7 @@ import StageClearScreen from "./screens/StageClearScreen.jsx";
 import LoadingScreen, { useLoading } from "./screens/LoadingScreen.jsx";
 import Hud from "./components/Hud.jsx";
 import ChatPopup from "./components/ChatPopup.jsx";
+import SettingsPopup from "./components/SettingsPopup.jsx";
 import { MONSTERS } from "./data/ingredients.js";
 import { STORY, GOOD_ENDING_COINS } from "./data/story.js";
 import { TUTORIAL_GUIDE } from "./data/tutorial.js";
@@ -57,7 +58,9 @@ export default function App() {
   const [chatPopupOpen, setChatPopupOpen] = useState(false);
   const nextMsgId = useRef(1);
   const scriptAdvancing = useRef(false); // 대본 연타 가드
-  const { muted, toggleMute } = useSfx();
+  const { sfxMuted, bgmMuted, toggleSfx, toggleBgm } = useSfx();
+  const [settingsOpen, setSettingsOpen] = useState(false); // 환경설정 팝업 (S29)
+  const [skipGift, setSkipGift] = useState(false); // 튜토리얼 건너뛰기 보상 말풍선 (S29)
 
   // A2: 버튼·재료 칩 탭 — 이벤트 위임으로 전부.
   // data-sfx 가 있는 버튼은 자체 사운드가 있으므로 A2를 건너뛴다 (가게 열기 = A1).
@@ -79,9 +82,16 @@ export default function App() {
 
   const order = orders[orderIndex];
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
+  // 대화 세션 번호 — 비동기 응답이 "아직 이 대화의 것인가"를 판정한다(클로저는 옛 값을 본다).
+  // seedMessages 마다 증가하므로 같은 손님을 다시 골라도 옛 응답이 섞이지 않는다.
+  const chatSeqRef = useRef(0);
 
-  // 손님 시드 — 최초 주문 대사로 대화 시작
+  // 손님 시드 — 최초 주문 대사로 대화 시작.
+  // 손님이 바뀌면 이전 요청의 대기 상태도 푼다 — 안 그러면 새 대화창이 응답 올 때까지 잠긴다(S29).
+  // 그 응답 자체는 handleSend 의 chatSeqRef 검사에서 버려진다.
   function seedMessages(o) {
+    chatSeqRef.current += 1; // 새 대화 세션 — 이전 요청의 응답은 이제 버려진다
+    setChatBusy(false);
     nextMsgId.current = 1;
     setMessages([{ id: 0, role: "monster", content: o.dialogue }]);
     setScriptIdx(0);
@@ -100,6 +110,7 @@ export default function App() {
     setCollected(orders.map(() => false));
     setCheered(false);
     setDevEnding(null);
+    setSkipGift(false); // 새 판에 지난 판의 보상 말풍선이 남지 않게 (S29)
     setTimeout(() => setScreen("NAME"), 180); // 소리 후 화면 전환
   }
 
@@ -180,9 +191,14 @@ export default function App() {
   async function handleSend(text) {
     const userMsg = { id: nextMsgId.current++, role: "user", content: text };
     const next = [...messages, userMsg];
+    // 손님 id 가 아니라 '대화 세션' 번호로 판정한다 — 같은 손님을 다시 고르면
+    // seedMessages 가 대화를 초기화하므로, id 만 보면 옛 응답이 새 대화에 붙는다 (S29).
+    const sentIn = chatSeqRef.current;
     setMessages(next);
     setChatBusy(true);
     const { reply, raw } = await chat(order.id, next);
+    // ★ 가드가 먼저다 — 버려질 응답이 다른 요청의 busy 를 풀면 이중 전송이 된다
+    if (chatSeqRef.current !== sentIn) return;
     setChatBusy(false);
     setMessages((m) => [...m, { id: nextMsgId.current++, role: "monster", content: reply, raw }]);
   }
@@ -203,6 +219,10 @@ export default function App() {
     // (재플레이 수익 0 이라 5명 완료 후엔 더 벌 수 없다)
     const allDone = stars.every((v) => v > 0);
     if (money >= GOOD_ENDING_COINS || allDone) {
+      // 안 받은 건너뛰기 보상은 정산 전에 넣어 준다 (S29) — 건너뛰기가 stars[0] 을 세우는 탓에
+      // 마지막 손님 뒤엔 맵을 안 거치고 바로 END 라, 그대로 두면 100코인이 증발하고
+      // 굿엔딩 판정에서도 빠진다. 화면 연출만 생략하고 지급은 보장한다.
+      if (skipGift) claimSkipGift();
       setDevEnding(null); // 실플레이 엔딩은 코인으로만 가른다
       setScreen("END"); // 영업 종료(정산) → 엔딩 스토리
       return;
@@ -213,13 +233,36 @@ export default function App() {
   // 튜토리얼 건너뛰기 — 노드 T 를 ★1 완료로 표시해 레벨 1 을 열고 맵으로.
   // 수익·적립은 없다(collected 유지) — 나중에 튜토리얼을 플레이하면 코인은 그대로 벌 수 있다.
   function skipTutorial() {
+    const alreadySkipped = stars[0] > 0;
     setStars((prev) => {
       if (prev[0] > 0) return prev;
       const next = [...prev];
       next[0] = 1;
       return next;
     });
+    // 코인은 여기서 주지 않는다 — 맵에서 물범이 건네고, '수령하기' 를 눌러야 들어온다.
+    // 숫자가 0 → 100 으로 바뀌는 걸 플레이어가 보게 하려는 연출 (S29).
+    if (!alreadySkipped) setSkipGift(true);
     setScreen("STAGE");
+  }
+
+  // 건너뛰기 보상 수령 — 버튼을 눌러야 지급된다. 안 주면 남은 4명 전원 만점이어야
+  // 굿엔딩(400)이라, 질문을 한 번만 해도(TURN_PENALTY) 도달 불가가 된다.
+  function claimSkipGift() {
+    // 연타(=skipGift) 뿐 아니라 '수령 전에 그 손님을 플레이해 이미 번' 경우도 막는다.
+    // 안 막으면 건너뛰기 → 플레이(+100) → 맵 복귀 → 수령(+100) 으로 한 손님에서 200 이 나온다.
+    if (!skipGift || collected[0]) {
+      setSkipGift(false);
+      return;
+    }
+    setSkipGift(false);
+    setMoney((m) => m + TUTORIAL_GUIDE.skipGift.coins);
+    // 받은 것으로 처리해야 그 손님을 다시 팔아 중복 수령하는 걸 막는다
+    setCollected((prev) => {
+      const next = [...prev];
+      next[0] = true;
+      return next;
+    });
   }
 
   // 다시하기 — 이번 채점의 점수·코인을 물리고 같은 손님의 제작으로 돌아간다.
@@ -262,7 +305,7 @@ export default function App() {
       {/* HUD — 타이틀·이름·스토리·에필로그 이외 화면에 상주 */}
       {!["TITLE", "NAME", "INTRO", "ENDING", "CREDITS", "TUTEND"].includes(screen) && (
         <div className="layer-ui layer-ui--hud">
-          <Hud coins={money} muted={muted} onToggleMute={toggleMute}>
+          <Hud coins={money} onOpenMenu={() => setSettingsOpen(true)}>
             <div className="hud-left-col">
               {screen === "BUILD" && (
                 <button className="btn-ghost chat-popup-trigger" onClick={() => setChatPopupOpen(true)}>
@@ -321,7 +364,25 @@ export default function App() {
       )}
 
       {screen === "STAGE" && (
-        <StageMapScreen stars={stars} onSelect={selectNode} />
+        <>
+          <StageMapScreen stars={stars} onSelect={selectNode} />
+          {/* 건너뛰기 보상 — 물범이 코인을 건넨다. '수령하기' 를 눌러야 들어온다 (S29).
+              탭으로 닫히게 두면 안 받고 닫아 코인을 잃는다 */}
+          {skipGift && !collected[0] && (
+            <div className="tut-guide stk skip-gift">
+              <span className="tut-guide-face">
+                <img src="/assets/story_face_assistant.webp" alt="" />
+                <span className="tut-guide-name">커스터드물범</span>
+              </span>
+              <div className="skip-gift-body">
+                <p className="tut-guide-line">{TUTORIAL_GUIDE.skipGift.line}</p>
+                <button className="btn small skip-gift-claim" onClick={claimSkipGift}>
+                  {TUTORIAL_GUIDE.skipGift.coins}코인 수령하기
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {screen === "CHAT" && (
@@ -434,6 +495,22 @@ export default function App() {
       )}
 
       {/* 로딩 오버레이 — 화면 위에 얹는다 */}
+      {/* 환경설정 (S29) — HUD 가 뜨는 모든 화면에서 열 수 있다 */}
+      {settingsOpen && (
+        <SettingsPopup
+          playerName={playerName}
+          onRename={setPlayerName}
+          sfxMuted={sfxMuted}
+          bgmMuted={bgmMuted}
+          onToggleSfx={toggleSfx}
+          onToggleBgm={toggleBgm}
+          canGoMap={screen !== "STAGE"}
+          onGoMap={() => { setSettingsOpen(false); setChatPopupOpen(false); setResult(null); setScreen("STAGE"); }}
+          onGoTitle={() => { setSettingsOpen(false); setChatPopupOpen(false); soundManager.stopBgm(); setScreen("TITLE"); }}
+          onClose={() => setSettingsOpen(false)}
+        />
+      )}
+
       {loading && <LoadingScreen visible={loading} message={loadMsg} />}
 
       {/* 개발용 배경 토글 */}

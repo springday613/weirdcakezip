@@ -71,7 +71,7 @@ export default function StageMapScreen({ stars, onSelect }) {
 
       <div className="stage-header">
         <h1 className="stage-title">Stage 1</h1>
-        <p className="stage-sub">괴물 마을 · 손님 {orders.length}명 · 튜토리얼</p>
+        <p className="stage-sub">뭉게뭉게 마을 · 손님 {orders.length}명 · 튜토리얼</p>
       </div>
     </div>
   );

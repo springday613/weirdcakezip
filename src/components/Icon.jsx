@@ -80,6 +80,14 @@ const SHAPE_FALLBACKS = {
       <line x1="14" y1="9" x2="18" y2="15" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
     </svg>
   ),
+  // 음표 — 음악 토글용 (S29). ui_music.svg 를 넣으면 코드 수정 없이 교체된다.
+  music: (size) => (
+    <svg viewBox="0 0 24 24" width={size} height={size}>
+      <path d="M9 18V6l10-2v12" fill="none" stroke="var(--ink)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <ellipse cx="7" cy="18" rx="2.6" ry="2.2" fill="var(--ink)" />
+      <ellipse cx="17" cy="16" rx="2.6" ry="2.2" fill="var(--ink)" />
+    </svg>
+  ),
   menu: (size) => (
     <svg viewBox="0 0 24 24" width={size} height={size}>
       <line x1="4" y1="7" x2="20" y2="7" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />

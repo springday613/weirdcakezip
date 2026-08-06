@@ -22,6 +22,9 @@ const sfx = {
 };
 
 let bgm = null;
+// 효과음·음악을 따로 끈다 (S29). Howler.mute 는 전역이라 분리가 안 돼서 각각 관리한다.
+// bgm 은 첫 재생 때 생성되므로, 그 전에 끈 상태도 기억했다가 생성 시점에 적용한다.
+let bgmMuted = false;
 
 export const soundManager = {
   playSfx(key, { vary = false } = {}) {
@@ -44,6 +47,7 @@ export const soundManager = {
         loop: true,
         volume: 0.2,
         html5: true,
+        mute: bgmMuted,        // 켜기 전에 이미 꺼 뒀다면 그대로 생성
       });
     }
     bgm.play();
@@ -51,5 +55,15 @@ export const soundManager = {
 
   stopBgm() { bgm?.stop(); },
 
-  setMute(muted) { Howler.mute(muted); startAudio.muted = muted; },
+  // 효과음만 끄기 — Howl 인스턴스들과 별도 <audio>(start) 를 함께 처리한다
+  setSfxMute(muted) {
+    Object.values(sfx).forEach((s) => s.mute(muted));
+    startAudio.muted = muted;
+  },
+
+  // 음악만 끄기 — 아직 생성 전이면 플래그만 기억했다가 생성 시 적용
+  setBgmMute(muted) {
+    bgmMuted = muted;
+    bgm?.mute(muted);
+  },
 };

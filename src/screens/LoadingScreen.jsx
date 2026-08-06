@@ -4,7 +4,7 @@ import { randomTip } from "../data/tips.js";
 
 // 로딩 오버레이 — 화면 위에 얹는다 (뒤 화면 언마운트 방지).
 // useLoading() 훅이 최소 표시 시간(800ms)을 보장한다.
-const MIN_MS = 800;
+const MIN_MS = 1800;
 
 export default function LoadingScreen({ visible, message = "준비 중…" }) {
   const [tip] = useState(() => randomTip());

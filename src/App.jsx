@@ -88,9 +88,8 @@ export default function App() {
   }
 
   function start() {
-    // A1 시작음 + B1 BGM — 첫 사용자 제스처(가게 열기)에서 AudioContext 해금
-    // BGM 은 A1 뒤로 충분히 늦춰서 AudioContext 해금과 겹치지 않게
-    soundManager.playSfx("start");
+    // A1 시작음은 TitleScreen의 mousedown에서 이미 재생됨
+    // 화면 전환은 소리가 들린 뒤 넘어가도록 살짝 딜레이
     setTimeout(() => soundManager.playBgm(), 600);
     setOrderIndex(0);
     setCake(emptyCake());
@@ -100,8 +99,8 @@ export default function App() {
     setStars(orders.map(() => 0));
     setCollected(orders.map(() => false));
     setCheered(false);
-    setDevEnding(null); // 개발용 엔딩 강제가 실플레이로 새지 않게
-    setScreen("NAME"); // 이름 → 인트로 스토리 → 스테이지 맵
+    setDevEnding(null);
+    setTimeout(() => setScreen("NAME"), 180); // 소리 후 화면 전환
   }
 
   // 스테이지 맵에서 노드 선택

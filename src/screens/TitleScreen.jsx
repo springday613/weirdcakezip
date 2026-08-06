@@ -1,6 +1,9 @@
 import Img from "../components/Img.jsx";
+import { soundManager } from "../utils/soundManager.js";
 
 export default function TitleScreen({ onStart }) {
+  const handleDown = () => soundManager.playSfx("start");
+
   return (
     <>
       {/* 기본 배경(구름 하늘) — 로고·버튼 층 아래에 깐다 */}
@@ -14,7 +17,7 @@ export default function TitleScreen({ onStart }) {
           <br />
           케이크를 만들어 주세요
         </p>
-        <button className="btn-primary" data-sfx="start" onClick={onStart}>
+        <button className="btn-primary" data-sfx="start" onMouseDown={handleDown} onTouchStart={handleDown} onClick={onStart}>
           가게 열기
         </button>
         <button className="btn-ghost" disabled>

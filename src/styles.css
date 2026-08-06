@@ -359,19 +359,17 @@ body {
   position: relative;
 }
 .settings-sound-label { font-size: var(--fs-note); }
-/* 끈 상태 — 아이콘 위에 X 를 겹친다 (두 사선) */
+/* 끈 상태 — 아이콘 위에 큰 빗금 하나 */
 .settings-sound.off { opacity: .55; }
-.settings-sound.off::before,
 .settings-sound.off::after {
   content: "";
   position: absolute;
   left: 50%; top: 20px;
-  width: 30px; height: 2.4px;
+  width: 42px; height: 3.2px;
   background: var(--ink);
   border-radius: 2px;
+  transform: translateX(-50%) rotate(-45deg);
 }
-.settings-sound.off::before { transform: translateX(-50%) rotate(45deg); }
-.settings-sound.off::after  { transform: translateX(-50%) rotate(-45deg); }
 
 .settings-actions { display: flex; flex-direction: column; gap: 8px; }
 .settings-item { width: 100%; font-size: var(--fs-body); min-height: var(--tap-min); }

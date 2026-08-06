@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { orders } from "./data/orders.js";
 import { judge } from "./judgeClient.js";
 import { chat } from "./chatClient.js";
@@ -19,6 +19,9 @@ import ChatPopup from "./components/ChatPopup.jsx";
 import { MONSTERS } from "./data/ingredients.js";
 import { STORY, GOOD_ENDING_COINS } from "./data/story.js";
 import { TUTORIAL_GUIDE } from "./data/tutorial.js";
+import { soundManager } from "./utils/soundManager.js";
+import { starAnimEnd } from "./components/Stars.jsx";
+import useSfx from "./useSfx.js";
 
 // 게임 루프 = 상태머신
 //   TITLE → NAME(이름) → INTRO(스토리) → STAGE → CHAT → BUILD → RESULT → STAGE 순환
@@ -54,6 +57,16 @@ export default function App() {
   const [chatPopupOpen, setChatPopupOpen] = useState(false);
   const nextMsgId = useRef(1);
   const scriptAdvancing = useRef(false); // 대본 연타 가드
+  const { muted, toggleMute } = useSfx();
+
+  // A2: 버튼·재료 칩 탭 — 이벤트 위임으로 전부.
+  // data-sfx 가 있는 버튼은 자체 사운드가 있으므로 A2를 건너뛴다 (가게 열기 = A1).
+  const handleGlobalClick = useCallback((e) => {
+    const btn = e.target.closest("button");
+    if (btn && !btn.dataset.sfx) {
+      soundManager.playSfx("tap", { vary: true });
+    }
+  }, []);
 
   // 손님별 최고 별점. 인덱스 = orders 배열 순서. 0 = 아직 안 함
   const [stars, setStars] = useState(() => orders.map(() => 0));
@@ -75,6 +88,10 @@ export default function App() {
   }
 
   function start() {
+    // A1 시작음 + B1 BGM — 첫 사용자 제스처(가게 열기)에서 AudioContext 해금
+    // BGM 은 A1 뒤로 충분히 늦춰서 AudioContext 해금과 겹치지 않게
+    soundManager.playSfx("start");
+    setTimeout(() => soundManager.playBgm(), 600);
     setOrderIndex(0);
     setCake(emptyCake());
     setMoney(0);
@@ -101,6 +118,7 @@ export default function App() {
   }
 
   async function submit() {
+    let starValue = 0;
     await withLoading("케이크 채점 중…", async () => {
       setJudgeBusy(true);
       const r = await judge(order.id, cake, turns);
@@ -119,14 +137,16 @@ export default function App() {
         });
       }
       // 별점 갱신 — 기존보다 높을 때만 (재플레이도 갱신)
-      const newStars = starsFor(r.score);
+      starValue = starsFor(r.score);
       setStars((prev) => {
         const next = [...prev];
-        if (newStars > next[orderIndex]) next[orderIndex] = newStars;
+        if (starValue > next[orderIndex]) next[orderIndex] = starValue;
         return next;
       });
     });
     setScreen("RESULT");
+    // A4: 별점 애니메이션이 끝난 뒤 보상음
+    setTimeout(() => soundManager.playSfx("reward"), starAnimEnd(starValue));
   }
 
   // 완성 확인 화면으로 — 튜토리얼(order.script)은 치트 시트가 정답을 알려주므로 건너뛴다.
@@ -226,7 +246,7 @@ export default function App() {
   const bgClass = `bg-${BG_MODES[bgMode]}`;
 
   return (
-    <div className={`app-shell ${bgClass}`}>
+    <div className={`app-shell ${bgClass}`} onClick={handleGlobalClick}>
       <div className="layer-art" />
       <div className="layer-veil" />
 
@@ -236,7 +256,7 @@ export default function App() {
       {/* HUD — 타이틀·이름·스토리·에필로그 이외 화면에 상주 */}
       {!["TITLE", "NAME", "INTRO", "ENDING", "CREDITS", "TUTEND"].includes(screen) && (
         <div className="layer-ui">
-          <Hud coins={money}>
+          <Hud coins={money} muted={muted} onToggleMute={toggleMute}>
             <div className="hud-left-col">
               {screen === "BUILD" && (
                 <button className="btn-ghost chat-popup-trigger" onClick={() => setChatPopupOpen(true)}>

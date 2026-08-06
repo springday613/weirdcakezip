@@ -14,7 +14,7 @@ export default function TitleScreen({ onStart }) {
           <br />
           케이크를 만들어 주세요
         </p>
-        <button className="btn-primary" onClick={onStart}>
+        <button className="btn-primary" data-sfx="start" onClick={onStart}>
           가게 열기
         </button>
         <button className="btn-ghost" disabled>

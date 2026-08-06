@@ -66,6 +66,20 @@ const SHAPE_FALLBACKS = {
       />
     </svg>
   ),
+  "sound-on": (size) => (
+    <svg viewBox="0 0 24 24" width={size} height={size}>
+      <path d="M3 9v6h4l5 5V4L7 9H3z" fill="var(--ink)" />
+      <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" fill="var(--ink)" />
+      <path d="M19 12c0 2.97-1.65 5.54-4 6.71v2.06c3.45-1.28 6-4.64 6-8.77s-2.55-7.49-6-8.77v2.06c2.35 1.17 4 3.74 4 6.71z" fill="var(--ink)" opacity=".5" />
+    </svg>
+  ),
+  "sound-off": (size) => (
+    <svg viewBox="0 0 24 24" width={size} height={size}>
+      <path d="M3 9v6h4l5 5V4L7 9H3z" fill="var(--ink)" opacity=".4" />
+      <line x1="18" y1="9" x2="14" y2="15" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
+      <line x1="14" y1="9" x2="18" y2="15" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  ),
   menu: (size) => (
     <svg viewBox="0 0 24 24" width={size} height={size}>
       <line x1="4" y1="7" x2="20" y2="7" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />

@@ -272,7 +272,7 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
           onClick={handleSubmit}
           disabled={busy || making || folding || step !== lastStep}
         >
-          {busy ? "괴물이 살펴보는 중..." : "완성하기"}
+          {busy ? "손님이 살펴보는 중..." : "완성하기"}
         </button>
         <button
           className={"arrow" + (tutArrow ? " tut-pulse" : "")}

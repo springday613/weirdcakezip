@@ -87,7 +87,7 @@ export default function ChatBox({ order, messages = [], onSend, busy = false, tu
       <div className="chat-input">
         <input
           type="text"
-          placeholder={spent ? "더 물어보려면 코인이 필요해요" : "괴물에게 물어보기..."}
+          placeholder={spent ? "더 물어보려면 코인이 필요해요" : "손님에게 물어보기..."}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send()}

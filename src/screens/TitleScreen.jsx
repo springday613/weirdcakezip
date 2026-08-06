@@ -20,10 +20,7 @@ export default function TitleScreen({ onStart }) {
         <button className="btn-primary" data-sfx="start" onMouseDown={handleDown} onTouchStart={handleDown} onClick={onStart}>
           가게 열기
         </button>
-        <button className="btn-ghost" disabled>
-          이어하기
-        </button>
-        <p className="title-caption">저장된 진행이 없습니다</p>
+        {/* '이어하기' 제거 (S30) — 저장 기능이 없어 영원히 비활성이라 미완성으로 읽혔다 */}
       </div>
     </>
   );

@@ -935,12 +935,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 }
 .title-ui .btn-primary,
 .title-ui .btn-ghost { width: 100%; max-width: 260px; }
-.title-ui .btn-primary { margin-bottom: calc(var(--gap) * 1.2); }
-.title-caption {
-  font-size: var(--fs-note);
-  color: var(--text-muted);
-  margin: calc(var(--gap) * 1.8) 0 0;
-}
+/* (구 .title-caption '저장된 진행이 없습니다' 는 '이어하기' 와 함께 제거 — S30) */
 
 /* ── 14. 스테이지 맵 ─────────────────────────────────────── */
 .stage-frame {

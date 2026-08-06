@@ -21,7 +21,7 @@ export const soundManager = {
     if (bgm?.playing()) return;
     if (!bgm) {
       bgm = new Howl({
-        src: ["/sounds/bgm_shop.mp3"],
+        src: ["/sounds/bgm_shop.ogg"],
         loop: true,
         volume: 0.2,
         html5: true,

@@ -1,7 +1,8 @@
 import { MONSTERS, moodOf } from "../data/ingredients.js";
 import { starsFor, coinsFor } from "../scoreCake.js";
 import CakeView from "../components/CakeView.jsx";
-import Stars from "../components/Stars.jsx";
+import Stars, { starAnimEnd } from "../components/Stars.jsx";
+import CoinCount from "../components/CoinCount.jsx";
 import Icon from "../components/Icon.jsx";
 import Img from "../components/Img.jsx";
 
@@ -23,14 +24,10 @@ export default function ResultScreen({ result, order, cake, onNext, onRetry }) {
       : 0;
 
   // 코인 문구 — earned=0 두 원인 구분 (H12 counted 로직)
-  let coinMsg;
-  if (result.earned > 0) {
-    coinMsg = `+${result.earned.toLocaleString()}코인`;
-  } else if (result.counted === false) {
-    coinMsg = "이미 받은 손님이에요";
-  } else {
-    coinMsg = "손님이 안 사갔어요";
-  }
+  const zeroCoinMsg =
+    result.earned > 0 ? null
+    : result.counted === false ? "이미 받은 손님이에요"
+    : "손님이 안 사갔어요";
 
   return (
     <div className="screen result-screen">
@@ -42,12 +39,16 @@ export default function ResultScreen({ result, order, cake, onNext, onRetry }) {
         <p className="result-bubble stk">{result.reaction}</p>
 
         {/* 3. 별점 */}
-        <Stars value={starValue} size="md" />
+        <Stars value={starValue} size="md" animate />
 
         {/* 4. 코인 */}
         <div className="result-coin">
           <Icon name="coin" size="sm" />
-          <span>{coinMsg}</span>
+          <span>
+            {result.earned > 0
+              ? <>+{" "}<CoinCount value={result.earned} delay={starAnimEnd(starValue)} />코인</>
+              : zeroCoinMsg}
+          </span>
         </div>
 
         {/* 5. 케이크 */}

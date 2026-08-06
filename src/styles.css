@@ -151,6 +151,13 @@ body {
   border-radius: 50%;
   font-size: var(--fs-body);
 }
+.btn-primary:active,
+.btn-ghost:active,
+.btn:active {
+  transform: scale(0.96);
+  filter: brightness(0.88);
+  transition: transform 0.14s, filter 0.14s;
+}
 .btn-primary:disabled,
 .btn-ghost:disabled,
 .btn-icon:disabled {
@@ -209,8 +216,8 @@ body {
   border-radius: 4px;
   background: var(--paper);
 }
-.seg.done { background: var(--ink); }
-.seg.now  { background: var(--accent); border-width: var(--ink-line-sel); }
+.seg.done { background: var(--ink); transition: background 0.3s ease; }
+.seg.now  { background: var(--accent); border-width: var(--ink-line-sel); transition: background 0.3s ease, border-width 0.3s ease; }
 .stepbar-wrap { display: flex; flex-direction: column; gap: 4px; }
 
 /* ── 8. 스와치 ───────────────────────────────────────────── */
@@ -477,18 +484,29 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   pointer-events: none;
 }
 /* 케이크 위 스프라이트 — 위치·크기·회전은 cakeLayout.json 값으로 인라인 지정된다.
-   여기서는 배치 방식만 정한다. */
-.cake-item {
-  position: absolute;
-  height: auto;
+   position/translate/rotate 는 바깥 .cake-slot 이 담당하고, 안쪽 .cake-item 은 크기·이펙트만. */
+.cake-slot {
   pointer-events: none;
   z-index: 1;
 }
-/* 초처럼 세워 꽂는 것은 기준점이 중심이 아니라 바닥이다 */
-.cake-item--stand {
-  transform: translate(-50%, -100%);
-  transform-origin: center bottom;
+.cake-slot--stand {
   z-index: 3;
+}
+.cake-slot--stand > .cake-item {
+  transform-origin: center bottom;
+}
+.cake-item {
+  width: 100%;
+  height: auto;
+}
+/* E7: 재료 톡 튀기 — 새로 추가된 원소만 */
+.ing-pop {
+  animation: ing-pop 0.24s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes ing-pop {
+  0%   { opacity: 0; transform: scale(0); }
+  70%  { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 1; transform: scale(1); }
 }
 /* 쪽지(S16) — 펼친 쪽지 그림 위에 글자. 케이크 윗면 중앙에 얹힌다 */
 .lettering-note {
@@ -996,6 +1014,17 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 /* Stars 컴포넌트 — 맵·정산·클리어 공용 (H14) */
 .stars { display: flex; gap: 0; margin-top: 2px; }
 
+/* E4: 별점 순차 등장 — animate prop 이 true 인 곳(정산·클리어)에서만 적용 */
+.star-icon {
+  animation: star-pop 0.36s cubic-bezier(.34,1.56,.64,1) backwards;
+  animation-delay: calc(var(--i) * 0.12s);
+}
+@keyframes star-pop {
+  0%   { opacity: 0; transform: scale(0.6); }
+  60%  { opacity: 1; transform: scale(1.15); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
 /* 원 아래 딸린 것들 — 종이 알약을 깔아 그림 위에서도 읽히게 (S25).
    맵의 별점은 Stars(.stars)로 렌더되므로 같은 자리에 얹는다 */
 .stage-node .stars,
@@ -1144,6 +1173,18 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
     animation: none;
     opacity: 0.5;
   }
+  .star-icon,
+  .ing-pop {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .chat-monster {
+    animation: none;
+  }
+  .cake-wrap .cake--making {
+    animation: none;
+  }
 }
 
 /* ── 16. 채팅 화면 ─────────────────────────────────────── */
@@ -1157,6 +1198,11 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   width: clamp(96px, 22vh, 150px);
   aspect-ratio: 682 / 896;
   object-fit: contain;
+  animation: monster-enter 0.5s ease-out both;
+}
+@keyframes monster-enter {
+  0%   { opacity: 0; transform: translateY(12px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 .chat-ui {
   flex: 1;
@@ -1582,6 +1628,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   gap: 6px;
   font-weight: 700;
   font-size: var(--fs-body);
+  font-variant-numeric: tabular-nums;
   flex-shrink: 0;
 }
 
@@ -1709,7 +1756,13 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 /* 구도 미세조정 — BUILD(매트 배경) 한정. RESULT 의 케이크는 안 움직인다 (S25) */
 .cake-wrap .cake--baked { transform: translateY(-100px); }
 .cake-wrap .cake--bowl { transform: translateY(-70px); }
-.cake-wrap .cake--making { transform: translateY(-80px); }
+.cake-wrap .cake--making { transform: translateY(-80px); animation: bake-wobble 1s ease-in-out; }
+@keyframes bake-wobble {
+  0%   { opacity: 0.6; transform: translateY(-80px) scale(0.95); }
+  30%  { opacity: 1;   transform: translateY(-80px) scale(1.02) rotate(-1deg); }
+  60%  { transform: translateY(-80px) scale(1.01) rotate(0.5deg); }
+  100% { transform: translateY(-80px) scale(1) rotate(0deg); }
+}
 .tut-cheat {
   position: absolute;
   left: 2px;

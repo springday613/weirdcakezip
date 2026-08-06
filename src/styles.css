@@ -1492,7 +1492,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 }
 .story-who {
   font-size: var(--fs-note);
-  font-weight: 700;
+  font-weight: normal;
   text-align: center;
   line-height: 1.2;
   word-break: keep-all;
@@ -1595,13 +1595,13 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .credits-q {
   margin: 0;
   font-size: var(--fs-body);
-  font-weight: 700;
+  font-weight: normal;
   word-break: keep-all;
 }
 .credits-thanks {
   margin: 0;
   font-size: var(--fs-body);
-  font-weight: 700;
+  font-weight: normal;
 }
 
 /* ── 정산 화면 레이아웃 (H14) — CONFIRM/CLEAR 와 같은 스크롤+고정버튼 패턴 ── */

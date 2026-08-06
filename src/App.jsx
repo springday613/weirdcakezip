@@ -126,14 +126,18 @@ export default function App() {
       // 지금 안 막으면 완료 노드 반복으로 코인 무한 파밍 → S19 의 엔딩 조건이 무력화된다
       const isReplay = collected[orderIndex];
       const earned = isReplay ? 0 : coinsFor(r.score);
-      setResult({ ...r, earned, counted: !isReplay }); // counted = 이번 판이 실제로 적립됐는가
+      setResult({ ...r, earned, counted: !isReplay }); // counted = 이번 판이 재플레이가 아닌가(문구 분기용)
       if (!isReplay) {
         setMoney((m) => m + earned);
-        setCollected((prev) => {
-          const next = [...prev];
-          next[orderIndex] = true;
-          return next;
-        });
+        // 판 게 있을 때만 '받은 손님'으로 잠근다 — 0코인(손님이 안 사감)에도 잠그면
+        // 그 손님은 영영 못 팔게 된다 (S27)
+        if (earned > 0) {
+          setCollected((prev) => {
+            const next = [...prev];
+            next[orderIndex] = true;
+            return next;
+          });
+        }
       }
       // 별점 갱신 — 기존보다 높을 때만 (재플레이도 갱신)
       starValue = starsFor(r.score);

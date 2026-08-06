@@ -26,5 +26,7 @@ export const TUTORIAL_GUIDE = {
   // 단계별 정답 — 시트는 기본 조합 버튼, 색/생크림/토핑은 재료 id
   picks: { color: "vanilla", cream: "cherry", topping: ["peach", "cherry"] },
   // 생크림은 이만큼 올릴 때까지 칩이 계속 빛난다 — 한 덩이로 끝이 아니라 짜서 채우는 것임을 가르친다
-  creamDollops: 13,
+  // 정답 색 크림을 '하나라도' 올리면 통과 — 13개를 다 채우게 하면 맞게 하고도 경고가 떴다 (S33).
+  // 하이라이트도 이 값을 보므로, 하나 올리면 칩 강조가 꺼지고 → 로 넘어갈 수 있다.
+  creamDollops: 1,
 };

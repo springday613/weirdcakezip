@@ -6,7 +6,7 @@ import CoinCount from "../components/CoinCount.jsx";
 import Icon from "../components/Icon.jsx";
 import Img from "../components/Img.jsx";
 
-export default function ResultScreen({ result, order, cake, onNext, onMap, onRetry }) {
+export default function ResultScreen({ result, order, cake, onNext, onMap, onRetry, lastRound = false }) {
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
   const mood = moodOf(result.score);
   const starValue = starsFor(result.score);
@@ -96,7 +96,9 @@ export default function ResultScreen({ result, order, cake, onNext, onMap, onRet
       <div className="result-actions">
         <button className="btn-ghost result-action" onClick={onRetry}>↺ 다시 플레이</button>
         {onMap && <button className="btn-ghost result-action" onClick={onMap}>맵 보기</button>}
-        <button className="btn result-action" onClick={onNext}>다음 손님 →</button>
+        <button className="btn result-action" onClick={onNext}>
+          {lastRound ? "엔딩 보기 →" : "다음 손님 →"}
+        </button>
       </div>
     </div>
   );

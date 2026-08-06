@@ -1803,9 +1803,17 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .result-actions .btn,
 .result-actions .btn-ghost { font-weight: normal; font-size: var(--fs-body);
 }
-/* 버튼이 셋이 되면서 390px 에 안 들어간다 — 패딩을 줄이고 줄바꿈 없이 한 줄로 (S33) */
-.result-actions { gap: 6px; }
-.result-action { padding: 10px 12px; white-space: nowrap; flex-shrink: 1; min-width: 0; }
+/* 버튼이 셋이 되면서 좁은 화면(375)에서 넘친다 — 패딩·간격을 줄이고,
+   그래도 모자라면 글자를 자른다(테두리를 뚫고 겹치지 않게) (S33) */
+.result-actions { gap: 5px; }
+.result-action {
+  padding: 10px 9px;
+  white-space: nowrap;
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 /* ── 튜토리얼 가이드 (S21) — 물범이 첫 주문 읽는 법을 알려준다 ── */
 .tut-dim-el {
@@ -1998,6 +2006,9 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 }
 .confirm-actions .btn,
 .confirm-actions .btn-ghost { font-weight: normal; font-size: var(--fs-body); }
+/* 되돌아가기(원형) 왼쪽 · 주기 오른쪽 — 주기가 주 동작이라 남는 폭을 가진다 (S33) */
+.confirm-back { flex-shrink: 0; }
+.confirm-submit { flex: 1; max-width: 260px; }
 
 /* 튜토리얼 건너뛰기 (S21) — 왼쪽 상단 HUD 슬롯, BUILD 에선 대화 버튼 아래 */
 .hud-left-col {

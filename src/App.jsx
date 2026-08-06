@@ -214,13 +214,15 @@ export default function App() {
     setScreen("CHAT");
   }
 
-  // 아직 안 판 다음 손님 — RESULT 의 '다음 손님' 은 맵을 거치지 않고 바로 그 라운드를 연다 (S33).
-  // 뒤쪽부터가 아니라 현재 다음 칸부터 훑어, 맵의 순서와 같게 한다.
+  // 아직 안 한 '다음' 손님 — RESULT 의 '다음 손님' 은 맵을 거치지 않고 바로 그 라운드를 연다 (S33).
+  // ⚠ 앞으로만 찾는다. 뒤로 감싸면 마지막 라운드 뒤에 건너뛴 튜토리얼로 되돌아간다 —
+  //   지나간 손님에게 돌아가는 건 '맵 보기' 로만.
   function nextUnplayedIndex() {
     for (let i = orderIndex + 1; i < orders.length; i++) if (stars[i] === 0) return i;
-    for (let i = 0; i < orders.length; i++) if (stars[i] === 0) return i; // 건너뛴 앞 손님이 남아 있으면
     return -1;
   }
+  // 다음 버튼이 '엔딩 보기' 가 되는 조건 — goNextCustomer 의 분기와 같아야 라벨이 안 어긋난다
+  const isLastRound = money >= GOOD_ENDING_COINS || nextUnplayedIndex() < 0;
 
   function next() {
     // 코인 목표를 모으면 귀환 주문 완성 — 엔딩으로. 5명을 다 돌고도 못 모았으면 배드 엔딩.
@@ -241,6 +243,9 @@ export default function App() {
   // RESULT 의 '다음 손님' — 맵을 거치지 않고 다음 라운드를 바로 연다 (S33).
   // 남은 손님이 없으면 기존 next() 로 넘겨 END/엔딩 판정을 그대로 태운다.
   function goNextCustomer() {
+    // 종료 조건은 next() 와 같아야 한다 — 코인 목표를 이미 넘겼으면 라운드를 더 열지 않고 엔딩으로.
+    // (안 그러면 목표 달성 뒤에도 한 판 더 강제되고, 맵엔 영업 종료 버튼이 없다)
+    if (money >= GOOD_ENDING_COINS || stars.every((v) => v > 0)) return next();
     const i = nextUnplayedIndex();
     if (i < 0) return next();
     selectNode(i);
@@ -471,6 +476,7 @@ export default function App() {
             order={order}
             cake={cake}
             onNext={order.id === TUTORIAL_GUIDE.orderId ? () => setScreen("TUTEND") : goNextCustomer}
+            lastRound={order.id !== TUTORIAL_GUIDE.orderId && isLastRound}
             onMap={order.id === TUTORIAL_GUIDE.orderId ? null : () => { setResult(null); setScreen("STAGE"); }}
             onRetry={retry}
           />

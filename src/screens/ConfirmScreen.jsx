@@ -1,5 +1,6 @@
 import CakeView from "../components/CakeView.jsx";
 import Img from "../components/Img.jsx";
+import Icon from "../components/Icon.jsx";
 import { describeCake, MONSTERS } from "../data/ingredients.js";
 
 export default function ConfirmScreen({ order, cake, onBack, onSubmit, busy }) {
@@ -28,10 +29,12 @@ export default function ConfirmScreen({ order, cake, onBack, onSubmit, busy }) {
       </div>
 
       {/* 버튼 — 하단 고정 */}
-      {/* 되돌아가기는 왼쪽, 진행은 오른쪽 — RESULT 의 '다시 플레이 … 다음 손님' 과 같은 방향 (S33) */}
+      {/* 되돌아가기는 왼쪽 동그란 화살표, 진행(주기)은 오른쪽 — 제작 화면의 ← → 배치와 같은 방향감 */}
       <div className="confirm-actions">
-        <button className="btn-ghost" onClick={onBack}>↺ 다시 만들기</button>
-        <button className="btn" onClick={onSubmit} disabled={busy}>주기</button>
+        <button className="btn-icon confirm-back" onClick={onBack} aria-label="다시 만들기" title="다시 만들기">
+          <Icon name="retry" size="sm" />
+        </button>
+        <button className="btn confirm-submit" onClick={onSubmit} disabled={busy}>주기</button>
       </div>
     </div>
   );

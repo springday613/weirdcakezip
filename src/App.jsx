@@ -60,6 +60,7 @@ export default function App() {
   const scriptAdvancing = useRef(false); // 대본 연타 가드
   const { sfxMuted, bgmMuted, toggleSfx, toggleBgm } = useSfx();
   const [settingsOpen, setSettingsOpen] = useState(false); // 환경설정 팝업 (S29)
+  const [skipGift, setSkipGift] = useState(false); // 튜토리얼 건너뛰기 보상 말풍선 (S29)
 
   // A2: 버튼·재료 칩 탭 — 이벤트 위임으로 전부.
   // data-sfx 가 있는 버튼은 자체 사운드가 있으므로 A2를 건너뛴다 (가게 열기 = A1).
@@ -109,6 +110,7 @@ export default function App() {
     setCollected(orders.map(() => false));
     setCheered(false);
     setDevEnding(null);
+    setSkipGift(false); // 새 판에 지난 판의 보상 말풍선이 남지 않게 (S29)
     setTimeout(() => setScreen("NAME"), 180); // 소리 후 화면 전환
   }
 
@@ -226,12 +228,21 @@ export default function App() {
   // 튜토리얼 건너뛰기 — 노드 T 를 ★1 완료로 표시해 레벨 1 을 열고 맵으로.
   // 수익·적립은 없다(collected 유지) — 나중에 튜토리얼을 플레이하면 코인은 그대로 벌 수 있다.
   function skipTutorial() {
-    setStars((prev) => {
-      if (prev[0] > 0) return prev;
-      const next = [...prev];
-      next[0] = 1;
-      return next;
-    });
+    const first = prev0 => { const n = [...prev0]; n[0] = 1; return n; };
+    const alreadySkipped = stars[0] > 0;
+    setStars((prev) => (prev[0] > 0 ? prev : first(prev)));
+    // 건너뛴 대가로 물범이 코인을 준다 (S29) — 안 주면 남은 4명 전원 만점이어야 굿엔딩이라
+    // 질문을 한 번만 해도 도달 불가가 된다. 이미 건너뛴 뒤 재진입이면 다시 주지 않는다.
+    if (!alreadySkipped) {
+      setMoney((m) => m + TUTORIAL_GUIDE.skipGift.coins);
+      // 받은 것으로 처리해야 이 손님을 다시 팔아 중복 수령하는 걸 막는다
+      setCollected((prev) => {
+        const next = [...prev];
+        next[0] = true;
+        return next;
+      });
+      setSkipGift(true);
+    }
     setScreen("STAGE");
   }
 
@@ -334,7 +345,20 @@ export default function App() {
       )}
 
       {screen === "STAGE" && (
-        <StageMapScreen stars={stars} onSelect={selectNode} />
+        <>
+          <StageMapScreen stars={stars} onSelect={selectNode} />
+          {/* 건너뛰기 보상 — 물범이 코인을 건넨다. 탭하면 닫힌다 (S29) */}
+          {skipGift && (
+            <div className="tut-guide stk skip-gift" onClick={() => setSkipGift(false)}>
+              <span className="tut-guide-face">
+                <img src="/assets/story_face_assistant.webp" alt="" />
+                <span className="tut-guide-name">커스터드물범</span>
+              </span>
+              <p className="tut-guide-line">{TUTORIAL_GUIDE.skipGift.line}</p>
+              <span className="tut-guide-adv">≫</span>
+            </div>
+          )}
+        </>
       )}
 
       {screen === "CHAT" && (

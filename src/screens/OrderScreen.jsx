@@ -17,9 +17,24 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
   const [tutIntro, setTutIntro] = useState(tut ? 0 : null); // 0·1 대사 인덱스, null 끝
   const [tutWarn, setTutWarn] = useState(false); // 오답 선택 → "다시 확인해보자"
 
+  // 굽기 타이머(1초 연출) — 핸들을 들고 있어야 리셋·재료 변경 때 취소할 수 있다.
+  // 안 그러면 예약된 콜백이 살아남아 빈 반죽을 '구워진 케이크'로 만든다 (S22)
+  const bakeTimer = useRef(null);
+  const cancelBake = () => {
+    clearTimeout(bakeTimer.current);
+    bakeTimer.current = null;
+  };
+  useEffect(() => cancelBake, []); // 언마운트(화면 이탈) 시 유령 굽기 방지
+
   // 섞기 재료(base)가 바뀌면 케이크 해제 → 다시 보울부터. 경고도 해제.
+  // 굽는 중에 재료가 바뀌면 그 굽기는 무효다 — 타이머도 같이 끊는다.
   const baseKey = cake.base.join(",");
-  useEffect(() => { setMade(false); setWarn(false); }, [baseKey]);
+  useEffect(() => {
+    cancelBake();
+    setMaking(false);
+    setMade(false);
+    setWarn(false);
+  }, [baseKey]);
 
   // 쪽지 쓰는 차례엔 케이크를 치우고 쪽지를 크게 (S16)
   const writingNote = made && !submitted && STEPS[step]?.id === "lettering";
@@ -113,7 +128,9 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
       if (sheetType(cake.base)) {
         setWarn(false);
         setMaking(true);
-        setTimeout(() => {
+        cancelBake(); // 연타로 타이머가 겹치지 않게
+        bakeTimer.current = setTimeout(() => {
+          bakeTimer.current = null;
           setMaking(false);
           setMade(true);
           setStep(1);
@@ -156,6 +173,7 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
   };
   const resetAll = () => {
     history.current = []; // 리셋은 실행취소 대상이 아니다
+    cancelBake();         // 굽는 중이었으면 예약된 콜백까지 끊는다 (S22)
     setCake({ base: [], cakeBase: "vanilla", cream: null, toppings: [], deco: [], lettering: { text: "", color: null } });
     setMade(false);
     setMaking(false);

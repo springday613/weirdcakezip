@@ -27,6 +27,9 @@ APK = ROOT / "android/app/build/outputs/apk/debug/app-debug.apk"
 ASSET_NAME = "weirdcakezip-debug.apk"
 TAG_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$", re.ASCII)   # ★ ASCII — 유니코드 태그는 urllib 에서 크래시
 TIMEOUT = 120
+JDK_NEED = 21          # android/app/capacitor.build.gradle 이 source/target 21 을 요구한다
+# cap sync 가 매번 새로 쓰는 추적 파일 — 빌드 뒤 더티 판정에서 제외한다 (파일 안에 "GENERATED EACH TIME")
+CAP_GENERATED = ("android/app/capacitor.build.gradle", "android/capacitor.settings.gradle")
 
 
 def die(msg, hint=""):
@@ -50,7 +53,7 @@ def find_java():
         pass
     cands += ["/opt/homebrew/opt/openjdk@21", "/usr/local/opt/openjdk@21"]  # arm64 / intel brew
     for c in cands:
-        if c and java_major(c) in (17, 21):
+        if c and java_major(c) == JDK_NEED:
             return c
     return cands[0] if cands else ""
 
@@ -78,9 +81,17 @@ def compile_sdk():
     return int(m.group(1)) if m else None
 
 
-def git(*args, check=True):
-    p = subprocess.run(["git", *args], cwd=str(ROOT), capture_output=True, text=True)
-    if check and p.returncode != 0:
+def git(*args, soft=False):
+    """soft=True 면 실패해도 죽지 않고 None — doctor 가 보고를 중간에 끊지 않게."""
+    try:
+        p = subprocess.run(["git", *args], cwd=str(ROOT), capture_output=True, text=True)
+    except FileNotFoundError:
+        if soft:
+            return None
+        die("git 을 찾을 수 없다", "xcode-select --install")
+    if p.returncode != 0:
+        if soft:
+            return None
         die(f"git {' '.join(args)} 실패", p.stderr.strip()[:200])
     return p.stdout.strip()
 
@@ -138,15 +149,21 @@ def validate_tag(tag):
 def cmd_doctor(_a):
     ok = True
     jm = java_major(JAVA_HOME)
-    good_java = jm in (17, 21)
+    good_java = jm == JDK_NEED
     print(f"JAVA_HOME      {JAVA_HOME or '(못 찾음)'}")
-    print(f"  java 버전     {jm or '실행 불가'}  {'✓' if good_java else '✗ gradle 은 17/21 만 — brew install openjdk@21'}")
+    print(f"  java 버전     {jm or '실행 불가'}  "
+          f"{'✓' if good_java else f'✗ capacitor.build.gradle 이 {JDK_NEED} 을 요구 — brew install openjdk@{JDK_NEED}'}")
     ok &= good_java
 
     need = compile_sdk()
     print(f"ANDROID_HOME   {ANDROID_HOME}")
+    if need is None:                                   # 못 읽으면 ✓ 로 넘기지 않는다
+        print("  platforms              ✗ variables.gradle 에서 compileSdkVersion 을 못 읽었다")
+        ok = False
     for sub, want in [("platform-tools", None), ("build-tools", None),
                       ("platforms", f"android-{need}" if need else None)]:
+        if sub == "platforms" and not need:
+            continue
         p = pathlib.Path(ANDROID_HOME) / sub / (want or "")
         hit = p.exists()
         label = f"{sub}/{want}" if want else sub
@@ -166,15 +183,17 @@ def cmd_doctor(_a):
     else:
         print("토큰           ✗ → set -a && . ../.env_cake && set +a"); ok = False
 
-    print(f"git            {git('rev-parse', '--abbrev-ref', 'HEAD')} @ {git('rev-parse', '--short', 'HEAD')}"
-          f"{'  ⚠ 워킹트리 더러움' if git('status', '--porcelain') else ''}")
+    br, sha = git("rev-parse", "--abbrev-ref", "HEAD", soft=True), git("rev-parse", "--short", "HEAD", soft=True)
+    dirty = git("status", "--porcelain", soft=True)
+    print(f"git            {f'{br} @ {sha}' if sha else '✗ git 저장소가 아니다'}"
+          f"{'  ⚠ 워킹트리 더러움' if dirty else ''}")
     print(f"기존 APK       {APK if APK.exists() else '(아직 없음 — build 필요)'}")
     sys.exit(0 if ok else 1)
 
 
 def cmd_build(_a):
-    if not java_major(JAVA_HOME) in (17, 21):
-        die(f"JDK 21 이 필요하다 (지금 {java_major(JAVA_HOME)})", "python3 …/release.py doctor")
+    if java_major(JAVA_HOME) != JDK_NEED:
+        die(f"JDK {JDK_NEED} 이 필요하다 (지금 {java_major(JAVA_HOME)})", "python3 …/release.py doctor")
     run(["npm", "run", "build"])
     run(["npx", "cap", "sync", "android"])
     run(["./gradlew", "assembleDebug"], cwd=ROOT / "android")
@@ -183,16 +202,26 @@ def cmd_build(_a):
     print(f"\n✓ APK {APK}  ({APK.stat().st_size / 1048576:.1f} MB)")
 
 
+def dirty_files():
+    """추적 대상 변경 목록 — cap sync 가 매번 새로 쓰는 생성 파일은 뺀다."""
+    out = git("status", "--porcelain") or ""
+    return [l for l in out.splitlines()
+            if l.strip() and not any(l.endswith(g) for g in CAP_GENERATED)]
+
+
 def preflight(a):
-    """빌드 3분을 태우기 전에 죽을 이유를 먼저 찾는다."""
+    """빌드 3분을 태우기 전에 죽을 이유를 먼저 찾는다. all 은 빌드 전 1회만 부른다."""
+    if getattr(a, "_preflighted", False):
+        return
     validate_tag(a.tag)
     if a.notes_file and not pathlib.Path(a.notes_file).exists():
         die(f"notes 파일 없음: {a.notes_file}")
     check_repo()
-    if git("status", "--porcelain") and not a.allow_dirty:
+    if dirty_files() and not a.allow_dirty:
         die("워킹트리가 더럽다 — 커밋되지 않은 코드로 릴리즈를 만들면 "
-            "릴리즈가 가리키는 커밋과 APK 내용이 어긋난다",
+            "릴리즈가 가리키는 커밋과 APK 내용이 어긋난다\n  " + "\n  ".join(dirty_files()[:5]),
             "커밋하거나 --allow-dirty")
+    a._preflighted = True
 
 
 def cmd_release(a):
@@ -210,9 +239,15 @@ def cmd_release(a):
     if rel:
         # ★ --latest 를 명시하지 않으면 기존 상태를 유지한다 (재실행에서 조용히 강등되던 문제)
         pre = rel["prerelease"] if a.latest is None else (not a.latest)
-        if rel["target_commitish"] not in (sha, branch):
+        # 태그가 이미 있으면 GitHub 이 커밋을 안 바꾼다. target_commitish 는 브랜치명일 수도 있어
+        # 그 이름을 실제 SHA 로 풀어 본 뒤 비교한다(main 을 가리키는 릴리즈에서 경고가 안 뜨던 문제).
+        tgt = rel["target_commitish"]
+        tgt_sha = git("rev-parse", f"{tgt}^{{commit}}", soft=True) or git(
+            "rev-parse", f"origin/{tgt}^{{commit}}", soft=True) or tgt
+        if tgt_sha != sha:
             print(f"⚠ 태그 {a.tag} 는 이미 존재한다 — 가리키는 커밋은 바꿀 수 없다"
-                  f"(현재 {rel['target_commitish']}). 새 커밋을 가리키려면 새 태그를 써라.")
+                  f"(현재 {tgt} = {tgt_sha[:9]}, 지금 HEAD 는 {sha[:9]}).\n"
+                  f"  이 APK 를 가리키는 릴리즈가 필요하면 새 태그를 써라.")
         rel = api("PATCH", f"https://api.github.com/repos/{REPO}/releases/{rel['id']}",
                   {"name": a.name or rel["name"] or f"이상한 케이크집 APK {a.tag}",
                    "body": notes, "prerelease": pre, "make_latest": str(not pre).lower()})

@@ -151,6 +151,13 @@ body {
   border-radius: 50%;
   font-size: var(--fs-body);
 }
+.btn-primary:active,
+.btn-ghost:active,
+.btn:active {
+  transform: scale(0.96);
+  filter: brightness(0.88);
+  transition: transform 0.14s, filter 0.14s;
+}
 .btn-primary:disabled,
 .btn-ghost:disabled,
 .btn-icon:disabled {

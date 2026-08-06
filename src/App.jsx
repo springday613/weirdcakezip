@@ -16,6 +16,7 @@ import StageClearScreen from "./screens/StageClearScreen.jsx";
 import LoadingScreen, { useLoading } from "./screens/LoadingScreen.jsx";
 import Hud from "./components/Hud.jsx";
 import ChatPopup from "./components/ChatPopup.jsx";
+import SettingsPopup from "./components/SettingsPopup.jsx";
 import { MONSTERS } from "./data/ingredients.js";
 import { STORY, GOOD_ENDING_COINS } from "./data/story.js";
 import { TUTORIAL_GUIDE } from "./data/tutorial.js";
@@ -57,7 +58,8 @@ export default function App() {
   const [chatPopupOpen, setChatPopupOpen] = useState(false);
   const nextMsgId = useRef(1);
   const scriptAdvancing = useRef(false); // 대본 연타 가드
-  const { muted, toggleMute } = useSfx();
+  const { sfxMuted, bgmMuted, toggleSfx, toggleBgm } = useSfx();
+  const [settingsOpen, setSettingsOpen] = useState(false); // 환경설정 팝업 (S29)
 
   // A2: 버튼·재료 칩 탭 — 이벤트 위임으로 전부.
   // data-sfx 가 있는 버튼은 자체 사운드가 있으므로 A2를 건너뛴다 (가게 열기 = A1).
@@ -262,7 +264,7 @@ export default function App() {
       {/* HUD — 타이틀·이름·스토리·에필로그 이외 화면에 상주 */}
       {!["TITLE", "NAME", "INTRO", "ENDING", "CREDITS", "TUTEND"].includes(screen) && (
         <div className="layer-ui layer-ui--hud">
-          <Hud coins={money} muted={muted} onToggleMute={toggleMute}>
+          <Hud coins={money} onOpenMenu={() => setSettingsOpen(true)}>
             <div className="hud-left-col">
               {screen === "BUILD" && (
                 <button className="btn-ghost chat-popup-trigger" onClick={() => setChatPopupOpen(true)}>
@@ -434,6 +436,22 @@ export default function App() {
       )}
 
       {/* 로딩 오버레이 — 화면 위에 얹는다 */}
+      {/* 환경설정 (S29) — HUD 가 뜨는 모든 화면에서 열 수 있다 */}
+      {settingsOpen && (
+        <SettingsPopup
+          playerName={playerName}
+          onRename={setPlayerName}
+          sfxMuted={sfxMuted}
+          bgmMuted={bgmMuted}
+          onToggleSfx={toggleSfx}
+          onToggleBgm={toggleBgm}
+          canGoMap={screen !== "STAGE"}
+          onGoMap={() => { setSettingsOpen(false); setChatPopupOpen(false); setResult(null); setScreen("STAGE"); }}
+          onGoTitle={() => { setSettingsOpen(false); setChatPopupOpen(false); soundManager.stopBgm(); setScreen("TITLE"); }}
+          onClose={() => setSettingsOpen(false)}
+        />
+      )}
+
       {loading && <LoadingScreen visible={loading} message={loadMsg} />}
 
       {/* 개발용 배경 토글 */}

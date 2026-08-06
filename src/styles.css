@@ -301,6 +301,93 @@ body {
   min-height: 28px;
 }
 .hud-spacer { flex: 1; }
+/* 왼쪽 상단 내 캐릭터(푸딩괴물) — 아바타로만 쓰고 클릭은 없다 (S29) */
+.hud-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: var(--ink-line) solid var(--ink);
+  background: var(--paper);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* ── 10-1. 환경설정 팝업 (S29) ───────────────────────────── */
+.settings-backdrop { display: flex; align-items: center; justify-content: center; padding: var(--pad-screen); }
+.settings-popup {
+  width: 100%;
+  max-width: 320px;
+  border-radius: var(--r-popup);
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.settings-header { display: flex; align-items: center; }
+.settings-title { font-size: var(--fs-title); font-weight: 700; flex: 1; text-align: center; }
+.settings-close { flex-shrink: 0; }
+
+.settings-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--r-card);
+  background: var(--paper-warm);
+}
+.settings-avatar {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  border: var(--ink-line) solid var(--ink);
+  background: var(--paper);
+  flex-shrink: 0;
+}
+.settings-name { flex: 1; font-weight: 700; font-size: var(--fs-body); word-break: break-all; }
+.settings-name-input { flex: 1; min-width: 0; }
+.settings-edit, .settings-name-save { flex-shrink: 0; }
+
+.settings-sounds { display: flex; gap: 10px; }
+.settings-sound {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 4px;
+  border-radius: var(--r-card);
+  cursor: pointer;
+  position: relative;
+}
+.settings-sound-label { font-size: var(--fs-note); }
+/* 끈 상태 — 아이콘 위에 X 를 겹친다 (두 사선) */
+.settings-sound.off { opacity: .55; }
+.settings-sound.off::before,
+.settings-sound.off::after {
+  content: "";
+  position: absolute;
+  left: 50%; top: 20px;
+  width: 30px; height: 2.4px;
+  background: var(--ink);
+  border-radius: 2px;
+}
+.settings-sound.off::before { transform: translateX(-50%) rotate(45deg); }
+.settings-sound.off::after  { transform: translateX(-50%) rotate(-45deg); }
+
+.settings-actions { display: flex; flex-direction: column; gap: 8px; }
+.settings-item { width: 100%; font-size: var(--fs-body); min-height: var(--tap-min); }
+.settings-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  border-radius: var(--r-card);
+  background: var(--paper-warm);
+  font-size: var(--fs-label);
+  text-align: center;
+}
+.settings-confirm > span { flex-basis: 100%; }
 
 /* ── 11. 아이콘 공통 ─────────────────────────────────────── */
 .icon-box {

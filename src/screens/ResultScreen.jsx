@@ -93,7 +93,7 @@ export default function ResultScreen({ result, order, cake, onNext, onRetry }) {
 
       {/* 7. 버튼 — 하단 고정 */}
       <div className="result-actions">
-        <button className="chip ghost" onClick={onRetry}>↺ 다시 플레이</button>
+        <button className="btn-ghost" onClick={onRetry}>↺ 다시 플레이</button>
         <button className="btn" onClick={onNext}>다음 손님 →</button>
       </div>
     </div>

@@ -3,6 +3,32 @@
    Step 1 — 스티커 오버레이 디자인 시스템
    ============================================================ */
 
+/* ── 0. 웹폰트 ────────────────────────────────────────────── */
+@font-face {
+  font-family: 'SchoolSafetyRoundedSmile';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-5@1.0/HakgyoansimDunggeunmisoTTF-R.woff2') format('woff2');
+  font-weight: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'SchoolSafetyRoundedSmile';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-5@1.0/HakgyoansimDunggeunmisoTTF-B.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'SchoolSafetyWing';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2511-1@1.0/HakgyoansimNalgaeR.woff2') format('woff2');
+  font-weight: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'SchoolSafetyDandelionSpore';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2510-1@1.0/HakgyoansimMindeulleholssiR.woff2') format('woff2');
+  font-weight: normal;
+  font-display: swap;
+}
+
 /* ── 1. 토큰 ──────────────────────────────────────────────── */
 :root {
   /* 잉크 — 에셋(색연필) 아웃라인에서 샘플한 브라운 (S25, 구 #1A1A1A) */
@@ -35,7 +61,9 @@
   --r-logo: 26px;
 
   /* 폰트 */
-  --font: 'Gaegu', system-ui, sans-serif;
+  --font: 'SchoolSafetyRoundedSmile', system-ui, sans-serif;
+  --font-chat: 'SchoolSafetyWing', system-ui, sans-serif;
+  --font-note: 'SchoolSafetyDandelionSpore', cursive;
 
   /* 글자 크기 6단계 */
   --fs-logo: 40px;
@@ -269,7 +297,7 @@ body {
   border-radius: var(--r-pill);
   padding: 2px 10px 2px 4px;
   font-size: var(--fs-note);
-  font-weight: 700;
+  font-weight: normal;
   min-height: 28px;
 }
 .hud-spacer { flex: 1; }
@@ -417,6 +445,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   padding: 8px 12px;
   border-radius: 14px;
   font-size: var(--fs-body);
+  font-family: var(--font-chat);
   line-height: 1.5;
 }
 .bubble.monster .bubble-text {
@@ -530,7 +559,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   left: 50%;
   top: 36%;
   transform: translate(-50%, -50%);
-  font-family: "Gaegu", cursive;
+  font-family: var(--font-note);
   font-size: var(--fs-title);
   font-weight: 700;
   color: var(--text);
@@ -904,6 +933,8 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   line-height: 1.9;
   text-align: center;
 }
+.title-ui .btn-primary,
+.title-ui .btn-ghost { width: 100%; max-width: 260px; }
 .title-ui .btn-primary { margin-bottom: calc(var(--gap) * 1.2); }
 .title-caption {
   font-size: var(--fs-note);
@@ -1305,6 +1336,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .chat-popup-trigger {
   flex-shrink: 0;
   font-size: var(--fs-note);
+  font-weight: normal;
   padding: 2px 10px;
   height: var(--tap-min);
   min-height: auto;
@@ -1325,7 +1357,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   top: 46%;
   transform: translate(-50%, -50%) rotate(-2deg);
   max-width: 80%;
-  font-family: "Gaegu", cursive;
+  font-family: var(--font-note);
   font-size: var(--fs-title);
   font-weight: 700;
   text-align: center;
@@ -1469,7 +1501,8 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   flex: 1;
   margin: 2px 0 0;
   font-size: var(--fs-body);
-  font-weight: 700;
+  font-family: var(--font-chat);
+  font-weight: normal;
   word-break: keep-all;
 }
 .story-adv {
@@ -1576,6 +1609,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   overflow-y: hidden;
   align-items: center;
   text-align: center;
+  font-weight: normal;
 }
 .result-scroll {
   flex: 1;
@@ -1603,7 +1637,8 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   border-top-left-radius: 4px;
   padding: 10px 14px;
   font-size: var(--fs-body);
-  font-weight: 700;
+  font-family: var(--font-chat);
+  font-weight: normal;
   line-height: 1.5;
   word-break: keep-all;
   flex-shrink: 0;
@@ -1627,7 +1662,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   align-items: center;
   justify-content: center;
   gap: 6px;
-  font-weight: 700;
+  font-weight: normal;
   font-size: var(--fs-body);
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
@@ -1658,7 +1693,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 /* 미달 항목 — 색이 아닌 밝기로 구분 */
 .result-grid-item--miss { color: var(--text-muted); }
 .result-grid-name { text-align: left; }
-.result-grid-status { font-weight: 700; }
+.result-grid-status { font-weight: normal; }
 /* 배점(p.weight) — 오른쪽 정렬, 획득 점수(p.weight*p.frac)가 아님 */
 .result-grid-weight {
   font-size: var(--fs-note);
@@ -1684,7 +1719,10 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   gap: 10px;
   flex-shrink: 0;
   width: 100%;
-  padding-bottom: 8px;
+  padding-bottom: 24px;
+}
+.result-actions .btn,
+.result-actions .btn-ghost { font-weight: normal; font-size: var(--fs-body);
 }
 
 /* ── 튜토리얼 가이드 (S21) — 물범이 첫 주문 읽는 법을 알려준다 ── */
@@ -1732,6 +1770,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   flex: 1;
   margin: 2px 0 0;
   font-size: var(--fs-body);
+  font-family: var(--font-chat);
   font-weight: 700;
   word-break: keep-all;
 }
@@ -1857,8 +1896,10 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   justify-content: center;
   gap: 10px;
   flex-shrink: 0;
-  padding-bottom: 8px;
+  padding-bottom: 24px;
 }
+.confirm-actions .btn,
+.confirm-actions .btn-ghost { font-weight: normal; font-size: var(--fs-body); }
 
 /* 튜토리얼 건너뛰기 (S21) — 왼쪽 상단 HUD 슬롯, BUILD 에선 대화 버튼 아래 */
 .hud-left-col {

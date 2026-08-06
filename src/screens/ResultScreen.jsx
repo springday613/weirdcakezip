@@ -1,7 +1,7 @@
 import { MONSTERS, moodOf } from "../data/ingredients.js";
 import { starsFor, coinsFor } from "../scoreCake.js";
 import CakeView from "../components/CakeView.jsx";
-import Stars from "../components/Stars.jsx";
+import Stars, { starAnimEnd } from "../components/Stars.jsx";
 import CoinCount from "../components/CoinCount.jsx";
 import Icon from "../components/Icon.jsx";
 import Img from "../components/Img.jsx";
@@ -46,7 +46,7 @@ export default function ResultScreen({ result, order, cake, onNext, onRetry }) {
           <Icon name="coin" size="sm" />
           <span>
             {result.earned > 0
-              ? <><CoinCount value={result.earned} />코인</>
+              ? <>+{" "}<CoinCount value={result.earned} delay={starAnimEnd(starValue)} />코인</>
               : zeroCoinMsg}
           </span>
         </div>

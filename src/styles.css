@@ -477,13 +477,20 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   pointer-events: none;
 }
 /* 케이크 위 스프라이트 — 위치·크기·회전은 cakeLayout.json 값으로 인라인 지정된다.
-   여기서는 배치 방식만 정한다. */
-.cake-item {
-  position: absolute;
-  height: auto;
+   position/translate/rotate 는 바깥 .cake-slot 이 담당하고, 안쪽 .cake-item 은 크기·이펙트만. */
+.cake-slot {
   pointer-events: none;
   z-index: 1;
-  transform-origin: center center;
+}
+.cake-slot--stand {
+  z-index: 3;
+}
+.cake-slot--stand > .cake-item {
+  transform-origin: center bottom;
+}
+.cake-item {
+  width: 100%;
+  height: auto;
 }
 /* E7: 재료 톡 튀기 — 새로 추가된 원소만 */
 .ing-pop {
@@ -493,12 +500,6 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   0%   { opacity: 0; transform: scale(0); }
   70%  { opacity: 1; transform: scale(1.2); }
   100% { opacity: 1; transform: scale(1); }
-}
-/* 초처럼 세워 꽂는 것은 기준점이 중심이 아니라 바닥이다 */
-.cake-item--stand {
-  translate: -50% -100%;
-  transform-origin: center bottom;
-  z-index: 3;
 }
 /* 쪽지(S16) — 펼친 쪽지 그림 위에 글자. 케이크 윗면 중앙에 얹힌다 */
 .lettering-note {
@@ -1609,6 +1610,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   gap: 6px;
   font-weight: 700;
   font-size: var(--fs-body);
+  font-variant-numeric: tabular-nums;
   flex-shrink: 0;
 }
 

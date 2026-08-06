@@ -37,6 +37,23 @@ function warmVariants() {
   }
 }
 
+// position wrapper — translate·rotate 를 transform 문자열로 묶어 WebView 104 미만도 지원.
+// ing-pop 의 transform:scale() 은 안쪽 img 에만 걸려서 합성이 정상이다.
+const slotAt = (p, deg = 0) => ({
+  position: "absolute",
+  left: `${p.x * 100}%`,
+  top: `${p.y * 100}%`,
+  transform: `translate(-50%, -50%)${deg ? ` rotate(${deg}deg)` : ""}`,
+});
+const standAt = (p) => ({
+  position: "absolute",
+  left: `${p.x * 100}%`,
+  top: `${p.y * 100}%`,
+  transform: "translate(-50%, -100%)",
+});
+
+const ING_POP_MS = 240;
+
 // preview 상태: "bowl-empty" | "bowl-dough" | "making" | "cake" | "note" | "note-folded"
 // notePlacement: "top"(기본, 케이크 위에 얹기) | "beside"(결과 화면 — 접힌 쪽지를 케이크 옆에)
 export default function CakeView({ cake, preview = "cake", notePlacement = "top" }) {
@@ -51,9 +68,6 @@ export default function CakeView({ cake, preview = "cake", notePlacement = "top"
     : `/assets/${cakeType}_${sheet}.webp`;
   const isCake = preview === "cake";
 
-  // E7: 이전 렌더의 개수를 기억해서, 새로 추가된 원소에만 ing-pop 을 건다.
-  // cake 객체(type·slot·color·dollops)는 건드리지 않는다 — 렌더 전용.
-  const prevCounts = useRef({ cream: 0, topping: 0, candle: 0, sprinkle: 0 });
   const dollops = cake.cream?.dollops ?? [];
   const toppings = cake.toppings ?? [];
   const allDeco = cake.deco ?? [];
@@ -61,20 +75,42 @@ export default function CakeView({ cake, preview = "cake", notePlacement = "top"
   const sprinkleClicks = allDeco.filter((d) => d.type === "sprinkle").length;
   const grainCount = sprinkleClicks * layout.sprinkle.per_click;
 
-  const prev = prevCounts.current;
-  const isNewCream = (i) => i >= prev.cream;
-  const isNewTopping = (i) => i >= prev.topping;
-  const isNewCandle = (i) => i >= prev.candle;
-  const isNewGrain = (i) => i >= prev.sprinkle * layout.sprinkle.per_click;
+  const counts = { cream: dollops.length, topping: toppings.length, candle: candles.length, sprinkle: sprinkleClicks };
+
+  // E7: mount 시점의 개수로 시드 — fresh mount(CONFIRM·RESULT)에서 전부 pop 되지 않게.
+  // committedCounts: 애니메이션(240ms)이 끝난 뒤에만 갱신해서, 연타해도 앞 아이템의 pop이 안 끊긴다.
+  const committedCounts = useRef(counts);
+  const latestCounts = useRef(counts);
+  const popTimerRef = useRef(null);
+  latestCounts.current = counts;
+
+  const isNewCream = (i) => i >= committedCounts.current.cream;
+  const isNewTopping = (i) => i >= committedCounts.current.topping;
+  const isNewCandle = (i) => i >= committedCounts.current.candle;
+  const isNewGrain = (i) => i >= committedCounts.current.sprinkle * layout.sprinkle.per_click;
 
   useEffect(() => {
-    prevCounts.current = {
-      cream: dollops.length,
-      topping: toppings.length,
-      candle: candles.length,
-      sprinkle: sprinkleClicks,
-    };
+    const c = committedCounts.current;
+    const increased = counts.cream > c.cream || counts.topping > c.topping ||
+      counts.candle > c.candle || counts.sprinkle > c.sprinkle;
+    const decreased = counts.cream < c.cream || counts.topping < c.topping ||
+      counts.candle < c.candle || counts.sprinkle < c.sprinkle;
+
+    if (decreased) {
+      // clearBoard / 실행취소 — 즉시 동기화
+      committedCounts.current = { ...counts };
+      clearTimeout(popTimerRef.current);
+    } else if (increased) {
+      clearTimeout(popTimerRef.current);
+      popTimerRef.current = setTimeout(() => {
+        committedCounts.current = { ...latestCounts.current };
+      }, ING_POP_MS);
+    }
   });
+
+  useEffect(() => {
+    return () => clearTimeout(popTimerRef.current);
+  }, []);
 
   // 쪽지 쓰기 모드 — 케이크 대신 펼친 쪽지가 무대를 차지한다 (S16)
   if (preview === "note") {
@@ -114,15 +150,6 @@ export default function CakeView({ cake, preview = "cake", notePlacement = "top"
   // 스프링클 — 한 번 올릴 때 per_click 알씩 통으로
   const grains = layout.sprinkle.slots.slice(0, grainCount);
 
-  // translate·rotate 를 개별 CSS 속성으로 분리해서 transform(scale)과 충돌 안 나게 한다.
-  // ing-pop 이 transform: scale() 만 쓰므로 translate/rotate 와 독립적으로 합성된다.
-  const at = (p, deg = 0) => ({
-    left: `${p.x * 100}%`,
-    top: `${p.y * 100}%`,
-    translate: "-50% -50%",
-    rotate: deg ? `${deg}deg` : undefined,
-  });
-
   return (
     <div className="cake-stage">
       {/* 구도 미세조정 — 완성 케이크·보울·반죽 손을 각각 배경(매트)에 맞춘다 */}
@@ -131,38 +158,38 @@ export default function CakeView({ cake, preview = "cake", notePlacement = "top"
 
         {isCake &&
           creamSlots.map((p, i) => (
-            <img
-              key={"cr" + i}
-              className={"cake-item" + (isNewCream(i) ? " ing-pop" : "")}
-              src={`/assets/cream_${cake.cream.color || "vanilla"}.webp`}
-              style={{ ...at(p), width: `${layout.cream.size * 100}%` }}
-              alt=""
-            />
+            <span key={"cr" + i} className="cake-slot" style={{ ...slotAt(p), width: `${layout.cream.size * 100}%` }}>
+              <img
+                className={"cake-item" + (isNewCream(i) ? " ing-pop" : "")}
+                src={`/assets/cream_${cake.cream.color || "vanilla"}.webp`}
+                alt=""
+              />
+            </span>
           ))}
 
         {isCake &&
           toppings.map((t, i) => {
             const p = layout.topping.slots[(t.slot ?? i) % layout.topping.slots.length];
             return (
-              <img
-                key={"tp" + i}
-                className={"cake-item" + (isNewTopping(i) ? " ing-pop" : "")}
-                src={`/assets/ing_${t.type}.webp`}
-                style={{ ...at(p, p.deg), width: `${(layout.topping.size[t.type] ?? 0.09) * 100}%` }}
-                alt=""
-              />
+              <span key={"tp" + i} className="cake-slot" style={{ ...slotAt(p, p.deg), width: `${(layout.topping.size[t.type] ?? 0.09) * 100}%` }}>
+                <img
+                  className={"cake-item" + (isNewTopping(i) ? " ing-pop" : "")}
+                  src={`/assets/ing_${t.type}.webp`}
+                  alt=""
+                />
+              </span>
             );
           })}
 
         {isCake &&
           grains.map((p, i) => (
-            <img
-              key={"sp" + i}
-              className={"cake-item" + (isNewGrain(i) ? " ing-pop" : "")}
-              src={`/assets/${layout.sprinkle.grains[p.grain % layout.sprinkle.grains.length]}`}
-              style={{ ...at(p, p.deg), width: `${3.2 * layout.sprinkle.scale}%` }}
-              alt=""
-            />
+            <span key={"sp" + i} className="cake-slot" style={{ ...slotAt(p, p.deg), width: `${3.2 * layout.sprinkle.scale}%` }}>
+              <img
+                className={"cake-item" + (isNewGrain(i) ? " ing-pop" : "")}
+                src={`/assets/${layout.sprinkle.grains[p.grain % layout.sprinkle.grains.length]}`}
+                alt=""
+              />
+            </span>
           ))}
 
         {/* 초는 세워 꽂는 물건이라 기준점이 바닥이다 — 중심을 맞추면 케이크에 파묻힌다 */}
@@ -171,17 +198,13 @@ export default function CakeView({ cake, preview = "cake", notePlacement = "top"
             const p = candleSlots[i];
             if (!p) return null;
             return (
-              <img
-                key={"kd" + i}
-                className={"cake-item cake-item--stand" + (isNewCandle(i) ? " ing-pop" : "")}
-                src={`/assets/ing_${d.type}.webp`}
-                style={{
-                  left: `${p.x * 100}%`,
-                  top: `${p.y * 100}%`,
-                  width: `${(layout.candle.size[d.type] ?? 0.1) * 100}%`,
-                }}
-                alt=""
-              />
+              <span key={"kd" + i} className="cake-slot cake-slot--stand" style={{ ...standAt(p), width: `${(layout.candle.size[d.type] ?? 0.1) * 100}%` }}>
+                <img
+                  className={"cake-item" + (isNewCandle(i) ? " ing-pop" : "")}
+                  src={`/assets/ing_${d.type}.webp`}
+                  alt=""
+                />
+              </span>
             );
           })}
 

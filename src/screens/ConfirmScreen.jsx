@@ -28,9 +28,10 @@ export default function ConfirmScreen({ order, cake, onBack, onSubmit, busy }) {
       </div>
 
       {/* 버튼 — 하단 고정 */}
+      {/* 되돌아가기는 왼쪽, 진행은 오른쪽 — RESULT 의 '다시 플레이 … 다음 손님' 과 같은 방향 (S33) */}
       <div className="confirm-actions">
+        <button className="btn-ghost" onClick={onBack}>↺ 다시 만들기</button>
         <button className="btn" onClick={onSubmit} disabled={busy}>주기</button>
-        <button className="btn-ghost" onClick={onBack}>다시 만들기</button>
       </div>
     </div>
   );

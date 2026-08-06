@@ -82,15 +82,15 @@ export default function App() {
 
   const order = orders[orderIndex];
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
-  // 지금 손님 — 비동기 응답이 돌아왔을 때 "아직 같은 손님인가"를 판정한다(클로저는 옛 값을 본다).
-  // 렌더 중 갱신해도 되는 값이다. effect 로 미루면 그 사이 도착한 응답이 옛 손님으로 판정된다.
-  const orderIdRef = useRef(order.id);
-  orderIdRef.current = order.id;
+  // 대화 세션 번호 — 비동기 응답이 "아직 이 대화의 것인가"를 판정한다(클로저는 옛 값을 본다).
+  // seedMessages 마다 증가하므로 같은 손님을 다시 골라도 옛 응답이 섞이지 않는다.
+  const chatSeqRef = useRef(0);
 
   // 손님 시드 — 최초 주문 대사로 대화 시작.
   // 손님이 바뀌면 이전 요청의 대기 상태도 푼다 — 안 그러면 새 대화창이 응답 올 때까지 잠긴다(S29).
   // 그 응답 자체는 handleSend 의 orderIdRef 검사에서 버려진다.
   function seedMessages(o) {
+    chatSeqRef.current += 1; // 새 대화 세션 — 이전 요청의 응답은 이제 버려진다
     setChatBusy(false);
     nextMsgId.current = 1;
     setMessages([{ id: 0, role: "monster", content: o.dialogue }]);
@@ -191,14 +191,15 @@ export default function App() {
   async function handleSend(text) {
     const userMsg = { id: nextMsgId.current++, role: "user", content: text };
     const next = [...messages, userMsg];
-    const sentFor = order.id;            // 응답이 돌아올 때 손님이 그대로인지 확인용
+    // 손님 id 가 아니라 '대화 세션' 번호로 판정한다 — 같은 손님을 다시 고르면
+    // seedMessages 가 대화를 초기화하므로, id 만 보면 옛 응답이 새 대화에 붙는다 (S29).
+    const sentIn = chatSeqRef.current;
     setMessages(next);
     setChatBusy(true);
     const { reply, raw } = await chat(order.id, next);
+    // ★ 가드가 먼저다 — 버려질 응답이 다른 요청의 busy 를 풀면 이중 전송이 된다
+    if (chatSeqRef.current !== sentIn) return;
     setChatBusy(false);
-    // 대기 중에 손님이 바뀌었으면(메뉴 → 맵 → 다른 손님) 응답을 버린다 — S29.
-    // 안 버리면 새 손님 대화창에 이전 손님 답변이 붙고, 다음 질문에 그 이력이 서버로 넘어간다.
-    if (orderIdRef.current !== sentFor) return;
     setMessages((m) => [...m, { id: nextMsgId.current++, role: "monster", content: reply, raw }]);
   }
 
@@ -218,6 +219,10 @@ export default function App() {
     // (재플레이 수익 0 이라 5명 완료 후엔 더 벌 수 없다)
     const allDone = stars.every((v) => v > 0);
     if (money >= GOOD_ENDING_COINS || allDone) {
+      // 안 받은 건너뛰기 보상은 정산 전에 넣어 준다 (S29) — 건너뛰기가 stars[0] 을 세우는 탓에
+      // 마지막 손님 뒤엔 맵을 안 거치고 바로 END 라, 그대로 두면 100코인이 증발하고
+      // 굿엔딩 판정에서도 빠진다. 화면 연출만 생략하고 지급은 보장한다.
+      if (skipGift) claimSkipGift();
       setDevEnding(null); // 실플레이 엔딩은 코인으로만 가른다
       setScreen("END"); // 영업 종료(정산) → 엔딩 스토리
       return;
@@ -244,7 +249,12 @@ export default function App() {
   // 건너뛰기 보상 수령 — 버튼을 눌러야 지급된다. 안 주면 남은 4명 전원 만점이어야
   // 굿엔딩(400)이라, 질문을 한 번만 해도(TURN_PENALTY) 도달 불가가 된다.
   function claimSkipGift() {
-    if (!skipGift) return;              // 연타로 두 번 받는 것 방지
+    // 연타(=skipGift) 뿐 아니라 '수령 전에 그 손님을 플레이해 이미 번' 경우도 막는다.
+    // 안 막으면 건너뛰기 → 플레이(+100) → 맵 복귀 → 수령(+100) 으로 한 손님에서 200 이 나온다.
+    if (!skipGift || collected[0]) {
+      setSkipGift(false);
+      return;
+    }
     setSkipGift(false);
     setMoney((m) => m + TUTORIAL_GUIDE.skipGift.coins);
     // 받은 것으로 처리해야 그 손님을 다시 팔아 중복 수령하는 걸 막는다

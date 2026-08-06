@@ -1826,7 +1826,9 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 }
 /* 건너뛰기 보상 말풍선 — 맵 위. 기본 top(48%)을 풀어 내용만큼만 차지하게 (S29).
    ⚠ .tut-guide 와 특이도가 같으므로 반드시 이 뒤에 와야 한다 */
-.skip-gift { top: auto; bottom: 14%; z-index: 9; }
+.skip-gift { top: auto; bottom: 14%; z-index: 9; cursor: default; padding-right: 10px; }
+.skip-gift-body { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.skip-gift-claim { align-self: center; }
 
 .tut-guide-face {
   flex-shrink: 0;

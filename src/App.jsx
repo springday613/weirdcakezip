@@ -228,22 +228,31 @@ export default function App() {
   // 튜토리얼 건너뛰기 — 노드 T 를 ★1 완료로 표시해 레벨 1 을 열고 맵으로.
   // 수익·적립은 없다(collected 유지) — 나중에 튜토리얼을 플레이하면 코인은 그대로 벌 수 있다.
   function skipTutorial() {
-    const first = prev0 => { const n = [...prev0]; n[0] = 1; return n; };
     const alreadySkipped = stars[0] > 0;
-    setStars((prev) => (prev[0] > 0 ? prev : first(prev)));
-    // 건너뛴 대가로 물범이 코인을 준다 (S29) — 안 주면 남은 4명 전원 만점이어야 굿엔딩이라
-    // 질문을 한 번만 해도 도달 불가가 된다. 이미 건너뛴 뒤 재진입이면 다시 주지 않는다.
-    if (!alreadySkipped) {
-      setMoney((m) => m + TUTORIAL_GUIDE.skipGift.coins);
-      // 받은 것으로 처리해야 이 손님을 다시 팔아 중복 수령하는 걸 막는다
-      setCollected((prev) => {
-        const next = [...prev];
-        next[0] = true;
-        return next;
-      });
-      setSkipGift(true);
-    }
+    setStars((prev) => {
+      if (prev[0] > 0) return prev;
+      const next = [...prev];
+      next[0] = 1;
+      return next;
+    });
+    // 코인은 여기서 주지 않는다 — 맵에서 물범이 건네고, '수령하기' 를 눌러야 들어온다.
+    // 숫자가 0 → 100 으로 바뀌는 걸 플레이어가 보게 하려는 연출 (S29).
+    if (!alreadySkipped) setSkipGift(true);
     setScreen("STAGE");
+  }
+
+  // 건너뛰기 보상 수령 — 버튼을 눌러야 지급된다. 안 주면 남은 4명 전원 만점이어야
+  // 굿엔딩(400)이라, 질문을 한 번만 해도(TURN_PENALTY) 도달 불가가 된다.
+  function claimSkipGift() {
+    if (!skipGift) return;              // 연타로 두 번 받는 것 방지
+    setSkipGift(false);
+    setMoney((m) => m + TUTORIAL_GUIDE.skipGift.coins);
+    // 받은 것으로 처리해야 그 손님을 다시 팔아 중복 수령하는 걸 막는다
+    setCollected((prev) => {
+      const next = [...prev];
+      next[0] = true;
+      return next;
+    });
   }
 
   // 다시하기 — 이번 채점의 점수·코인을 물리고 같은 손님의 제작으로 돌아간다.
@@ -347,15 +356,20 @@ export default function App() {
       {screen === "STAGE" && (
         <>
           <StageMapScreen stars={stars} onSelect={selectNode} />
-          {/* 건너뛰기 보상 — 물범이 코인을 건넨다. 탭하면 닫힌다 (S29) */}
+          {/* 건너뛰기 보상 — 물범이 코인을 건넨다. '수령하기' 를 눌러야 들어온다 (S29).
+              탭으로 닫히게 두면 안 받고 닫아 코인을 잃는다 */}
           {skipGift && (
-            <div className="tut-guide stk skip-gift" onClick={() => setSkipGift(false)}>
+            <div className="tut-guide stk skip-gift">
               <span className="tut-guide-face">
                 <img src="/assets/story_face_assistant.webp" alt="" />
                 <span className="tut-guide-name">커스터드물범</span>
               </span>
-              <p className="tut-guide-line">{TUTORIAL_GUIDE.skipGift.line}</p>
-              <span className="tut-guide-adv">≫</span>
+              <div className="skip-gift-body">
+                <p className="tut-guide-line">{TUTORIAL_GUIDE.skipGift.line}</p>
+                <button className="btn small skip-gift-claim" onClick={claimSkipGift}>
+                  {TUTORIAL_GUIDE.skipGift.coins}코인 수령하기
+                </button>
+              </div>
             </div>
           )}
         </>

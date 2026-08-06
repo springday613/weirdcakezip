@@ -1,0 +1,57 @@
+# === Sound Asset Credits ===
+
+## DOVA-SYNDROME — 「Let me think !」
+
+- **곡명:** Let me think !
+- **작곡자:** えだまめ88 ([프로필](https://dova-s.jp/creator/detail/351))
+- **곡 페이지:** https://dova-s.jp/bgm/detail/23125
+- **라이선스:** https://dova-s.jp/help/articles/license/
+- **길이:** 2:45 · 루프 있음
+- **작곡자 개별 조건:** **없음(「サイト準拠」)** — DOVA 공통 라이선스만 적용
+- 곡 코멘트: _"게임 제작 등 다양한 장면에서 사용 가능"_ / _"크레딧 표기는 자유"_
+- 영리·비영리 모두 사용 가능. 저작권 사용료 없음
+- 출처 표기 의무 없음
+- 게임·웹서비스 이용을 명시적으로 허용
+- 파일 형식 변환, 루프 가공, 페이드 인/아웃 허용
+
+### 사용 파일
+
+| 우리 파일      | 용도                      |
+| -------------- | ------------------------- |
+| `bgm_shop.ogg` | **B1** — 게임 전체 배경음 |
+
+---
+
+## Chequered Ink — 400 Sounds Pack
+
+- **출처:** https://ci.itch.io/400-sounds-pack
+- **제작자:** Chequered Ink
+- **원본 포맷:** WAV
+- 상업적 · 비상업적 사용 허용 (100% free for commercial use)
+- 출처 표기 의무 없음
+- 원본 파일을 자기 게임 에셋으로 판매·재배포 금지
+
+### 사용 파일
+
+| 우리 파일        | 용도                             |
+| ---------------- | -------------------------------- |
+| `sfx_start.mp3`  | **A1** — 타이틀의 `가게 열기`    |
+| `sfx_reward.mp3` | **A4** — 별이 다 채워진 뒤(보상) |
+
+---
+
+## Skywave Studio — SIGNAL UI SFX Vol.1 (30 Sounds)
+
+- **출처:** https://skywave-studio.itch.io/skywave-signal-ui-sfx-vol1
+- **제작자:** Skywave Studio
+- **원본 포맷:** WAV 48kHz / 24-bit · −3dB peak
+- 상업적 · 비상업적 사용 허용
+- 로열티 없음
+- 출처 표기 의무 없음
+- 원본 파일을 단독 에셋으로 재판매·재배포 금지
+
+### 사용 파일
+
+| 우리 파일     | 용도                         |
+| ------------- | ---------------------------- |
+| `sfx_tap.mp3` | **A2** — 버튼 전체 + 재료 칩 |

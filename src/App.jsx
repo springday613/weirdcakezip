@@ -221,14 +221,15 @@ export default function App() {
     for (let i = orderIndex + 1; i < orders.length; i++) if (stars[i] === 0) return i;
     return -1;
   }
+  // 손님을 다 만나야 영업 종료 — 코인 목표를 일찍 채워도 남은 손님은 받는다 (S33).
+  // 재플레이 수익이 0 이라 이미 채운 코인이 깎이지 않으므로 굿엔딩은 그대로 지켜진다.
+  const allCleared = stars.every((v) => v > 0);
   // 다음 버튼이 '엔딩 보기' 가 되는 조건 — goNextCustomer 의 분기와 같아야 라벨이 안 어긋난다
-  const isLastRound = money >= GOOD_ENDING_COINS || nextUnplayedIndex() < 0;
+  const isLastRound = allCleared || nextUnplayedIndex() < 0;
 
   function next() {
-    // 코인 목표를 모으면 귀환 주문 완성 — 엔딩으로. 5명을 다 돌고도 못 모았으면 배드 엔딩.
-    // (재플레이 수익 0 이라 5명 완료 후엔 더 벌 수 없다)
-    const allDone = stars.every((v) => v > 0);
-    if (money >= GOOD_ENDING_COINS || allDone) {
+    // 손님 5명을 다 돌면 영업 종료 → 정산. 굿/배드는 그때 모인 코인으로만 갈린다.
+    if (allCleared) {
       // 안 받은 건너뛰기 보상은 정산 전에 넣어 준다 (S29) — 건너뛰기가 stars[0] 을 세우는 탓에
       // 마지막 손님 뒤엔 맵을 안 거치고 바로 END 라, 그대로 두면 100코인이 증발하고
       // 굿엔딩 판정에서도 빠진다. 화면 연출만 생략하고 지급은 보장한다.
@@ -243,9 +244,8 @@ export default function App() {
   // RESULT 의 '다음 손님' — 맵을 거치지 않고 다음 라운드를 바로 연다 (S33).
   // 남은 손님이 없으면 기존 next() 로 넘겨 END/엔딩 판정을 그대로 태운다.
   function goNextCustomer() {
-    // 종료 조건은 next() 와 같아야 한다 — 코인 목표를 이미 넘겼으면 라운드를 더 열지 않고 엔딩으로.
-    // (안 그러면 목표 달성 뒤에도 한 판 더 강제되고, 맵엔 영업 종료 버튼이 없다)
-    if (money >= GOOD_ENDING_COINS || stars.every((v) => v > 0)) return next();
+    // 종료 조건은 next()·isLastRound 와 같아야 라벨과 실제 이동이 어긋나지 않는다
+    if (allCleared) return next();
     const i = nextUnplayedIndex();
     if (i < 0) return next();
     selectNode(i);
@@ -386,7 +386,7 @@ export default function App() {
 
       {screen === "STAGE" && (
         <>
-          <StageMapScreen stars={stars} onSelect={selectNode} />
+          <StageMapScreen stars={stars} onSelect={selectNode} onFinish={next} />
           {/* 건너뛰기 보상 — 물범이 코인을 건넨다. '수령하기' 를 눌러야 들어온다 (S29).
               탭으로 닫히게 두면 안 받고 닫아 코인을 잃는다 */}
           {skipGift && !collected[0] && (

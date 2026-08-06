@@ -1,7 +1,7 @@
 import { orders } from "../data/orders.js";
 import { MONSTERS } from "../data/ingredients.js";
 import Img from "../components/Img.jsx";
-import Stars from "../components/Stars.jsx";
+import Stars, { starAnimEnd } from "../components/Stars.jsx";
 import CoinCount from "../components/CoinCount.jsx";
 
 export default function StageClearScreen({ stars, money, onEnding, onRestart }) {
@@ -35,7 +35,7 @@ export default function StageClearScreen({ stars, money, onEnding, onRestart }) 
         <div className="clear-summary stk">
           <p className="clear-total-stars">★ {totalStars} / {maxStars}</p>
           {/* 코인은 플레이어가 쓰는 자원 — 숫자로 표시. 점수(totalScore)는 표시하지 않는다 */}
-          <p className="clear-money big"><CoinCount value={money} />코인</p>
+          <p className="clear-money big"><CoinCount value={money} delay={starAnimEnd(Math.max(...stars, 0))} />코인</p>
         </div>
       </div>
 

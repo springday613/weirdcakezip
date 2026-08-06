@@ -1,6 +1,6 @@
 import Icon from "./Icon.jsx";
 
-// 별점 타이밍 상수 — CoinCount 가 카운트업 시작 시점을 맞출 때 쓴다
+// 별점 타이밍 상수 — CoinCount·soundManager 가 시점을 맞출 때 쓴다
 export const STAR_STEP_MS = 120;
 export const STAR_POP_MS = 360;
 export function starAnimEnd(count) {

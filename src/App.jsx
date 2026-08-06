@@ -88,7 +88,7 @@ export default function App() {
 
   // 손님 시드 — 최초 주문 대사로 대화 시작.
   // 손님이 바뀌면 이전 요청의 대기 상태도 푼다 — 안 그러면 새 대화창이 응답 올 때까지 잠긴다(S29).
-  // 그 응답 자체는 handleSend 의 orderIdRef 검사에서 버려진다.
+  // 그 응답 자체는 handleSend 의 chatSeqRef 검사에서 버려진다.
   function seedMessages(o) {
     chatSeqRef.current += 1; // 새 대화 세션 — 이전 요청의 응답은 이제 버려진다
     setChatBusy(false);
@@ -368,7 +368,7 @@ export default function App() {
           <StageMapScreen stars={stars} onSelect={selectNode} />
           {/* 건너뛰기 보상 — 물범이 코인을 건넨다. '수령하기' 를 눌러야 들어온다 (S29).
               탭으로 닫히게 두면 안 받고 닫아 코인을 잃는다 */}
-          {skipGift && (
+          {skipGift && !collected[0] && (
             <div className="tut-guide stk skip-gift">
               <span className="tut-guide-face">
                 <img src="/assets/story_face_assistant.webp" alt="" />

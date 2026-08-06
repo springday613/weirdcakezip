@@ -1826,8 +1826,17 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 }
 /* 건너뛰기 보상 말풍선 — 맵 위. 기본 top(48%)을 풀어 내용만큼만 차지하게 (S29).
    ⚠ .tut-guide 와 특이도가 같으므로 반드시 이 뒤에 와야 한다 */
-/* 맨 아래로 — 14% 에 두면 첫 노드(T, 하단 12%)를 덮어 수령 전에 노드를 못 누른다 */
-.skip-gift { top: auto; bottom: 8px; z-index: 9; cursor: default; padding-right: 10px; }
+/* 맵 하단에 얹되 노드를 막지 않는다 — 어디에 두든 노드나 '지금!' 라벨과 겹치므로,
+   위치로 피하는 대신 클릭을 통과시키고 버튼만 받는다 (S29) */
+.skip-gift {
+  top: auto;
+  bottom: 16%;   /* 화면 맨 아래는 홈 인디케이터·dev 바와 겹쳐 버튼이 눌리기 나쁘다 */
+  z-index: 9;
+  cursor: default;
+  padding-right: 10px;
+  pointer-events: none;
+}
+.skip-gift-claim { pointer-events: auto; }
 .skip-gift-body { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
 .skip-gift-claim { align-self: center; }
 

@@ -44,7 +44,7 @@ function ensureBgm() {
 function ensureBgmPrologue() {
   if (!bgmPrologue) {
     bgmPrologue = new Howl({
-      src: ["/sounds/bgm_prologue.mp3"],
+      src: ["/sounds/bgm_prologue.ogg"],
       loop: true,
       volume: 0.25,
       html5: true,
@@ -61,7 +61,7 @@ function ensureBgmPrologue() {
 function ensureBgmEnding() {
   if (!bgmEnding) {
     bgmEnding = new Howl({
-      src: ["/sounds/bgm_ending.mp3"],
+      src: ["/sounds/bgm_ending.ogg"],
       loop: true,
       volume: 0.25,
       mute: bgmMuted,

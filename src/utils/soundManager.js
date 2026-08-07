@@ -17,7 +17,7 @@ startAudio.volume = 0.6;
 startAudio.preload = "auto";
 
 const sfx = {
-  tap:    new Howl({ src: ["/sounds/sfx_tap.mp3"],    volume: 0.35 }),
+  tap:    new Howl({ src: ["/sounds/sfx_tap.mp3"],    volume: 0.55 }),
   reward: new Howl({ src: ["/sounds/sfx_reward.mp3"], volume: 0.7  }),
 };
 
@@ -33,7 +33,7 @@ function ensureBgm() {
     bgm = new Howl({
       src: ["/sounds/bgm_shop.ogg"],
       loop: true,
-      volume: 0.2,
+      volume: 0.12,
       html5: true,
       mute: bgmMuted,
     });
@@ -46,7 +46,7 @@ function ensureBgmPrologue() {
     bgmPrologue = new Howl({
       src: ["/sounds/bgm_prologue.ogg"],
       loop: true,
-      volume: 0.25,
+      volume: 0.15,
       html5: true,
       mute: bgmMuted,
       onloaderror(_, e) { console.error("[bgm_prologue] load error:", e); },
@@ -63,7 +63,7 @@ function ensureBgmEnding() {
     bgmEnding = new Howl({
       src: ["/sounds/bgm_ending.ogg"],
       loop: true,
-      volume: 0.25,
+      volume: 0.15,
       mute: bgmMuted,
     });
   }
@@ -89,11 +89,11 @@ export const soundManager = {
     // 엔딩 BGM 등이 재생 중이면 페이드아웃
     if (bgmEnding?.playing()) {
       bgmEnding.fade(bgmEnding.volume(), 0, 800);
-      bgmEnding.once("fade", () => { bgmEnding.stop(); bgmEnding.volume(0.25); });
+      bgmEnding.once("fade", () => { bgmEnding.stop(); bgmEnding.volume(0.15); });
     }
     if (bgm?.playing()) {
       bgm.fade(bgm.volume(), 0, 800);
-      bgm.once("fade", () => { bgm.stop(); bgm.volume(0.2); });
+      bgm.once("fade", () => { bgm.stop(); bgm.volume(0.12); });
     }
     p.play();
   },
@@ -106,7 +106,7 @@ export const soundManager = {
       bgmPrologue.fade(bgmPrologue.volume(), 0, 800);
       bgmPrologue.once("fade", () => {
         bgmPrologue.stop();
-        bgmPrologue.volume(0.25); // 다음 재생을 위해 원래 볼륨 복원
+        bgmPrologue.volume(0.15); // 다음 재생을 위해 원래 볼륨 복원
         b.play();
       });
       return;
@@ -120,7 +120,7 @@ export const soundManager = {
     // shop BGM 페이드아웃과 동시에 엔딩 BGM 즉시 재생
     if (bgm?.playing()) {
       bgm.fade(bgm.volume(), 0, 800);
-      bgm.once("fade", () => { bgm.stop(); bgm.volume(0.2); });
+      bgm.once("fade", () => { bgm.stop(); bgm.volume(0.12); });
     }
     e.play();
   },

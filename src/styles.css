@@ -962,7 +962,16 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   justify-content: center;
   gap: 10px;
   flex-shrink: 0;
-  padding-bottom: 8px;
+  padding-bottom: 24px;
+}
+.clear-actions .btn,
+.clear-actions .chip {
+  font-weight: normal;
+}
+.clear-actions .chip {
+  padding: 10px 24px;
+  font-size: var(--fs-btn);
+  min-height: var(--tap-min);
 }
 
 /* 튜토리얼 대본 모드 — 주인 말이 미리 채워져 있고 확인만 누른다 */

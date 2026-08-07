@@ -22,9 +22,53 @@ const sfx = {
 };
 
 let bgm = null;
+let bgmPrologue = null;
+let bgmEnding = null;
 // 효과음·음악을 따로 끈다 (S29). Howler.mute 는 전역이라 분리가 안 돼서 각각 관리한다.
 // bgm 은 첫 재생 때 생성되므로, 그 전에 끈 상태도 기억했다가 생성 시점에 적용한다.
 let bgmMuted = false;
+
+function ensureBgm() {
+  if (!bgm) {
+    bgm = new Howl({
+      src: ["/sounds/bgm_shop.ogg"],
+      loop: true,
+      volume: 0.2,
+      html5: true,
+      mute: bgmMuted,
+    });
+  }
+  return bgm;
+}
+
+function ensureBgmPrologue() {
+  if (!bgmPrologue) {
+    bgmPrologue = new Howl({
+      src: ["/sounds/bgm_prologue.mp3"],
+      loop: true,
+      volume: 0.25,
+      html5: true,
+      mute: bgmMuted,
+      onloaderror(_, e) { console.error("[bgm_prologue] load error:", e); },
+      onplayerror(_, e) { console.error("[bgm_prologue] play error:", e); },
+      onplay() { console.log("[bgm_prologue] playing"); },
+      onload() { console.log("[bgm_prologue] loaded"); },
+    });
+  }
+  return bgmPrologue;
+}
+
+function ensureBgmEnding() {
+  if (!bgmEnding) {
+    bgmEnding = new Howl({
+      src: ["/sounds/bgm_ending.mp3"],
+      loop: true,
+      volume: 0.25,
+      mute: bgmMuted,
+    });
+  }
+  return bgmEnding;
+}
 
 export const soundManager = {
   playSfx(key, { vary = false } = {}) {
@@ -39,21 +83,49 @@ export const soundManager = {
     s.play();
   },
 
-  playBgm() {
-    if (bgm?.playing()) return;
-    if (!bgm) {
-      bgm = new Howl({
-        src: ["/sounds/bgm_shop.ogg"],
-        loop: true,
-        volume: 0.2,
-        html5: true,
-        mute: bgmMuted,        // 켜기 전에 이미 꺼 뒀다면 그대로 생성
-      });
+  playBgmPrologue() {
+    const p = ensureBgmPrologue();
+    if (p.playing()) return;
+    // 엔딩 BGM 등이 재생 중이면 페이드아웃
+    if (bgmEnding?.playing()) {
+      bgmEnding.fade(bgmEnding.volume(), 0, 800);
+      bgmEnding.once("fade", () => { bgmEnding.stop(); bgmEnding.volume(0.25); });
     }
-    bgm.play();
+    if (bgm?.playing()) {
+      bgm.fade(bgm.volume(), 0, 800);
+      bgm.once("fade", () => { bgm.stop(); bgm.volume(0.2); });
+    }
+    p.play();
   },
 
-  stopBgm() { bgm?.stop(); },
+  playBgm() {
+    const b = ensureBgm();
+    if (b.playing()) return;
+    // 프롤로그 BGM 이 재생 중이면 페이드아웃 후 전환
+    if (bgmPrologue?.playing()) {
+      bgmPrologue.fade(bgmPrologue.volume(), 0, 800);
+      bgmPrologue.once("fade", () => {
+        bgmPrologue.stop();
+        bgmPrologue.volume(0.25); // 다음 재생을 위해 원래 볼륨 복원
+        b.play();
+      });
+      return;
+    }
+    b.play();
+  },
+
+  playBgmEnding() {
+    const e = ensureBgmEnding();
+    if (e.playing()) return;
+    // shop BGM 페이드아웃과 동시에 엔딩 BGM 즉시 재생
+    if (bgm?.playing()) {
+      bgm.fade(bgm.volume(), 0, 800);
+      bgm.once("fade", () => { bgm.stop(); bgm.volume(0.2); });
+    }
+    e.play();
+  },
+
+  stopBgm() { bgm?.stop(); bgmPrologue?.stop(); bgmEnding?.stop(); },
 
   // 효과음만 끄기 — Howl 인스턴스들과 별도 <audio>(start) 를 함께 처리한다
   setSfxMute(muted) {
@@ -65,5 +137,7 @@ export const soundManager = {
   setBgmMute(muted) {
     bgmMuted = muted;
     bgm?.mute(muted);
+    bgmPrologue?.mute(muted);
+    bgmEnding?.mute(muted);
   },
 };

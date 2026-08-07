@@ -1,6 +1,7 @@
 import CakeView from "../components/CakeView.jsx";
 import Img from "../components/Img.jsx";
 import { describeCake, MONSTERS } from "../data/ingredients.js";
+import { soundManager } from "../utils/soundManager.js";
 
 export default function ConfirmScreen({ order, cake, onBack, onSubmit, busy }) {
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
@@ -29,8 +30,8 @@ export default function ConfirmScreen({ order, cake, onBack, onSubmit, busy }) {
 
       {/* 버튼 — 하단 고정 */}
       <div className="confirm-actions">
-        <button className="btn" onClick={onSubmit} disabled={busy}>주기</button>
         <button className="btn-ghost" onClick={onBack}>다시 만들기</button>
+        <button className="btn" data-sfx="tap" onMouseDown={() => soundManager.playSfx("tap")} onTouchStart={() => soundManager.playSfx("tap")} onClick={onSubmit} disabled={busy}>주기</button>
       </div>
     </div>
   );

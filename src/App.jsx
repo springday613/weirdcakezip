@@ -100,7 +100,9 @@ export default function App() {
   function start() {
     // A1 시작음은 TitleScreen의 mousedown에서 이미 재생됨
     // 화면 전환은 소리가 들린 뒤 넘어가도록 살짝 딜레이
-    setTimeout(() => soundManager.playBgm(), 600);
+    console.log("[DEBUG] start() called, calling playBgmPrologue");
+    soundManager.playBgmPrologue();
+    console.log("[DEBUG] playBgmPrologue returned");
     setOrderIndex(0);
     setCake(emptyCake());
     setMoney(0);
@@ -123,6 +125,7 @@ export default function App() {
     setExtraTurns(0);
     seedMessages(orders[i]);
     withLoading("손님이 오고 있어요…", async () => {}).then(() => {
+      soundManager.playBgm(); // 프롤로그 BGM → shop BGM 페이드 전환 (이미 재생 중이면 무시)
       setScreen("CHAT");
     });
   }
@@ -470,7 +473,7 @@ export default function App() {
           <StageClearScreen
             stars={stars}
             money={money}
-            onEnding={() => setScreen("ENDING")}
+            onEnding={() => { soundManager.playBgmEnding(); setScreen("ENDING"); }}
             onRestart={start}
           />
         </div>
@@ -559,6 +562,7 @@ export default function App() {
             onClick={() => {
               if (!playerName) setPlayerName("달콤한체리");
               setDevEnding("good");
+              soundManager.playBgmEnding();
               setScreen("ENDING");
             }}
           >
@@ -570,6 +574,7 @@ export default function App() {
             onClick={() => {
               if (!playerName) setPlayerName("달콤한체리");
               setDevEnding("bad");
+              soundManager.playBgmEnding();
               setScreen("ENDING");
             }}
           >

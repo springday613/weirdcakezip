@@ -928,34 +928,15 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   gap: 12px;
   padding-bottom: 8px;
 }
-.clear-title { text-align: center; margin: 8px 0 0; }
-.clear-customers { display: flex; flex-direction: column; gap: 8px; }
-.clear-customer-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  border-radius: var(--r-card);
-}
-.clear-monster-face {
-  width: 44px;
-  height: 44px;
-  object-fit: contain;
-  flex-shrink: 0;
-}
-.clear-monster-name {
-  flex: 1;
-  font-size: var(--fs-body);
-  font-weight: 700;
-}
-.clear-customer-row .stars { margin-top: 0; }
-.clear-summary {
-  text-align: center;
-  padding: 14px;
-  border-radius: var(--r-card);
-}
-.clear-total-stars { font-size: var(--fs-title); font-weight: 700; margin: 0 0 4px; }
-.clear-money { margin: 0; }
+/* 영수증 */
+.receipt { padding: 14px 16px; }
+.receipt-title { text-align: center; margin: 0; }
+.receipt-subtitle { text-align: center; font-size: var(--fs-note); color: var(--text-muted); margin: 2px 0 0; }
+.receipt-rule { border-top: var(--ink-line-thin) dashed var(--ink); margin: 10px 0; }
+.receipt-row { display: flex; justify-content: space-between; align-items: center; font-size: var(--fs-body); padding: 2px 0; }
+.receipt-row .stars { margin-top: 0; }
+.receipt-total { font-weight: 700; font-size: var(--fs-btn); }
+.receipt-note { text-align: center; font-size: var(--fs-note); color: var(--text-muted); margin: 12px 0 0; }
 .clear-actions {
   display: flex;
   align-items: center;

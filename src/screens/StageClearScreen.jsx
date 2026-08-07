@@ -1,6 +1,5 @@
 import { orders } from "../data/orders.js";
 import { MONSTERS } from "../data/ingredients.js";
-import Img from "../components/Img.jsx";
 import Stars, { starAnimEnd } from "../components/Stars.jsx";
 import CoinCount from "../components/CoinCount.jsx";
 
@@ -11,38 +10,41 @@ export default function StageClearScreen({ stars, money, onEnding, onRestart }) 
   return (
     <div className="screen clear-screen">
       <div className="clear-scroll">
-        <h1 className="clear-title">영업 종료</h1>
+        <div className="receipt stk">
+          <h1 className="receipt-title">영업 종료</h1>
+          <p className="receipt-subtitle">괴물 마을 · 1일차</p>
 
-        {/* 손님별 별점 5줄 */}
-        <div className="clear-customers">
+          <div className="receipt-rule" />
+
           {orders.map((order, i) => {
             const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
             return (
-              <div key={order.id} className="clear-customer-row stk">
-                <Img
-                  className="clear-monster-face"
-                  src={monster.img.normal}
-                  alt={monster.name}
-                />
-                <span className="clear-monster-name">{monster.name}</span>
+              <div key={order.id} className="receipt-row">
+                <span>{monster.name}</span>
                 <Stars value={stars[i] ?? 0} animate />
               </div>
             );
           })}
-        </div>
 
-        {/* 총 별점 + 총 매출 */}
-        <div className="clear-summary stk">
-          <p className="clear-total-stars">★ {totalStars} / {maxStars}</p>
-          {/* 코인은 플레이어가 쓰는 자원 — 숫자로 표시. 점수(totalScore)는 표시하지 않는다 */}
-          <p className="clear-money big"><CoinCount value={money} delay={starAnimEnd(Math.max(...stars, 0))} />코인</p>
+          <div className="receipt-rule" />
+
+          <div className="receipt-row receipt-total">
+            <span>합계</span>
+            <span>★ {totalStars} / {maxStars}</span>
+          </div>
+          <div className="receipt-row receipt-total">
+            <span>매출</span>
+            <span><CoinCount value={money} delay={starAnimEnd(Math.max(...stars, 0))} />코인</span>
+          </div>
+
+          <p className="receipt-note">오늘도 수고했어요</p>
         </div>
       </div>
 
       {/* 버튼 — 하단 고정 */}
       <div className="clear-actions">
-        <button className="btn" onClick={onEnding}>엔딩 보기</button>
         <button className="chip ghost" onClick={onRestart}>다시하기</button>
+        <button className="btn" onMouseDown={onEnding} onTouchStart={onEnding}>엔딩 보기</button>
       </div>
     </div>
   );

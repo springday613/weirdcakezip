@@ -99,3 +99,21 @@
 | 우리 파일     | 용도                         |
 | ------------- | ---------------------------- |
 | `sfx_tap.mp3` | **A2** — 버튼 전체 + 재료 칩 |
+
+---
+
+## lolurio — FREE Cozy Game UI SFX Pack
+
+- **출처:** https://lolurio.itch.io/lolurios-free-cozy-ui-sfx
+- **제작자:** lolurio
+- **라이선스:** Creative Commons Attribution 4.0 International (CC BY 4.0)
+- **출처 표기 필수:** "UI Sound Effects by lolurio"
+- 상업적 · 비상업적 사용 허용 (리믹스·변환 포함)
+- 단독 라이브러리로 재판매·재배포 금지
+- AI 학습 사용 금지 (명시적 서면 동의 없이)
+
+### 사용 파일
+
+| 우리 파일      | 용도                                     |
+| -------------- | ---------------------------------------- |
+| `sfx_back.ogg` | 다시 만들기 · 실행취소 · 케이크 위 다 지우기 |

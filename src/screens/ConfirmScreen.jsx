@@ -30,7 +30,7 @@ export default function ConfirmScreen({ order, cake, onBack, onSubmit, busy }) {
 
       {/* 버튼 — 하단 고정 */}
       <div className="confirm-actions">
-        <button className="btn-ghost" onClick={onBack}>다시 만들기</button>
+        <button className="btn-ghost" data-sfx="back" onMouseDown={() => soundManager.playSfx("back")} onTouchStart={() => soundManager.playSfx("back")} onClick={onBack}>다시 만들기</button>
         <button className="btn" data-sfx="tap" onMouseDown={() => soundManager.playSfx("tap")} onTouchStart={() => soundManager.playSfx("tap")} onClick={onSubmit} disabled={busy}>주기</button>
       </div>
     </div>

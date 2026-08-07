@@ -12,7 +12,7 @@ export default function StageClearScreen({ stars, money, onEnding, onRestart }) 
       <div className="clear-scroll">
         <div className="receipt stk">
           <h1 className="receipt-title">영업 종료</h1>
-          <p className="receipt-subtitle">괴물 마을 · 1일차</p>
+          <p className="receipt-subtitle">뭉게뭉게 마을 · 1일차</p>
 
           <div className="receipt-rule" />
 

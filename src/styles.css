@@ -926,6 +926,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding-top: 10vh;
   padding-bottom: 8px;
 }
 /* 영수증 */
@@ -935,7 +936,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .receipt-rule { border-top: var(--ink-line-thin) dashed var(--ink); margin: 10px 0; }
 .receipt-row { display: flex; justify-content: space-between; align-items: center; font-size: var(--fs-body); padding: 2px 0; }
 .receipt-row .stars { margin-top: 0; }
-.receipt-total { font-weight: 700; font-size: var(--fs-btn); }
+.receipt-total { font-size: var(--fs-btn); }
 .receipt-note { text-align: center; font-size: var(--fs-note); color: var(--text-muted); margin: 12px 0 0; }
 .clear-actions {
   display: flex;

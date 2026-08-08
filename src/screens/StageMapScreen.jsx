@@ -22,7 +22,11 @@ const NODE_OFFSETS = [
   { left: "42%", top: "20%" },
 ];
 
-export default function StageMapScreen({ stars, onSelect }) {
+export default function StageMapScreen({ stars, onSelect, onFinish }) {
+  // 손님을 다 만나면 맵에서 바로 영업을 종료할 수 있어야 한다 — 없으면 전원 클리어 뒤
+  // 맵에 들어온 순간(결과 화면의 '맵 보기', 설정 팝업의 '맵으로') 엔딩으로 나갈 길이 사라진다 (S33).
+  const allCleared = stars.every((v) => v > 0);
+
   return (
     <div className="layer-frame stage-frame">
       {/* 마을 그림 + 그 위 노드 — 둘이 같은 캔버스 안이라 같이 늘고 준다 */}
@@ -73,6 +77,13 @@ export default function StageMapScreen({ stars, onSelect }) {
         <h1 className="stage-title">Stage 1</h1>
         <p className="stage-sub">뭉게뭉게 마을 · 손님 {orders.length}명 · 튜토리얼</p>
       </div>
+
+      {/* ⚠ 제목 뒤에 와야 한다 — margin-top:auto 가 위 여백을 다 먹어서, 앞에 두면 제목까지 바닥으로 끌고 간다 */}
+      {allCleared && onFinish && (
+        <div className="stage-finish">
+          <button className="btn" onClick={onFinish}>영업 종료 →</button>
+        </div>
+      )}
     </div>
   );
 }

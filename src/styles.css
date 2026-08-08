@@ -1066,6 +1066,22 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   margin: 2px 0 0;
 }
 
+/* 영업 종료 — 손님을 다 만났을 때만. 화면 오른쪽 아래 구석.
+   ⚠ 그림(%) 좌표로 얹지 말 것 — 캔버스가 화면보다 넓어서 오른쪽이 잘려 나간다.
+   첫 노드가 화면 중앙 아래(left 50%)라 폭을 좁게 유지해야 그 원을 안 건드린다. */
+.stage-finish {
+  position: relative;   /* 그림 위로 */
+  margin-top: auto;
+  align-self: flex-end;
+  padding-bottom: 8px;
+}
+.stage-finish .btn {
+  padding: 9px 14px;
+  font-size: var(--fs-label);
+  font-weight: normal;
+  white-space: nowrap;
+}
+
 /* 노드 — 그림 좌표(%)에 원의 **중심**을 맞춘다.
    별점·라벨을 absolute 로 빼는 이유: 노드 박스가 원 크기 그대로여야
    translate(-50%,-50%) 가 원 중심을 좌표에 정확히 얹는다. */
@@ -1786,13 +1802,18 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  /* 버튼이 셋이 되면서 좁은 화면(375)에 맞춰 간격을 줄였다 (S33) */
+  gap: 5px;
   flex-shrink: 0;
   width: 100%;
   padding-bottom: 24px;
 }
 .result-actions .btn,
 .result-actions .btn-ghost { font-weight: normal; font-size: var(--fs-body);
+}
+.result-action {
+  padding: 10px 9px;
+  white-space: nowrap;
 }
 
 /* ── 튜토리얼 가이드 (S21) — 물범이 첫 주문 읽는 법을 알려준다 ── */
@@ -1986,6 +2007,9 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 }
 .confirm-actions .btn,
 .confirm-actions .btn-ghost { font-weight: normal; font-size: var(--fs-body); }
+/* 되돌아가기(원형) 왼쪽 · 주기 오른쪽 — 주기가 주 동작이라 남는 폭을 가진다 (S33) */
+.confirm-back { flex-shrink: 0; }
+.confirm-submit { flex: 1; max-width: 260px; }
 
 /* 튜토리얼 건너뛰기 (S21) — 왼쪽 상단 HUD 슬롯, BUILD 에선 대화 버튼 아래 */
 .hud-left-col {

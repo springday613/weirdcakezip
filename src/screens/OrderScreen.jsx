@@ -197,7 +197,7 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
         cake.cream?.color === TUTORIAL_GUIDE.picks.cream &&
         (cake.cream?.dollops?.length ?? 0) >= TUTORIAL_GUIDE.creamDollops;
       if (enough) tutArrow = true;
-      else tutChips = [TUTORIAL_GUIDE.picks.cream]; // 채울 때까지 계속 빛난다
+      else tutChips = [TUTORIAL_GUIDE.picks.cream]; // 정답 색을 올릴 때까지 빛난다
     } else if (stepId === "topping") {
       const missing = TUTORIAL_GUIDE.picks.topping.filter((t) => !hasTopping(t));
       if (missing.length === 0) tutArrow = true;

@@ -21,8 +21,10 @@ export default function useFitCanvas(screen) {
         shell.style.removeProperty("--fit");
         shell.style.removeProperty("--stage-w"); // HUD 폭 제한도 함께 해제 (BUILD 밖에선 전폭)
         shell.classList.remove("shell--scroll");
+        shell.classList.remove("shell--build"); // 상단 고정바 (BUILD 전용)
         return;
       }
+      shell.classList.add("shell--build");
       // 기준 상태(배율 1, 원래 높이)로 되돌려 재야 배율이 겹으로 적용되지 않는다
       shell.style.setProperty("--fit", "1");
       canvas.style.height = "";

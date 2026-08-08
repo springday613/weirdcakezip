@@ -135,6 +135,8 @@ body {
   transform: scale(var(--fit, 1));
   margin-top: calc(var(--canvas-bleed, 144px) * var(--fit, 1));
 }
+/* 스크롤 모드 — translateY 가 없으니 주문 띠는 상자 기준 원값으로 (bleed 144 안에 딱 들어간다) */
+.app-shell.shell--scroll .build-order { top: -112px; }
 
 .layer-art   { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .layer-veil  { position: absolute; inset: 0; z-index: 0; background: var(--veil); pointer-events: none; }
@@ -142,8 +144,9 @@ body {
 .layer-asset { position: relative; z-index: 2; }
 .layer-ui    { position: relative; z-index: 3; padding: var(--pad-screen); display: flex; flex-direction: column; }
 .layer-ui--grow { flex: 1; min-height: 0; }
-/* HUD 는 뒤 형제(layer-ui)의 배경 확장(.screen--canvas::before)이 위로 뻗어도 덮이지 않게 한 단계 위 */
-.layer-ui--hud { z-index: 4; }
+/* HUD 는 뒤 형제(layer-ui)의 배경 확장(.screen--canvas::before)이 위로 뻗어도 덮이지 않게 한 단계 위.
+   상하 7px = 위 고정 판넬을 10px 짧게 (12+12 → 7+7) */
+.layer-ui--hud { z-index: 4; padding-top: 7px; padding-bottom: 7px; }
 
 /* ── 4. 스티커 기본 (.stk) ───────────────────────────────── */
 .stk {
@@ -303,6 +306,11 @@ body {
   align-items: center;
   gap: var(--gap);
   padding: 2px 0;
+  /* 무대(우드 판넬)가 셸보다 좁아지면 HUD 네 개도 그 안쪽 폭에 맞춘다 (--stage-w 는
+     BUILD 에서만 세팅 — 다른 화면은 none 이라 그대로 전폭) */
+  width: 100%;
+  max-width: var(--stage-w, none);
+  margin: 0 auto;
 }
 .hud-pill {
   display: inline-flex;
@@ -1655,7 +1663,9 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
    구도(보울 -70px 등)와 겹치지 않게 한다 (S25 머지) */
 .build-order {
   position: absolute;
-  top: -112px;
+  /* 화면상 'HUD 바로 아래(-52px)' 를 배율과 무관하게 유지 — 캔버스가 scale 을 타므로
+     고정 -112px 이면 배율>1 에서 HUD 를 침범한다. (fit=1 이면 -52-60 = 기존 -112 그대로) */
+  top: calc(-52px / var(--fit, 1) - var(--canvas-shift, 60px));
   left: 0;
   right: 0;
   z-index: 2;

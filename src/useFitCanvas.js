@@ -19,6 +19,7 @@ export default function useFitCanvas(screen) {
       const canvas = shell.querySelector(".screen--canvas");
       if (!canvas) {
         shell.style.removeProperty("--fit");
+        shell.style.removeProperty("--stage-w"); // HUD 폭 제한도 함께 해제 (BUILD 밖에선 전폭)
         shell.classList.remove("shell--scroll");
         return;
       }

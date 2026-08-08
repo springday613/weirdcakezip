@@ -293,6 +293,13 @@ export default function App() {
 
   // 다시하기 — 이번 채점의 점수·코인을 물리고 같은 손님의 제작으로 돌아간다.
   // 대화 기록과 질문 수(감점)는 유지 — 재도전이 공짜 정보가 되지 않게.
+  // 케이크를 빈 보울로 되돌리고 OrderScreen 을 리마운트해 단계·히스토리까지 초기화 (QA25)
+  function remake() {
+    setCake(emptyCake());
+    setAttempt((a) => a + 1);
+    setScreen("BUILD");
+  }
+
   function retry() {
     // 이번 판이 적립된 경우만 되돌린다 — 재플레이 판(수익 0)을 또 빼면 총점이 왜곡된다
     if (result?.counted) {
@@ -303,12 +310,8 @@ export default function App() {
         return next;
       });
     }
-    // 새 라운드 진입(selectNode)과 동일한 초기 상태로 — 케이크를 비우고,
-    // attempt 키로 OrderScreen 을 리마운트해 내부 단계·히스토리도 리셋한다 (QA25 / KAN-79)
-    setCake(emptyCake());
-    setAttempt((a) => a + 1);
     setResult(null);
-    setScreen("BUILD");
+    remake(); // 새 라운드 진입과 동일한 초기 상태 (QA25 / KAN-79)
   }
 
   const buyTurn = () => {
@@ -454,7 +457,7 @@ export default function App() {
             <ConfirmScreen
               order={order}
               cake={cake}
-              onBack={() => setScreen("BUILD")}
+              onBack={() => setScreen("BUILD")} /* '고치기' — 만들던 상태 그대로 돌아가 수정 (QA25 / KAN-79) */
               onSubmit={submit}
               busy={judgeBusy}
             />

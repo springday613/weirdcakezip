@@ -29,6 +29,17 @@
   font-display: swap;
 }
 
+/* ── 0b. 네이티브 느낌 리셋 ──────────────────────────────── */
+html, body {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
 /* ── 1. 토큰 ──────────────────────────────────────────────── */
 :root {
   /* 잉크 — 에셋(색연필) 아웃라인에서 샘플한 브라운 (S25, 구 #1A1A1A) */

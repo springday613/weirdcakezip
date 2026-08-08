@@ -1525,14 +1525,15 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .screen-bg--build::before {
   /* 위쪽 fill — 이음새 없는 우드 밴드 타일(bg_baking_1 상단 253px + 거울).
      상단 절반만 덮어 아래쪽 핑크 fill 을 침범하지 않는다.
-     배율이 폭 기준뿐이라 캔버스 배경과 이 fill 의 폭이 늘 같다 — 이음새 없음 (QA2) */
+     폭은 캔버스의 화면상 폭(--stage-w, useFitCanvas 가 세팅)에 맞춘 가운데 한 줄 —
+     캔버스가 세로 축소로 셸보다 좁아져도 결이 이어지고, 그 옆은 구름(bg_default)이 받는다 (QA2) */
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 50%;
-  background: url("/assets/bg_wood_band.webp") center top / 100% auto repeat-y;
+  background: url("/assets/bg_wood_band.webp") center top / var(--stage-w, 100%) auto repeat-y;
 }
 /* 주문(CHAT) 화면 상단 — 괴물~주문 카드 구간만 케이크 가게 안 */
 .chat-shop-zone {

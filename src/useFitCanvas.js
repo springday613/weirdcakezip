@@ -25,20 +25,31 @@ export default function useFitCanvas(screen) {
       // 기준 상태(배율 1, 원래 높이)로 되돌려 재야 배율이 겹으로 적용되지 않는다
       shell.style.setProperty("--fit", "1");
       canvas.style.height = "";
-      const baseH = parseFloat(getComputedStyle(canvas).height); // 무대 기준 높이 (748)
+      const cs = getComputedStyle(canvas);
+      const baseH = parseFloat(cs.height); // 무대 기준 높이 (748)
+      const shift = parseFloat(cs.getPropertyValue("--canvas-shift")) || 0;
 
-      const fit = Math.max(MIN_FIT, shell.clientWidth / STAGE_W);
+      const keep = canvas.closest(".build-keep");
+      const top = canvas.getBoundingClientRect().top;
+      const last = canvas.lastElementChild;
+      const need = (last ? last.getBoundingClientRect().bottom : top + baseH) - top;
+      const avail = (keep ? keep.getBoundingClientRect().bottom : window.innerHeight) - top;
+
+      const widthFit = shell.clientWidth / STAGE_W;
+      // 세로 배율: translateY(--canvas-shift × fit) 가 시작점도 끌어내리므로 그 항까지 넣어 푼다.
+      //   bottom(fit) = top - shift + (need + shift) × fit ≤ top + avail → fit ≤ (avail+shift)/(need+shift)
+      const heightFit = avail > 0 ? (avail + shift) / (need + shift) : widthFit;
+      // 세로에 맞춰 줄이되(상한 = 폭 배율), 바닥(MIN_FIT) 아래로는 줄이지 않는다 — 그 밑은 스크롤
+      const fit = Math.max(MIN_FIT, Math.min(widthFit, heightFit));
       shell.style.setProperty("--fit", String(fit));
+      // 우드 밴드 fill 폭 — 캔버스의 화면상 폭과 같아야 결이 이어진다 (styles.css 에서 사용)
+      shell.style.setProperty("--stage-w", `${Math.round(STAGE_W * fit)}px`);
       // 레이아웃 높이도 같은 배율로 — transform 은 레이아웃을 안 바꾸므로, 안 맞추면
       // 중앙정렬(margin:auto)이 옛 높이로 계산되고 스크롤 길이도 어긋난다
       canvas.style.height = `${Math.round(baseH * fit)}px`;
 
-      // 세로가 모자라면(무대가 컨테이너보다 크면) 그 구간만 스크롤을 연다
-      const keep = canvas.closest(".build-keep");
-      shell.classList.toggle(
-        "shell--scroll",
-        !!keep && baseH * fit > keep.clientHeight + 1
-      );
+      // 바닥까지 줄이고도 안 들어가면 그 구간만 스크롤을 연다
+      shell.classList.toggle("shell--scroll", (need + shift) * fit - shift > avail + 1);
     };
 
     apply();

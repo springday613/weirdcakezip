@@ -330,21 +330,21 @@ export default function App() {
       {!["TITLE", "NAME", "INTRO", "ENDING", "CREDITS", "TUTEND"].includes(screen) && (
         <div className="layer-ui layer-ui--hud">
           <Hud coins={money} onOpenMenu={() => setSettingsOpen(true)}>
-            <div className="hud-left-col">
-              {screen === "BUILD" && (
-                <button className="btn-ghost chat-popup-trigger" onClick={() => setChatPopupOpen(true)}>
-                  <img className="bubble-face chat-trigger-face" src={monster.img.normal} alt="" />
-                  대화
-                </button>
-              )}
-              {/* 튜토리얼 건너뛰기 — 왼쪽 상단, 제작 중엔 대화 버튼 아래 */}
-              {order.script && ["CHAT", "BUILD"].includes(screen) && (
-                <button className="chip ghost tut-skip" onClick={skipTutorial}>
-                  튜토리얼 건너뛰기
-                </button>
-              )}
-            </div>
+            {screen === "BUILD" && (
+              <button className="btn-ghost chat-popup-trigger" onClick={() => setChatPopupOpen(true)}>
+                <img className="bubble-face chat-trigger-face" src={monster.img.normal} alt="" />
+                대화
+              </button>
+            )}
           </Hud>
+          {/* 튜토리얼 건너뛰기 — HUD 아래 오른쪽 정렬 */}
+          {order.script && ["CHAT", "BUILD"].includes(screen) && (
+            <div className="tut-skip-row">
+              <button className="chip ghost tut-skip" onClick={skipTutorial}>
+                튜토리얼 건너뛰기
+              </button>
+            </div>
+          )}
         </div>
       )}
 

@@ -160,8 +160,8 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  /* 높이 = HUD 존 전체 — 42px 고정이면 튜토리얼의 '건너뛰기' 칩이 존을 키울 때
-     초과분이 핑크 띠로 드러난다 (QA16 / KAN-73) */
+  /* 높이 = HUD 존 전체 — 고정값이면 존이 커질 때 초과분이 핑크 띠로 드러난다 (QA16).
+     (건너뛰기 칩은 이후 오버레이로 빠져 지금은 존이 42 로 일정하지만, 백스톱으로 유지) */
   bottom: 0;
   /* 좌우폭 = 무대 그림 폭 — 셸 전폭으로 깔면 무대 옆 구름 위에 판넬만 떠 보인다 */
   left: 50%;
@@ -2098,11 +2098,22 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .confirm-submit { flex: 1; max-width: 260px; }
 
 /* 튜토리얼 건너뛰기 (S21 → QA9) — HUD 아래 오른쪽 정렬 별도 줄 */
+/* 건너뛰기 줄은 HUD 존 밖(absolute) — flow 에 두면 튜토리얼만 상단 판이 두꺼워져
+   일반 레벨과 구도가 어긋난다. 폭은 무대 안쪽(--stage-w)에 정렬 (QA17 후속) */
 .tut-skip-row {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: var(--stage-w, none);
   display: flex;
   justify-content: flex-start;
+  padding: 6px 6px 0;
+  pointer-events: none; /* 줄 자체는 무대 터치를 막지 않는다 */
 }
 .tut-skip {
+  pointer-events: auto;
   flex-shrink: 0;
   font-size: var(--fs-note);
   padding: 2px 10px;

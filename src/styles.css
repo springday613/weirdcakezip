@@ -1898,7 +1898,9 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   position: absolute;
   left: 14px;
   right: 14px;
-  top: 48%;
+  /* 359px = 기준 구도(748 상자)의 48%. %로 두면 fit>1 에서 상자가 콘텐츠보다 길어져
+     말풍선만 아래로 드리프트한다(640x807 실측 +79px) — px 는 배율과 함께 정확히 스케일 (QA27) */
+  top: 359px;
   z-index: 8;
   display: flex;
   align-items: flex-start;

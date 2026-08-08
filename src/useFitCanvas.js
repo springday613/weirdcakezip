@@ -63,12 +63,33 @@ export default function useFitCanvas(screen) {
       // 바닥까지 줄이고도 안 들어가면 그 구간만 스크롤을 연다.
       // 스크롤 모드에선 구도 하향(translateY)을 끈다(styles.css) — 켜 두면 스크롤러가
       // 캔버스 위로 뻗은 배경을 잘라 위쪽에 틈이 생기고, 맨 위로 올려도 상단이 안 보인다.
-      const scrollNeeded = (need + shift) * fit - shift > avail + 1;
+      let scrollNeeded = (need + shift) * fit - shift > avail + 1;
       shell.classList.toggle("shell--scroll", scrollNeeded);
       // 레이아웃 높이도 같은 배율로 — transform 은 레이아웃을 안 바꾸므로, 안 맞추면
       // 중앙정렬(margin:auto)이 옛 높이로 계산되고 스크롤 길이도 어긋난다.
       // 스크롤 모드에선 내용 높이만큼만 — 무대 상자(748) 그대로면 바닥에 빈 꼬리가 남는다.
       canvas.style.height = `${Math.round((scrollNeeded ? need : baseH) * fit)}px`;
+
+      // 2차 보정 (QA27 / KAN-82) — 예측식은 translateY·마진의 상호작용으로 창 크기에 따라
+      // 수십 px 어긋날 수 있다(640x807 실측 ~80px 초과). 적용된 상태를 실측해 넘친 만큼
+      // 배율을 정확히 줄인다. 바닥(MIN_FIT)에 닿으면 축소 대신 스크롤로 넘긴다.
+      if (!scrollNeeded && fit > MIN_FIT) {
+        let bottomNow = -Infinity;
+        for (const el of canvas.children) {
+          if (getComputedStyle(el).position === "absolute") continue;
+          const b = el.getBoundingClientRect().bottom;
+          if (b > bottomNow) bottomNow = b;
+        }
+        const limit = keep ? keep.getBoundingClientRect().bottom : window.innerHeight;
+        const topNow = canvas.getBoundingClientRect().top;
+        if (bottomNow > limit + 1 && bottomNow > topNow) {
+          const fit2 = Math.max(MIN_FIT, fit * ((limit - topNow) / (bottomNow - topNow)));
+          shell.style.setProperty("--fit", String(fit2));
+          scrollNeeded = fit2 <= MIN_FIT + 1e-6 && bottomNow - topNow > (limit - topNow) / (fit2 / fit);
+          shell.classList.toggle("shell--scroll", scrollNeeded);
+          canvas.style.height = `${Math.round((scrollNeeded ? need : baseH) * fit2)}px`;
+        }
+      }
     };
 
     apply();

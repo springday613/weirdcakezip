@@ -49,7 +49,7 @@ export default function SettingsPopup({
               <input
                 className="lettering-input settings-name-input"
                 type="text"
-                maxLength={12}
+                maxLength={8}
                 autoFocus
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}

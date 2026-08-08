@@ -16,7 +16,7 @@ export default function NameScreen({ onDone }) {
         <input
           className="lettering-input name-input"
           type="text"
-          maxLength={12}
+          maxLength={8}
           placeholder="이름을 지어줘"
           value={name}
           onChange={(e) => setName(e.target.value)}

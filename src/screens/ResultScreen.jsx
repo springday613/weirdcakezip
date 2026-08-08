@@ -96,7 +96,7 @@ export default function ResultScreen({ result, order, cake, onNext, onMap, onRet
       <div className="result-actions">
         {/* 되돌아가기 아이콘은 ConfirmScreen 의 '다시 만들기' 와 같은 것을 쓴다 — ↺ 글자를 쓰면 화살표가 반대로 돈다 */}
         <button className="btn-ghost result-action" onClick={onRetry}>
-          <Icon name="retry" size="sm" /> 다시 플레이
+          <Icon name="retry" size="sm" /> 다시하기
         </button>
         {onMap && <button className="btn-ghost result-action" onClick={onMap}>맵 보기</button>}
         <button className="btn result-action" onClick={onNext}>

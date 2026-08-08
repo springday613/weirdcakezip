@@ -43,7 +43,7 @@ export default function StageClearScreen({ stars, money, onEnding, onRestart }) 
 
       {/* 버튼 — 하단 고정 */}
       <div className="clear-actions">
-        <button className="chip ghost" onClick={onRestart}>다시하기</button>
+        <button className="chip ghost" onClick={onRestart}>처음부터</button>
         <button className="btn" onMouseDown={onEnding} onTouchStart={onEnding}>엔딩 보기</button>
       </div>
     </div>

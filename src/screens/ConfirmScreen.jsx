@@ -2,6 +2,7 @@ import CakeView from "../components/CakeView.jsx";
 import Img from "../components/Img.jsx";
 import Icon from "../components/Icon.jsx";
 import { describeCake, MONSTERS } from "../data/ingredients.js";
+import { soundManager } from "../utils/soundManager.js";
 
 export default function ConfirmScreen({ order, cake, onBack, onSubmit, busy }) {
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
@@ -34,7 +35,17 @@ export default function ConfirmScreen({ order, cake, onBack, onSubmit, busy }) {
         <button className="btn-icon confirm-back" onClick={onBack} aria-label="다시 만들기" title="다시 만들기">
           <Icon name="retry" size="sm" />
         </button>
-        <button className="btn confirm-submit" onClick={onSubmit} disabled={busy}>주기</button>
+        {/* 주기의 tap 사운드는 H16 것 — data-sfx 가 있으면 App 의 전역 위임 tap 은 건너뛴다 */}
+        <button
+          className="btn confirm-submit"
+          data-sfx="tap"
+          onMouseDown={() => soundManager.playSfx("tap")}
+          onTouchStart={() => soundManager.playSfx("tap")}
+          onClick={onSubmit}
+          disabled={busy}
+        >
+          주기
+        </button>
       </div>
     </div>
   );

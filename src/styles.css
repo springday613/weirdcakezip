@@ -2098,11 +2098,22 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .confirm-submit { flex: 1; max-width: 260px; }
 
 /* 튜토리얼 건너뛰기 (S21 → QA9) — HUD 아래 오른쪽 정렬 별도 줄 */
+/* 건너뛰기 줄은 HUD 존 밖(absolute) — flow 에 두면 튜토리얼만 상단 판이 두꺼워져
+   일반 레벨과 구도가 어긋난다. 폭은 무대 안쪽(--stage-w)에 정렬 (QA17 후속) */
 .tut-skip-row {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: var(--stage-w, none);
   display: flex;
   justify-content: flex-start;
+  padding: 6px 6px 0;
+  pointer-events: none; /* 줄 자체는 무대 터치를 막지 않는다 */
 }
 .tut-skip {
+  pointer-events: auto;
   flex-shrink: 0;
   font-size: var(--fs-note);
   padding: 2px 10px;

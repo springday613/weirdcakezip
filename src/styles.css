@@ -176,7 +176,9 @@ body {
 .app-shell.shell--build .layer-art,
 .app-shell.shell--build .layer-veil,
 .app-shell.shell--stage .layer-art,
-.app-shell.shell--stage .layer-veil { background: none; } /* 맵도 동일 (QA15 / KAN-72) */
+.app-shell.shell--stage .layer-veil,
+.app-shell.shell--stage .screen-bg { background: none; } /* 맵·타이틀 동일 — 셸 안 cover 구름을 걷어야
+  셸 경계에서 body 타일과 배율이 어긋나는 세로 경계가 사라진다 (QA15 / KAN-72) */
 .layer-frame { position: relative; z-index: 1; }
 .layer-asset { position: relative; z-index: 2; }
 .layer-ui    { position: relative; z-index: 3; padding: var(--pad-screen); display: flex; flex-direction: column; }

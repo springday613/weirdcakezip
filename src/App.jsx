@@ -62,6 +62,7 @@ export default function App() {
   const { sfxMuted, bgmMuted, toggleSfx, toggleBgm } = useSfx();
   const [settingsOpen, setSettingsOpen] = useState(false); // 환경설정 팝업 (S29)
   const [skipGift, setSkipGift] = useState(false); // 튜토리얼 건너뛰기 보상 말풍선 (S29)
+  const [attempt, setAttempt] = useState(0); // 같은 주문의 '다시하기' 횟수 — OrderScreen 리마운트 키 (QA25)
 
   // A2: 버튼·재료 칩 탭 — 이벤트 위임으로 전부.
   // data-sfx 가 있는 버튼은 자체 사운드가 있으므로 A2를 건너뛴다 (가게 열기 = A1).
@@ -302,6 +303,10 @@ export default function App() {
         return next;
       });
     }
+    // 새 라운드 진입(selectNode)과 동일한 초기 상태로 — 케이크를 비우고,
+    // attempt 키로 OrderScreen 을 리마운트해 내부 단계·히스토리도 리셋한다 (QA25 / KAN-79)
+    setCake(emptyCake());
+    setAttempt((a) => a + 1);
     setResult(null);
     setScreen("BUILD");
   }
@@ -435,7 +440,7 @@ export default function App() {
         <div className="layer-ui layer-ui--grow">
           <div className="build-keep" style={screen === "CONFIRM" ? { display: "none" } : undefined}>
             <OrderScreen
-              key={order.id}
+              key={`${order.id}-${attempt}`}
               order={order}
               index={orderIndex}
               total={orders.length}

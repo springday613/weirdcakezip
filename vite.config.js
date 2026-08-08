@@ -19,8 +19,10 @@ function rewriteAbsolutePaths() {
   const fix = (code) =>
     code
       .replaceAll("/assets/", `${P}/assets/`)
+      .replaceAll("/sounds/", `${P}/sounds/`)
       // Vite가 base를 이미 붙여둔 자기 참조가 위 치환에 또 걸리면 이중 접두어가 된다 → 원복
       .replaceAll(`${P}${P}/assets/`, `${P}/assets/`)
+      .replaceAll(`${P}${P}/sounds/`, `${P}/sounds/`)
       .replaceAll('"/api/', `"${API_BASE}/api/`)
       .replaceAll("'/api/", `'${API_BASE}/api/`);
   return {

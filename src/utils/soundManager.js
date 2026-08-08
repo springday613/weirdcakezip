@@ -18,6 +18,7 @@ startAudio.preload = "auto";
 
 const sfx = {
   tap:    new Howl({ src: ["/sounds/sfx_tap.mp3"],    volume: 0.55 }),
+  back:   new Howl({ src: ["/sounds/sfx_back.ogg"],   volume: 0.35 }),
   reward: new Howl({ src: ["/sounds/sfx_reward.mp3"], volume: 0.7  }),
 };
 

@@ -17,7 +17,9 @@ export default function useFitCanvas(screen) {
 
     const apply = () => {
       const canvas = shell.querySelector(".screen--canvas");
-      if (!canvas) {
+      // offsetParent 검사: CONFIRM 은 BUILD 를 언마운트하지 않고 display:none 으로만 숨긴다 —
+      // 숨은 캔버스를 그대로 재면 rect 가 전부 0 이 되고 shell--build 가 CONFIRM 으로 샌다 (QA17)
+      if (!canvas || canvas.offsetParent === null) {
         shell.style.removeProperty("--fit");
         shell.style.removeProperty("--stage-w"); // HUD 폭 제한도 함께 해제 (BUILD 밖에선 전폭)
         shell.classList.remove("shell--scroll");
@@ -34,8 +36,16 @@ export default function useFitCanvas(screen) {
 
       const keep = canvas.closest(".build-keep");
       const top = canvas.getBoundingClientRect().top;
-      const last = canvas.lastElementChild;
-      const need = (last ? last.getBoundingClientRect().bottom : top + baseH) - top;
+      // 콘텐츠 바닥 = 절대배치 제외 가장 낮은 자식.
+      // lastElementChild 는 함정 — 튜토리얼에선 물범 말풍선(absolute, top 48%)이 마지막 자식이라
+      // 바닥을 300px 위로 오측정해 축소·스크롤이 안 걸렸다 (QA17 / KAN-74)
+      let bottom = top;
+      for (const el of canvas.children) {
+        if (getComputedStyle(el).position === "absolute") continue;
+        const b = el.getBoundingClientRect().bottom;
+        if (b > bottom) bottom = b;
+      }
+      const need = (bottom > top ? bottom : top + baseH) - top;
       const avail = (keep ? keep.getBoundingClientRect().bottom : window.innerHeight) - top;
 
       const widthFit = shell.clientWidth / STAGE_W;

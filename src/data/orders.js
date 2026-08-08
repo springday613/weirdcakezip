@@ -15,7 +15,7 @@ export const orders = [
     id: "order-000",
     // 첫 대사에서 이미 밝힌 값 — intent 가 첫 턴부터 이걸 물고 시작한다
     disclosed: { cakeBase: "vanilla", cream: "cherry", toppings: ["peach"] },
-    monster: "pink",   // 개구쟁이 — 튜토리얼 대본의 '히히' 톤과 일치
+    monster: "spike",  // 별사탕 (QA22 / KAN-76) — 감정 큰 개구쟁이, '히히' 대본 톤과 일치. 표정 3종 있음
     dialogue: "바닐라 맛 케이크에 체리 생크림 부탁해! 토핑은 복숭아랑... 뭐였더라? 하나가 기억이 안 나~",
     hidden: {
       intent: "바닐라 시트 + 체리 생크림(가득) + 복숭아·체리 토핑. 기억 안 나는 토핑 하나 = 체리 — 헤매면 사다리로 하나씩(튜토리얼이라 후하게).",

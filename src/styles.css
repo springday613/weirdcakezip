@@ -109,12 +109,13 @@ body {
 }
 
 /* ── 3. 앱 셸 — 390px 고정폭 + 4층 레이어 ───────────────── */
+/* 화면을 꽉 채우되 640px 까지만 — 그보다 넓으면 양옆은 body 배경(여백)으로 둔다 */
 .app-shell {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: 390px;
-  max-width: 100vw;
+  width: 100%;
+  max-width: 640px;
   height: 100dvh;
   margin: 0 auto;
   overflow: hidden;
@@ -444,7 +445,12 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   overflow-y: visible;
   /* 구도 전체를 60px 아래로 — transform 이라 중앙 정렬(위아래 동률 분배)은 유지된다.
      배경(.screen-bg--build)도 같은 +60 을 갖는다 */
-  transform: translateY(60px);
+  /* --fit: 세로가 모자란 기기에서 구도를 통째로 줄여 다 보이게 한다 (QA2 / KAN-52).
+     재배치가 아니라 축소인 이유 — 이 캔버스는 748px 기준으로 픽셀 단위로 맞춰 둔 구도라
+     요소를 다시 흘리면 그 배치가 무너진다. 세로가 넉넉하면 --fit 은 1 이라 그대로다.
+     원점이 top center 라 위쪽 기준선(HUD 아래)은 배율과 무관하게 고정된다. */
+  transform: translateY(calc(60px * var(--fit, 1))) scale(var(--fit, 1));
+  transform-origin: top center;
 }
 /* 작업대·앞치마 그림 — 캔버스에 붙어 중앙 정렬·스크롤을 함께 탄다.
    top -144px = 캔버스 시각 상단(84 + transform 60)을 뷰포트 0 으로 되돌리는 보정.
@@ -454,10 +460,13 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   content: "";
   position: absolute;
   z-index: -1;
-  top: -144px;
-  left: -12px;
-  right: -12px;
-  height: 908px;
+  /* --fit 으로 캔버스가 줄어들 때 배경까지 같이 줄면 좌우 끝에 이음새가 드러난다(320px 에서 확인).
+     그래서 여기만 1/--fit 로 미리 키워 둔다 — 바깥 scale 과 상쇄되어 배경은 늘 원래 크기·전폭이다.
+     줄어드는 건 그 위의 콘텐츠(보울·팔레트·버튼)뿐이다. */
+  top: calc(-144px / var(--fit, 1));
+  left: calc(-12px / var(--fit, 1) - 100% * (1 / var(--fit, 1) - 1) / 2);
+  right: calc(-12px / var(--fit, 1) - 100% * (1 / var(--fit, 1) - 1) / 2);
+  height: calc(908px / var(--fit, 1));
   background:
     url("/assets/bg_baking_2.webp") center 364px / 100% auto no-repeat,
     url("/assets/bg_baking_1.webp") center -24px / 100% auto no-repeat;
@@ -694,29 +703,19 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .palette-label { display: none; }
 /* 편집 버튼 3종 — 그림 아이콘 (다시시작 ↩ · 빗자루 · Ctrl-Z), 배경 50% 반투명.
    .chip.edit-btn: 뒤에 오는 .chip 의 --paper 배경(0.9)을 특이도로 이긴다 */
-.chip.edit-btn { position: relative; line-height: 0; background: rgba(255, 255, 255, 0.5); }
-.edit-icon { width: 24px; height: 24px; object-fit: contain; display: block; }
-/* hover 툴팁 — data-tip 텍스트를 버튼 위에 띄운다 */
-.edit-btn::after {
-  content: attr(data-tip);
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + 6px);
-  transform: translateX(-50%);
-  white-space: nowrap;
-  background: var(--paper);
-  border: var(--ink-line-thin) solid var(--ink);
-  border-radius: var(--r-pill);
-  padding: 3px 10px;
-  font-size: var(--fs-note);
-  line-height: 1.3;
-  color: var(--text);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.12s;
-  z-index: 6;
+.chip.edit-btn {
+  position: relative;
+  line-height: 0;
+  background: rgba(255, 255, 255, 0.5);
+  /* 아이콘 위 · 글자 아래 (QA11 / KAN-61) — hover 툴팁은 모바일에 hover 가 없어 무용지물이었다 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 10px;
 }
-.edit-btn:hover::after { opacity: 1; }
+.edit-icon { width: 24px; height: 24px; object-fit: contain; display: block; }
+.edit-label { font-size: var(--fs-note); line-height: 1.2; color: var(--text); white-space: nowrap; }
 
 /* 쪽지 단계의 안 씀/문구 입력 줄 — transform 이라 아래 완성하기 위치엔 영향 없음.
    margin-bottom 42px: 다른 단계의 두 줄짜리 팔레트와 flow 높이를 맞춰
@@ -1899,7 +1898,9 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 }
 
 /* 치트 시트 (S21) — 튜토리얼 정답 쪽지, 케이크 왼편 */
-.cake-wrap { position: relative; }
+/* 높이 고정 — 아래(팔레트·버튼·편집줄)는 전부 고정 높이라, 여기서 나는 차이가 그대로 아래로 전파된다.
+   쪽지 단계는 케이크 대신 쪽지 그림이라 7px 낮아져 하단 버튼 줄만 어긋났다 (QA8 / KAN-58) */
+.cake-wrap { position: relative; height: 248px; }
 /* 구도 미세조정 — BUILD(매트 배경) 한정. RESULT 의 케이크는 안 움직인다 (S25) */
 .cake-wrap .cake--baked { transform: translateY(-100px); }
 .cake-wrap .cake--bowl { transform: translateY(-70px); }

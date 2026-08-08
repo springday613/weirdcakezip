@@ -6,7 +6,7 @@ import CoinCount from "../components/CoinCount.jsx";
 import Icon from "../components/Icon.jsx";
 import Img from "../components/Img.jsx";
 
-export default function ResultScreen({ result, order, cake, onNext, onRetry }) {
+export default function ResultScreen({ result, order, cake, onNext, onMap, onRetry, lastRound = false }) {
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
   const mood = moodOf(result.score);
   const starValue = starsFor(result.score);
@@ -92,9 +92,16 @@ export default function ResultScreen({ result, order, cake, onNext, onRetry }) {
       </div>
 
       {/* 7. 버튼 — 하단 고정 */}
+      {/* 다음 손님은 맵을 거치지 않고 바로 다음 라운드로 — 맵은 따로 볼 수 있게 남긴다 (S33) */}
       <div className="result-actions">
-        <button className="btn-ghost" onClick={onRetry}>↺ 다시 플레이</button>
-        <button className="btn" onClick={onNext}>다음 손님 →</button>
+        {/* 되돌아가기 아이콘은 ConfirmScreen 의 '다시 만들기' 와 같은 것을 쓴다 — ↺ 글자를 쓰면 화살표가 반대로 돈다 */}
+        <button className="btn-ghost result-action" onClick={onRetry}>
+          <Icon name="retry" size="sm" /> 다시 플레이
+        </button>
+        {onMap && <button className="btn-ghost result-action" onClick={onMap}>맵 보기</button>}
+        <button className="btn result-action" onClick={onNext}>
+          {lastRound ? "엔딩 보기 →" : "다음 손님 →"}
+        </button>
       </div>
     </div>
   );

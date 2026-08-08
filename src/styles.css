@@ -567,6 +567,11 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   font-family: var(--font);
   min-height: var(--tap-min);
 }
+.chat-input .btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+  min-width: 64px;
+}
 
 /* 케이크 */
 .cake-stage { display: flex; justify-content: center; margin-top: -26px; }

@@ -80,7 +80,7 @@ export default function App() {
   const [collected, setCollected] = useState(() => orders.map(() => false));
 
   // 로딩 오버레이
-  const { loading, loadMsg, withLoading } = useLoading();
+  const { loading, loadMsg, loadArt, withLoading } = useLoading();
 
   const order = orders[orderIndex];
   const monster = MONSTERS[order.monster] ?? MONSTERS.cherry;
@@ -126,7 +126,11 @@ export default function App() {
     setTurns(0);
     setExtraTurns(0);
     seedMessages(orders[i]);
-    withLoading("손님이 오고 있어요…", async () => {}).then(() => {
+    const nextMonster = MONSTERS[orders[i].monster] ?? MONSTERS.cherry;
+    withLoading("손님이 오고 있어요…", async () => {}, {
+      img: nextMonster.img.normal,
+      silhouette: true, // 아직 오는 중 — 누구인지는 실루엣으로만 (QA17 / KAN-67)
+    }).then(() => {
       soundManager.playBgm(); // 프롤로그 BGM → shop BGM 페이드 전환 (이미 재생 중이면 무시)
       setScreen("CHAT");
     });
@@ -550,7 +554,9 @@ export default function App() {
         />
       )}
 
-      {loading && <LoadingScreen visible={loading} message={loadMsg} />}
+      {loading && (
+        <LoadingScreen visible={loading} message={loadMsg} img={loadArt.img} silhouette={loadArt.silhouette} />
+      )}
 
       {/* 개발용 배경 토글 */}
       {import.meta.env.DEV && (

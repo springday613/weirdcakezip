@@ -6,7 +6,7 @@ import { randomTip } from "../data/tips.js";
 // useLoading() 훅이 최소 표시 시간(800ms)을 보장한다.
 const MIN_MS = 1800;
 
-export default function LoadingScreen({ visible, message = "준비 중…" }) {
+export default function LoadingScreen({ visible, message = "준비 중…", img, silhouette = false }) {
   const [tip] = useState(() => randomTip());
 
   if (!visible) return null;
@@ -14,7 +14,11 @@ export default function LoadingScreen({ visible, message = "준비 중…" }) {
   return (
     <div className="loading-overlay">
       <div className="loading-content">
-        <Img src="/assets/pink.webp" className="loading-monster" alt="" />
+        <Img
+          src={img || "/assets/pink.webp"}
+          className={"loading-monster" + (silhouette ? " loading-monster--shadow" : "")}
+          alt=""
+        />
         <p className="loading-message">{message}</p>
         <div className="loading-dots">
           <span className="loading-dot" />
@@ -38,11 +42,14 @@ export default function LoadingScreen({ visible, message = "준비 중…" }) {
 export function useLoading() {
   const [loading, setLoading] = useState(false);
   const [loadMsg, setLoadMsg] = useState("준비 중…");
+  // 이 로딩이 보여줄 손님 그림 — 실루엣 여부까지 한 묶음 (QA17 / KAN-67)
+  const [loadArt, setLoadArt] = useState({ img: null, silhouette: false });
 
   // 로딩 시작 + 비동기 작업 래핑. 최소 MIN_MS 동안 표시.
   // asyncFn 이 예외를 던져도 finally 에서 오버레이를 반드시 닫는다. 에러는 호출부로 재전파.
-  async function withLoading(msg, asyncFn) {
+  async function withLoading(msg, asyncFn, art = {}) {
     setLoadMsg(msg);
+    setLoadArt({ img: art.img ?? null, silhouette: !!art.silhouette });
     setLoading(true);
     const start = Date.now();
     try {
@@ -56,5 +63,5 @@ export function useLoading() {
     }
   }
 
-  return { loading, loadMsg, setLoading, withLoading };
+  return { loading, loadMsg, loadArt, setLoading, withLoading };
 }

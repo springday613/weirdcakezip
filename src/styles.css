@@ -1063,7 +1063,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   flex: 1;
   padding: 0 var(--pad-screen);
 }
-.title-logo            { width: 300px; aspect-ratio: 720 / 674; }
+.title-logo            { width: 300px; aspect-ratio: 720 / 671; } /* logo_new (QA21 / KAN-75) */
 .title-ui {
   display: flex;
   flex-direction: column;

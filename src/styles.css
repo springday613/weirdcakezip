@@ -1275,9 +1275,16 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   padding: var(--pad-screen);
   max-width: 300px;
 }
+/* 손님마다 비율이 제각각(0.76~1.45)이라 높이로 맞춘다 — 고정 aspect-ratio 는 핑크 전용이었다 */
 .loading-monster {
-  width: 100px;
-  aspect-ratio: 682 / 896;
+  height: 116px;
+  width: auto;
+  max-width: 170px;
+}
+/* 아직 오는 중 — 누구인지는 실루엣으로만 (QA17 / KAN-67) */
+.loading-monster--shadow {
+  filter: brightness(0) blur(0.6px);
+  opacity: 0.4;
 }
 .loading-message {
   font-size: var(--fs-body);

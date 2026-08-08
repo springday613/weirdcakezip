@@ -128,9 +128,13 @@ body {
    캔버스(390)가 좌우 패딩(12px)을 스며 나가는 무대라, 음수 마진으로 스크롤러 폭을
    셸 전폭으로 넓혀 좌우가 잘리지 않게 한다 */
 .app-shell.shell--scroll .build-keep { overflow-y: auto; margin: 0 calc(-1 * var(--pad-screen, 12px)); }
-/* 스크롤 모드 — 구도 하향(translateY)을 끈다. 켜 두면 스크롤러가 캔버스 위로 뻗은
-   배경(::before -144px)을 잘라 위쪽에 틈이 생기고, 맨 위로 올려도 상단이 안 보인다 */
-.app-shell.shell--scroll .screen--canvas { transform: scale(var(--fit, 1)); }
+/* 스크롤 모드 — 구도 하향(translateY)을 끄고, 그림이 상자 위로 뻗는 만큼(--canvas-bleed)
+   마진으로 상자를 내린다. 안 그러면 스크롤러가 상자 밖 위쪽을 잘라 소품 윗부분이
+   날아가고, 맨 위로 올려도 무대 상단이 안 보인다 (마진은 transform 배율을 안 타므로 ×fit) */
+.app-shell.shell--scroll .screen--canvas {
+  transform: scale(var(--fit, 1));
+  margin-top: calc(var(--canvas-bleed, 144px) * var(--fit, 1));
+}
 
 .layer-art   { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .layer-veil  { position: absolute; inset: 0; z-index: 0; background: var(--veil); pointer-events: none; }
@@ -465,6 +469,8 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   align-self: center;
   /* --canvas-shift: 구도 하향값. 훅이 배율 계산에 같은 값을 쓰므로 CSS 변수로 공유한다 */
   --canvas-shift: 60px;
+  /* --canvas-bleed: 그림(::before)이 상자 위로 뻗는 길이 — 소품 윗부분이 이 구간에 있다 */
+  --canvas-bleed: 144px;
   transform: translateY(calc(var(--canvas-shift) * var(--fit, 1))) scale(var(--fit, 1));
   transform-origin: top center;
 }
@@ -478,7 +484,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   z-index: -1;
   /* 배경은 콘텐츠와 같은 배율로 줄어든다 — 작업대·앞치마에 보울·팔레트를 맞춰 둔 구도라
      배경만 원래 크기로 두면 배치가 어긋난다. 줄어서 생긴 좌우는 bg_default 가 채운다. */
-  top: -144px;
+  top: calc(-1 * var(--canvas-bleed, 144px));
   left: -12px;
   right: -12px;
   height: 908px;

@@ -145,8 +145,8 @@ body {
 .layer-ui    { position: relative; z-index: 3; padding: var(--pad-screen); display: flex; flex-direction: column; }
 .layer-ui--grow { flex: 1; min-height: 0; }
 /* HUD 는 뒤 형제(layer-ui)의 배경 확장(.screen--canvas::before)이 위로 뻗어도 덮이지 않게 한 단계 위.
-   상하 7px = 위 고정 판넬을 10px 짧게 (12+12 → 7+7) */
-.layer-ui--hud { z-index: 4; padding-top: 7px; padding-bottom: 7px; }
+   상하 2px = 위 고정 판넬을 20px 짧게 (12+12 → 2+2) */
+.layer-ui--hud { z-index: 4; padding-top: 2px; padding-bottom: 2px; }
 
 /* ── 4. 스티커 기본 (.stk) ───────────────────────────────── */
 .stk {

@@ -1824,8 +1824,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   display: flex;
   align-items: center;
   justify-content: center;
-  /* 버튼이 셋이 되면서 좁은 화면(375)에 맞춰 간격을 줄였다 (S33) */
-  gap: 5px;
+  gap: 8px;
   flex-shrink: 0;
   width: 100%;
   padding-bottom: 24px;
@@ -1835,10 +1834,11 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 }
 .result-action {
   height: var(--tap-min);
-  padding: 0 9px;
+  padding: 0 clamp(10px, 4vw, 18px);
   white-space: nowrap;
   line-height: 1;
 }
+.result-actions .btn-ghost { gap: 5px; }
 
 /* ── 튜토리얼 가이드 (S21) — 물범이 첫 주문 읽는 법을 알려준다 ── */
 .tut-dim-el {

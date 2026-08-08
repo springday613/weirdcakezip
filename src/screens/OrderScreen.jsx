@@ -262,26 +262,6 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
         />
       </div>
 
-      <div className={"make-nav" + introDim}>
-        <button className="arrow" disabled={step === 0 || making} onClick={() => setStep(step - 1)}>
-          ←
-        </button>
-        <button
-          className={"btn submit" + (tutSubmit ? " tut-pulse" : "")}
-          onClick={handleSubmit}
-          disabled={busy || making || folding || step !== lastStep}
-        >
-          {busy ? "손님이 살펴보는 중..." : "완성하기"}
-        </button>
-        <button
-          className={"arrow" + (tutArrow ? " tut-pulse" : "")}
-          disabled={step === lastStep || making}
-          onClick={goNext}
-        >
-          →
-        </button>
-      </div>
-
       <div className={"edit-row" + introDim}>
         {/* 굽는 중엔 잠근다 — 타이머가 살아 있어 빈 반죽이 구워지는 사고 방지(KAN-34) */}
         {/* ↺(H13, 마지막 하나 취소)는 히스토리 실행취소(Ctrl-Z)가 상위호환이라 흡수 — S25 머지 */}
@@ -303,6 +283,26 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
           </button>
           <span className="edit-label">실행취소</span>
         </div>
+      </div>
+
+      <div className={"make-nav" + introDim}>
+        <button className="arrow" disabled={step === 0 || making} onClick={() => setStep(step - 1)}>
+          ←
+        </button>
+        <button
+          className={"btn submit" + (tutSubmit ? " tut-pulse" : "")}
+          onClick={handleSubmit}
+          disabled={busy || making || folding || step !== lastStep}
+        >
+          {busy ? "손님이 살펴보는 중..." : "완성하기"}
+        </button>
+        <button
+          className={"arrow" + (tutArrow ? " tut-pulse" : "")}
+          disabled={step === lastStep || making}
+          onClick={goNext}
+        >
+          →
+        </button>
       </div>
 
       {/* 오답 선택 — 물범이 치트 시트를 다시 보게 한다 */}

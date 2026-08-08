@@ -148,7 +148,6 @@ body {
   height: 42px; /* = HUD 존 높이 */
   z-index: -1;  /* HUD 버튼들 뒤로 */
   background: url("/assets/bg_wood_band.webp") center top / 100% auto; /* 폭을 꽉 채워야 뒤가 안 비친다 */
-  border-bottom: var(--ink-line-thin, 1.5px) solid var(--ink);
 }
 
 .layer-art   { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
@@ -493,7 +492,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   width: 390px;
   align-self: center;
   /* --canvas-shift: 구도 하향값. 훅이 배율 계산에 같은 값을 쓰므로 CSS 변수로 공유한다 */
-  --canvas-shift: 60px;
+  --canvas-shift: 112px; /* 60 → 112 (S34): 주문 띠가 상단 판넬(42px) 아래로 나오게 무대를 내린다 */
   /* --canvas-bleed: 그림(::before)이 상자 위로 뻗는 길이 — 소품 윗부분이 이 구간에 있다 */
   --canvas-bleed: 144px;
   transform: translateY(calc(var(--canvas-shift) * var(--fit, 1))) scale(var(--fit, 1));
@@ -869,7 +868,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 
 /* 네비게이션 */
 /* margin 92 → 78: StepBar 진행바(+제목 복원) flow 유입분 보상 — 완성하기 위치 유지 (S25 머지) */
-.make-nav { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 78px; }
+.make-nav { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; }
 .make-nav .submit { flex: 1; max-width: 260px; margin-top: 0; }
 .arrow {
   width: var(--tap-min);
@@ -885,7 +884,8 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   justify-content: center;
 }
 .arrow:disabled { opacity: var(--disabled-opacity); cursor: default; }
-.edit-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+/* 편집 3종은 완성하기 위 (S34) — 팔레트와의 간격이 옛 nav margin(78) 자리를 이어받는다 */
+.edit-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 24px; }
 .note { font-size: var(--fs-note); color: var(--text-muted); }
 
 .spec {
@@ -1552,22 +1552,10 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 /* BUILD(베이킹) 전용 — 위쪽 우드 작업대, 아래쪽 앞치마 (S25).
    bg_baking_2 는 앞치마 윤곽 위가 투명(RGBA)이라, 뒤에 깔린 우드가 그대로 비친다 */
 .screen-bg--build {
-  /* 뷰포트 고정층은 fill 만 — 아래쪽 핑크(bg_default) + 위쪽 우드 밴드(::before).
+  /* 무대 옆·아래는 fill 없이 투명 — body 의 무이음 구름 타일이 창 전체에 한 겹으로
+     이어진다 (셸 안 cover 를 따로 깔면 셸 경계에서 구름 배율이 어긋나 보였다, S34).
      작업대·앞치마 그림은 .screen--canvas::before 에 붙어 콘텐츠와 같이 움직인다(스크롤 포함) */
-  background: url("/assets/bg_default.webp") center / cover no-repeat;
-}
-.screen-bg--build::before {
-  /* 위쪽 fill — 이음새 없는 우드 밴드 타일(bg_baking_1 상단 253px + 거울).
-     상단 절반만 덮어 아래쪽 핑크 fill 을 침범하지 않는다.
-     폭은 캔버스의 화면상 폭(--stage-w, useFitCanvas 가 세팅)에 맞춘 가운데 한 줄 —
-     캔버스가 세로 축소로 셸보다 좁아져도 결이 이어지고, 그 옆은 구름(bg_default)이 받는다 (QA2) */
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 50%;
-  background: url("/assets/bg_wood_band.webp") center top / var(--stage-w, 100%) auto repeat-y;
+  background: none;
 }
 /* 주문(CHAT) 화면 상단 — 괴물~주문 카드 구간만 케이크 가게 안 */
 .chat-shop-zone {
@@ -1680,9 +1668,9 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
    구도(보울 -70px 등)와 겹치지 않게 한다 (S25 머지) */
 .build-order {
   position: absolute;
-  /* 화면상 'HUD 바로 아래(-52px)' 를 배율과 무관하게 유지 — 캔버스가 scale 을 타므로
-     고정 -112px 이면 배율>1 에서 HUD 를 침범한다. (fit=1 이면 -52-60 = 기존 -112 그대로) */
-  top: calc(-52px / var(--fit, 1) - var(--canvas-shift, 60px));
+  /* 화면상 '상단 판넬 바로 아래(-6px)' 를 배율과 무관하게 유지 — 캔버스가 scale 을 타므로
+     고정값이면 배율에 따라 판넬을 침범한다 */
+  top: calc(-6px / var(--fit, 1) - var(--canvas-shift, 112px));
   left: 0;
   right: 0;
   z-index: 2;

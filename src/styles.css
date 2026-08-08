@@ -101,8 +101,9 @@
 body {
   margin: 0;
   /* 셸(최대 640) 밖 좌우 — 단색 대신 구름 배경을 가로로 타일해 넉넉히 채운다.
-     타일 폭 = 화면 세로에 비례라 넓은 모니터에서도 3장 이상 이어 붙는다 */
-  background: var(--paper-warm) url("/assets/bg_default.webp") top center / auto 100dvh repeat-x fixed;
+     타일 폭 = 화면 세로에 비례라 넓은 모니터에서도 3장 이상 이어 붙는다.
+     x=50vw: 이음매 하나를 화면 정중앙에 — 셸(가운데, ≥320px)이 가려 준다 */
+  background: var(--paper-warm) url("/assets/bg_default.webp") 50vw 0 / auto 100dvh repeat-x fixed;
   color: var(--text);
   font-family: var(--font);
   font-size: var(--fs-body);
@@ -137,6 +138,18 @@ body {
 }
 /* 스크롤 모드 — translateY 가 없으니 주문 띠는 상자 기준 원값으로 (bleed 144 안에 딱 들어간다) */
 .app-shell.shell--scroll .build-order { top: -112px; }
+/* 스크롤 모드 — 맨 위 고정바: 무대가 HUD 아래로 스크롤되어 지나가므로,
+   셸 전폭 우드 바가 HUD 를 받치고 아래 경계선으로 스크롤 콘텐츠와 분리한다 */
+.app-shell.shell--scroll .screen-bg--build::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 42px; /* = HUD 존 높이 */
+  background: url("/assets/bg_wood_band.webp") center top / auto 200% no-repeat;
+  border-bottom: var(--ink-line-thin, 1.5px) solid var(--ink);
+}
 
 .layer-art   { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .layer-veil  { position: absolute; inset: 0; z-index: 0; background: var(--veil); pointer-events: none; }
@@ -145,8 +158,12 @@ body {
 .layer-ui    { position: relative; z-index: 3; padding: var(--pad-screen); display: flex; flex-direction: column; }
 .layer-ui--grow { flex: 1; min-height: 0; }
 /* HUD 는 뒤 형제(layer-ui)의 배경 확장(.screen--canvas::before)이 위로 뻗어도 덮이지 않게 한 단계 위.
-   상하 2px = 위 고정 판넬을 20px 짧게 (12+12 → 2+2) */
-.layer-ui--hud { z-index: 4; padding-top: 2px; padding-bottom: 2px; }
+   상하 0 + 컨트롤 38px = 위 고정 판넬을 원래(72)보다 30px 짧게 */
+.layer-ui--hud { z-index: 4; padding-top: 0; padding-bottom: 0; }
+.hud-bar .btn-icon { width: 38px; height: 38px; min-height: 38px; }
+.hud-bar .chat-popup-trigger { height: 38px; }
+.hud-bar .hud-pill { height: 38px; padding-top: 0; padding-bottom: 0; }
+.hud-bar .hud-pill > * { max-height: 34px; }
 
 /* ── 4. 스티커 기본 (.stk) ───────────────────────────────── */
 .stk {

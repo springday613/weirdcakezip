@@ -214,9 +214,7 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
 
   return (
     <div className="screen screen--canvas">
-      <div className={"hud hud-row" + introDim}>
-        <span>주문 {index + 1} / {total}</span>
-      </div>
+      {/* 주문 n/N 라벨은 제거 (S34) — 진행도는 스텝바가 보여 준다 */}
 
       {/* 주문 띠 — 팝업 안 열고도 6단계 내내 주문 문장이 보이게. 튜토리얼은 치트 시트가 있어 생략 */}
       {!order.script && (

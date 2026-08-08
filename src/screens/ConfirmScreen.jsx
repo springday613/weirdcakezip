@@ -1,6 +1,5 @@
 import CakeView from "../components/CakeView.jsx";
 import Img from "../components/Img.jsx";
-import Icon from "../components/Icon.jsx";
 import { describeCake, MONSTERS } from "../data/ingredients.js";
 import { soundManager } from "../utils/soundManager.js";
 
@@ -30,10 +29,10 @@ export default function ConfirmScreen({ order, cake, onBack, onSubmit, busy }) {
       </div>
 
       {/* 버튼 — 하단 고정 */}
-      {/* 되돌아가기는 왼쪽 동그란 화살표, 진행(주기)은 오른쪽 — 제작 화면의 ← → 배치와 같은 방향감 */}
+      {/* 고치기(만들던 상태로 복귀)는 왼쪽 동그란 화살표, 진행(주기)은 오른쪽 — 제작 화면의 ← → 배치와 같은 방향감 */}
       <div className="confirm-actions">
-        <button className="btn-icon confirm-back" data-sfx="back" onMouseDown={() => soundManager.playSfx("back")} onTouchStart={() => soundManager.playSfx("back")} onClick={onBack} aria-label="다시 만들기" title="다시 만들기">
-          <Icon name="retry" size="sm" />
+        <button className="btn-ghost confirm-back" data-sfx="back" onMouseDown={() => soundManager.playSfx("back")} onTouchStart={() => soundManager.playSfx("back")} onClick={onBack}>
+          고치기
         </button>
         {/* 주기의 tap 사운드는 H16 것 — data-sfx 가 있으면 App 의 전역 위임 tap 은 건너뛴다 */}
         <button

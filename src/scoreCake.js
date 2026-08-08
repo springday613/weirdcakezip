@@ -56,10 +56,19 @@ function counts(list) {
   return m;
 }
 function decoFrac(want, made) {
-  const wd = counts((want ?? []).flatMap((d) => Array(d.count).fill({ type: d.type })));
+  const wantList = want ?? [];
+  // count: "any" = 종류만 맞으면 개수 무관(1개 이상) — QA26. 나머지는 개수까지 정확 일치.
+  const anyTypes = new Set(wantList.filter((d) => d.count === "any").map((d) => d.type));
+  const wd = counts(wantList.filter((d) => d.count !== "any").flatMap((d) => Array(d.count).fill({ type: d.type })));
   const cd = counts(made);
-  const keys = new Set([...Object.keys(wd), ...Object.keys(cd)]);
-  for (const k of keys) if ((wd[k] ?? 0) !== (cd[k] ?? 0)) return 0;
+  const keys = new Set([...Object.keys(wd), ...Object.keys(cd), ...anyTypes]);
+  for (const k of keys) {
+    if (anyTypes.has(k)) {
+      if ((cd[k] ?? 0) < 1) return 0;
+      continue;
+    }
+    if ((wd[k] ?? 0) !== (cd[k] ?? 0)) return 0;
+  }
   return 1;
 }
 

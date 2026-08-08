@@ -154,7 +154,7 @@ export const MONSTERS = {
     },
   },
   robot: {
-    name: "네모", img: oneFace("robot"),
+    name: "네모", img: face("robot"), // 표정 3종 완비 (QA23 / KAN-77)
     character: {
       personality: "감정 표현이 없는 기계. 주문서를 읽듯 항목과 값으로 말하고 수치를 즐겨 쓴다. 해석하거나 부연하지 않는다.",
       speech: "반드시 '항목: 값' 나열로만 말한다. 예: \"베이스: 초콜릿, 생크림: 초콜릿, 데코: 필요없음.\" 평서문·감탄사·이모지 금지. 잡담에도 형식 유지(예: \"인사: 확인.\").",

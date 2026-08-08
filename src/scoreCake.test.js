@@ -229,3 +229,23 @@ test("CREAM_FULL 은 cakeLayout 의 생크림 슬롯 수와 같다", async () =>
   const layout = JSON.parse(readFileSync(new URL("./data/cakeLayout.json", import.meta.url), "utf-8"));
   assert.equal(CREAM_FULL, layout.cream.slots.length);
 });
+
+// QA26 — 데코 count:"any": 종류만 맞으면 개수 무관(1개 이상)
+const part = (r, key) => r.parts.find((p) => p.key === key);
+test("deco any: 스프링클 개수 무관, 하트초는 정확히 1", () => {
+  const w = { deco: [{ type: "heart_candle_blue", count: 1 }, { type: "sprinkle", count: "any" }] };
+  const many = scoreCake(order(w), cake({ deco: [
+    { type: "heart_candle_blue" }, { type: "sprinkle" }, { type: "sprinkle" }, { type: "sprinkle" },
+  ] }));
+  assert.equal(part(many, "데코").frac, 1);
+  const noSprinkle = scoreCake(order(w), cake({ deco: [{ type: "heart_candle_blue" }] }));
+  assert.equal(part(noSprinkle, "데코").frac, 0);
+  const extraKind = scoreCake(order(w), cake({ deco: [
+    { type: "heart_candle_blue" }, { type: "sprinkle" }, { type: "bomb_candle" },
+  ] }));
+  assert.equal(part(extraKind, "데코").frac, 0);
+  const twoHearts = scoreCake(order(w), cake({ deco: [
+    { type: "heart_candle_blue" }, { type: "heart_candle_blue" }, { type: "sprinkle" },
+  ] }));
+  assert.equal(part(twoHearts, "데코").frac, 0);
+});

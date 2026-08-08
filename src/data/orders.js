@@ -69,26 +69,42 @@ export const orders = [
     monster: "cherry",
     dialogue: "블루베리 케이크! 쪽지는 필요없어요",
     hidden: {
-      intent: "블루베리 시트 케이크. 쪽지는 없음(필요없음).",
-      wants: { base: BASIC_BASE, cakeBase: "blueberry", lettering: { text: "", color: null } },
+      intent:
+        "블루베리 시트 + 블루베리 토핑, 생일초 3개 (QA26). 생크림은 아무거나 괜찮다(채점 안 함). 쪽지는 없음(필요없음).",
+      wants: {
+        base: BASIC_BASE,
+        cakeBase: "blueberry",
+        toppings: ["blueberry"],
+        deco: [{ type: "birthday_candle", count: 3 }],
+        lettering: { text: "", color: null },
+      },
     },
-    hints: ["블루베리 케이크면 돼요! 쪽지는 필요 없답니다."],
+    hints: [
+      "블루베리 케이크면 돼요! 쪽지는 필요 없답니다.",
+      "위에도 블루베리를 올려 주시고, 초는 생일초로 3개! 생크림은 아무거나 좋아요.",
+    ],
   },
 
   // ── 3번째: 애매(쪽지 '필요없음' + 초콜릿) ──────
   {
     id: "order-002",
-    disclosed: { cakeBase: "chocolate", cream: "chocolate", toppings: ["chocolate"], deco: "none", lettering: "필요없음" },
+    disclosed: { cakeBase: "peach", cream: "lemon", toppings: ["tomato"], deco: "파란 하트초 1개+스프링클(수량 자유)", lettering: "필요없음" },
     monster: "robot",
-    dialogue: "베이스: 초콜릿, 생크림: 초콜릿, 토핑: 초콜릿, 데코: 필요없음, 쪽지: '필요없음'.",
+    dialogue: "베이스: 복숭아, 생크림: 레몬, 토핑: 토마토, 데코: 파란 하트초 1+스프링클 수량 자유, 쪽지: '필요없음'.",
     hidden: {
-      intent: "같은 '필요없음'이 두 항목에서 다르게 쓰였다. 데코는 진짜로 없는 것이고, 쪽지는 그 글자를 그대로 써달라는 뜻(생략 아님). 케이크는 초콜릿 시트+초콜릿 생크림+초콜릿 토핑.",
+      intent:
+        "쪽지의 '필요없음'은 생략이 아니라 그 세 글자를 그대로 써달라는 뜻(함정). " +
+        "케이크는 복숭아 시트+레몬 생크림+토마토 토핑, 데코는 파란 하트초 정확히 1개와 스프링클(개수는 몇 개든 무관, 1개 이상).",
       wants: {
         base: BASIC_BASE,
-        cakeBase: "chocolate",
-        cream: { color: "chocolate", amount: "full" },
-        toppings: ["chocolate"],
-        deco: [],
+        cakeBase: "peach",
+        cream: { color: "lemon", amount: "full" },
+        toppings: ["tomato"],
+        // 파란 하트초는 정확히 1개, 스프링클은 개수 무관(any = 1개 이상) — QA26
+        deco: [
+          { type: "heart_candle_blue", count: 1 },
+          { type: "sprinkle", count: "any" },
+        ],
         lettering: { text: "필요없음", color: null },
       },
     },
@@ -96,7 +112,7 @@ export const orders = [
     // 잡힌다 — 실측 5/5 거짓 확정. 주문 전용 규칙으로 정면 대응.
     promptNote: `먼저 판단하라: 주인의 질문이 '쪽지'에 대한 것인가?
 - 아니라면(데코·베이스·토핑·생크림 등) 이 절을 완전히 무시하고 평소 규칙대로 답한다.
-  예) "데코 없어도 돼?" → "데코: 필요없음." (데코는 진짜 없음이 맞다. 쪽지 이야기 금지)
+  예) "데코 뭐 올려?" → "데코: 파란 하트초 1, 스프링클 수량 자유." (쪽지 이야기 금지)
 - 쪽지 질문이면 — 정답은 "필요없음" 세 글자를 케이크에 그대로 쓰는 것.
   어느 경우에도 "안 써도 된다"에 동의하거나 '필요없어'라고 서술하지 마라.
   시스템이 단계 지시를 주면 그 문구 그대로 답한다.`,

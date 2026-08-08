@@ -100,7 +100,9 @@
 *, *::before, *::after { box-sizing: border-box; }
 body {
   margin: 0;
-  background: var(--paper-warm);
+  /* 셸(최대 640) 밖 좌우 — 단색 대신 구름 배경을 가로로 타일해 넉넉히 채운다.
+     타일 폭 = 화면 세로에 비례라 넓은 모니터에서도 3장 이상 이어 붙는다 */
+  background: var(--paper-warm) url("/assets/bg_default.webp") top center / auto 100dvh repeat-x fixed;
   color: var(--text);
   font-family: var(--font);
   font-size: var(--fs-body);
@@ -120,8 +122,12 @@ body {
   margin: 0 auto;
   overflow: hidden;
 }
-/* 축소 바닥(MIN_FIT)까지 줄이고도 안 들어가는 화면 — 더 줄이는 대신 스크롤 (QA2) */
-.app-shell.shell--scroll { overflow-y: auto; }
+/* 세로가 모자란 화면 — 캔버스는 폭에만 맞추고, 세로는 축소 대신 이 구간만 스크롤 (QA2).
+   셸이 아니라 build-keep 을 스크롤러로: HUD 는 위에 고정된 채 무대만 내려 본다.
+   ⚠ overflow-y:auto 는 가로 overflow 도 잘라 버린다(visible+auto 조합 불가) —
+   캔버스(390)가 좌우 패딩(12px)을 스며 나가는 무대라, 음수 마진으로 스크롤러 폭을
+   셸 전폭으로 넓혀 좌우가 잘리지 않게 한다 */
+.app-shell.shell--scroll .build-keep { overflow-y: auto; margin: 0 calc(-1 * var(--pad-screen, 12px)); }
 
 .layer-art   { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .layer-veil  { position: absolute; inset: 0; z-index: 0; background: var(--veil); pointer-events: none; }
@@ -709,19 +715,13 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .palette-label { display: none; }
 /* 편집 버튼 3종 — 그림 아이콘 (다시시작 ↩ · 빗자루 · Ctrl-Z), 배경 50% 반투명.
    .chip.edit-btn: 뒤에 오는 .chip 의 --paper 배경(0.9)을 특이도로 이긴다 */
-.chip.edit-btn {
-  position: relative;
-  line-height: 0;
-  background: rgba(255, 255, 255, 0.5);
-  /* 아이콘 위 · 글자 아래 (QA11 / KAN-61) — hover 툴팁은 모바일에 hover 가 없어 무용지물이었다 */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  padding: 6px 10px;
-}
+/* 편집 버튼 3종 (QA11 / KAN-61) — 라벨은 버튼 '아래' 상시 표시.
+   hover 툴팁은 모바일에 hover 가 없어 무용지물이었다 */
+.edit-item { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.chip.edit-btn { position: relative; line-height: 0; background: rgba(255, 255, 255, 0.5); }
 .edit-icon { width: 24px; height: 24px; object-fit: contain; display: block; }
 .edit-label { font-size: var(--fs-note); line-height: 1.2; color: var(--text); white-space: nowrap; }
+.edit-item:has(button:disabled) .edit-label { opacity: .4; }
 
 /* 쪽지 단계의 안 씀/문구 입력 줄 — transform 이라 아래 완성하기 위치엔 영향 없음.
    margin-bottom 42px: 다른 단계의 두 줄짜리 팔레트와 flow 높이를 맞춰
@@ -1522,8 +1522,18 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
      작업대·앞치마 그림은 .screen--canvas::before 에 붙어 콘텐츠와 같이 움직인다(스크롤 포함) */
   background: url("/assets/bg_default.webp") center / cover no-repeat;
 }
-/* 캔버스가 줄면 그 좌우로 이 fill 이 드러난다. 우드 밴드를 깔면 줄어든 캔버스의
-   앞치마·핑크 구간과 색이 어긋나 세로 이음새가 보이므로, 옆은 bg_default 하나로 둔다 (QA2) */
+.screen-bg--build::before {
+  /* 위쪽 fill — 이음새 없는 우드 밴드 타일(bg_baking_1 상단 253px + 거울).
+     상단 절반만 덮어 아래쪽 핑크 fill 을 침범하지 않는다.
+     배율이 폭 기준뿐이라 캔버스 배경과 이 fill 의 폭이 늘 같다 — 이음새 없음 (QA2) */
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: url("/assets/bg_wood_band.webp") center top / 100% auto repeat-y;
+}
 /* 주문(CHAT) 화면 상단 — 괴물~주문 카드 구간만 케이크 가게 안 */
 .chat-shop-zone {
   position: relative;

@@ -287,18 +287,24 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
       <div className={"edit-row" + introDim}>
         {/* 굽는 중엔 잠근다 — 타이머가 살아 있어 빈 반죽이 구워지는 사고 방지(KAN-34) */}
         {/* ↺(H13, 마지막 하나 취소)는 히스토리 실행취소(Ctrl-Z)가 상위호환이라 흡수 — S25 머지 */}
-        <button className="chip ghost edit-btn" disabled={making} data-sfx="back" onMouseDown={() => soundManager.playSfx("back")} onTouchStart={() => soundManager.playSfx("back")} onClick={resetAll} aria-label="처음부터 다시">
-          <img className="edit-icon" src="/assets/ui_undo.webp" alt="" />
+        <div className="edit-item">
+          <button className="chip ghost edit-btn" disabled={making} data-sfx="back" onMouseDown={() => soundManager.playSfx("back")} onTouchStart={() => soundManager.playSfx("back")} onClick={resetAll} aria-label="처음부터 다시">
+            <img className="edit-icon" src="/assets/ui_undo.webp" alt="" />
+          </button>
           <span className="edit-label">처음부터 다시</span>
-        </button>
-        <button className="chip ghost edit-btn" disabled={making} data-sfx="back" onMouseDown={() => soundManager.playSfx("back")} onTouchStart={() => soundManager.playSfx("back")} onClick={clearBoard} aria-label="케이크 위 다 지우기">
-          <img className="edit-icon" src="/assets/ui_broom.webp" alt="" />
+        </div>
+        <div className="edit-item">
+          <button className="chip ghost edit-btn" disabled={making} data-sfx="back" onMouseDown={() => soundManager.playSfx("back")} onTouchStart={() => soundManager.playSfx("back")} onClick={clearBoard} aria-label="케이크 위 다 지우기">
+            <img className="edit-icon" src="/assets/ui_broom.webp" alt="" />
+          </button>
           <span className="edit-label">다 지우기</span>
-        </button>
-        <button className="chip ghost edit-btn" disabled={making || history.current.length === 0} data-sfx="back" onMouseDown={() => soundManager.playSfx("back")} onTouchStart={() => soundManager.playSfx("back")} onClick={undoLast} aria-label="실행취소">
-          <img className="edit-icon" src="/assets/ui_ctrlz.webp" alt="" />
+        </div>
+        <div className="edit-item">
+          <button className="chip ghost edit-btn" disabled={making || history.current.length === 0} data-sfx="back" onMouseDown={() => soundManager.playSfx("back")} onTouchStart={() => soundManager.playSfx("back")} onClick={undoLast} aria-label="실행취소">
+            <img className="edit-icon" src="/assets/ui_ctrlz.webp" alt="" />
+          </button>
           <span className="edit-label">실행취소</span>
-        </button>
+        </div>
       </div>
 
       {/* 오답 선택 — 물범이 치트 시트를 다시 보게 한다 */}

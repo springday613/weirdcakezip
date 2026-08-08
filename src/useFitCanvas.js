@@ -1,13 +1,12 @@
 import { useLayoutEffect, useRef } from "react";
 
-// BUILD 캔버스를 화면 세로에 맞춘다 (QA2 / KAN-52).
-// 이 캔버스는 748px 기준으로 픽셀 단위로 맞춰 둔 구도라 재배치가 아니라 '통째로 축소'로 맞춘다.
-// 세로가 넉넉하면 배율 1 — 기존 화면과 완전히 같다. 짧은 기기에서만 줄어든다.
-const BOTTOM_GAP = 8; // 맨 아래 편집줄과 화면 끝 사이 최소 여백
-const STAGE_W = 390; // 무대 기준 폭 — 배경·콘텐츠 구도를 맞춰 둔 폭 (styles.css 의 .screen--canvas width 와 짝)
-// 축소 바닥 — 이보다 더 줄이면 재료 칩·글자가 못 읽을 만큼 작아진다.
-// 바닥에 닿고도 안 들어가는 화면에서는 더 줄이지 않고 스크롤로 넘긴다.
-const MIN_FIT = 0.8;
+// BUILD 캔버스를 화면 '폭'에 맞춘다 (QA2 / KAN-52).
+// 이 캔버스는 폭 390 기준으로 배경(작업대·앞치마)과 콘텐츠(보울·팔레트)를 픽셀 단위로
+// 맞춰 둔 무대라, 재배치가 아니라 통째 균등 배율로만 맞춘다.
+// 배율은 폭으로만 정한다 — 세로 기준으로도 줄이면 캔버스가 셸보다 좁아져
+// 위·옆에 배경 빈틈이 드러난다(2026-08-08 확인). 세로가 모자라면 축소 대신 스크롤.
+const STAGE_W = 390; // 무대 기준 폭 (styles.css 의 .screen--canvas width 와 짝)
+const MIN_FIT = 0.8; // 안전 바닥 — 재료 칩·글자가 읽히는 하한
 
 export default function useFitCanvas(screen) {
   const shellRef = useRef(null);
@@ -20,28 +19,26 @@ export default function useFitCanvas(screen) {
       const canvas = shell.querySelector(".screen--canvas");
       if (!canvas) {
         shell.style.removeProperty("--fit");
+        shell.classList.remove("shell--scroll");
         return;
       }
-      // 먼저 원래 크기로 되돌려 재야 한다 — 줄어든 상태에서 재면 배율이 계속 작아진다
+      // 기준 상태(배율 1, 원래 높이)로 되돌려 재야 배율이 겹으로 적용되지 않는다
       shell.style.setProperty("--fit", "1");
-      const top = canvas.getBoundingClientRect().top;
-      // 캔버스는 콘텐츠보다 아래가 남는 고정 상자라, 상자가 아니라 '마지막 자식'까지를 잰다
-      const last = canvas.lastElementChild;
-      const need = (last ? last.getBoundingClientRect().bottom : canvas.getBoundingClientRect().bottom) - top;
-      const avail = window.innerHeight - top - BOTTOM_GAP;
-      if (need <= 0 || avail <= 0) return;
-      // 폭 배율: 캔버스는 390px 무대 — 셸이 더 넓으면 키우고 좁으면 줄인다(구도 유지 = 균등 배율).
-      // 최종 배율은 폭·세로 중 작은 쪽. 둘 다 넉넉하면 폭에 맞춰 화면을 채운다.
-      const widthFit = shell.clientWidth / STAGE_W;
-      // 세로 배율: translateY(--canvas-shift × fit) 가 시작점도 끌어내리므로 그 항까지 넣어 푼다.
-      //   bottom(fit) = top - shift + (need + shift) × fit ≤ top + avail
-      //   → fit ≤ (avail + shift) / (need + shift)
-      const shift = parseFloat(getComputedStyle(canvas).getPropertyValue("--canvas-shift")) || 0;
-      const heightFit = (avail + shift) / (need + shift);
-      const fit = Math.max(MIN_FIT, Math.min(widthFit, heightFit));
+      canvas.style.height = "";
+      const baseH = parseFloat(getComputedStyle(canvas).height); // 무대 기준 높이 (748)
+
+      const fit = Math.max(MIN_FIT, shell.clientWidth / STAGE_W);
       shell.style.setProperty("--fit", String(fit));
-      // 바닥까지 줄이고도 안 들어가면 스크롤을 연다 (min-height 아래로는 축소 대신 스크롤)
-      shell.classList.toggle("shell--scroll", (need + shift) * fit - shift > avail + 1);
+      // 레이아웃 높이도 같은 배율로 — transform 은 레이아웃을 안 바꾸므로, 안 맞추면
+      // 중앙정렬(margin:auto)이 옛 높이로 계산되고 스크롤 길이도 어긋난다
+      canvas.style.height = `${Math.round(baseH * fit)}px`;
+
+      // 세로가 모자라면(무대가 컨테이너보다 크면) 그 구간만 스크롤을 연다
+      const keep = canvas.closest(".build-keep");
+      shell.classList.toggle(
+        "shell--scroll",
+        !!keep && baseH * fit > keep.clientHeight + 1
+      );
     };
 
     apply();

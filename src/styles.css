@@ -1834,8 +1834,10 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .result-actions .btn-ghost { font-weight: normal; font-size: var(--fs-body);
 }
 .result-action {
-  padding: 10px 9px;
+  height: var(--tap-min);
+  padding: 0 9px;
   white-space: nowrap;
+  line-height: 1;
 }
 
 /* ── 튜토리얼 가이드 (S21) — 물범이 첫 주문 읽는 법을 알려준다 ── */

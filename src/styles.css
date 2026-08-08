@@ -447,11 +447,16 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   overflow-y: visible;
   /* 구도 전체를 60px 아래로 — transform 이라 중앙 정렬(위아래 동률 분배)은 유지된다.
      배경(.screen-bg--build)도 같은 +60 을 갖는다 */
-  /* --fit: 세로가 모자란 기기에서 구도를 통째로 줄여 다 보이게 한다 (QA2 / KAN-52).
-     재배치가 아니라 축소인 이유 — 이 캔버스는 748px 기준으로 픽셀 단위로 맞춰 둔 구도라
-     요소를 다시 흘리면 그 배치가 무너진다. 세로가 넉넉하면 --fit 은 1 이라 그대로다.
+  /* --fit: 이 캔버스는 폭 390 기준으로 배경(작업대·앞치마)과 콘텐츠(보울·팔레트)를
+     픽셀 단위로 맞춰 둔 '무대'다 (QA2 / KAN-52). 재배치하면 그 구도가 무너지므로
+     폭을 390 으로 못 박고, 배경까지 포함해 통째로 균등 배율(scale)로 화면에 맞춘다.
+     배율은 useFitCanvas 가 폭·세로 중 작은 쪽으로 계산 — 어느 화면에서든 구도·비율이 같다.
      원점이 top center 라 위쪽 기준선(HUD 아래)은 배율과 무관하게 고정된다. */
-  transform: translateY(calc(60px * var(--fit, 1))) scale(var(--fit, 1));
+  width: 390px;
+  align-self: center;
+  /* --canvas-shift: 구도 하향값. 훅이 배율 계산에 같은 값을 쓰므로 CSS 변수로 공유한다 */
+  --canvas-shift: 60px;
+  transform: translateY(calc(var(--canvas-shift) * var(--fit, 1))) scale(var(--fit, 1));
   transform-origin: top center;
 }
 /* 작업대·앞치마 그림 — 캔버스에 붙어 중앙 정렬·스크롤을 함께 탄다.

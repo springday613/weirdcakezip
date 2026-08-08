@@ -174,7 +174,9 @@ body {
 .layer-veil  { position: absolute; inset: 0; z-index: 0; background: var(--veil); pointer-events: none; }
 /* BUILD — 무대 밖은 맨 뒤(body) 구름 타일이 그대로 보이게, 셸 배경층을 걷는다 (S34) */
 .app-shell.shell--build .layer-art,
-.app-shell.shell--build .layer-veil { background: none; }
+.app-shell.shell--build .layer-veil,
+.app-shell.shell--stage .layer-art,
+.app-shell.shell--stage .layer-veil { background: none; } /* 맵도 동일 (QA15 / KAN-72) */
 .layer-frame { position: relative; z-index: 1; }
 .layer-asset { position: relative; z-index: 2; }
 .layer-ui    { position: relative; z-index: 3; padding: var(--pad-screen); display: flex; flex-direction: column; }

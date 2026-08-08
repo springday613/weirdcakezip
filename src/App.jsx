@@ -23,6 +23,7 @@ import { TUTORIAL_GUIDE } from "./data/tutorial.js";
 import { soundManager } from "./utils/soundManager.js";
 import { starAnimEnd } from "./components/Stars.jsx";
 import useSfx from "./useSfx.js";
+import useFitCanvas from "./useFitCanvas.js";
 
 // 게임 루프 = 상태머신
 //   TITLE → NAME(이름) → INTRO(스토리) → STAGE → CHAT → BUILD → RESULT → STAGE 순환
@@ -314,9 +315,10 @@ export default function App() {
   };
 
   const bgClass = `bg-${BG_MODES[bgMode]}`;
+  const shellRef = useFitCanvas(screen);
 
   return (
-    <div className={`app-shell ${bgClass}`} onClick={handleGlobalClick}>
+    <div ref={shellRef} className={`app-shell ${bgClass}`} onClick={handleGlobalClick}>
       <div className="layer-art" />
       <div className="layer-veil" />
 

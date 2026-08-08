@@ -214,9 +214,7 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
 
   return (
     <div className="screen screen--canvas">
-      <div className={"hud hud-row" + introDim}>
-        <span>주문 {index + 1} / {total}</span>
-      </div>
+      {/* 주문 n/N 라벨은 제거 (S34) — 진행도는 스텝바가 보여 준다 */}
 
       {/* 주문 띠 — 팝업 안 열고도 6단계 내내 주문 문장이 보이게. 튜토리얼은 치트 시트가 있어 생략 */}
       {!order.script && (
@@ -264,6 +262,26 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
         />
       </div>
 
+      <div className={"edit-row" + introDim}>
+        {/* 굽는 중엔 잠근다 — 타이머가 살아 있어 빈 반죽이 구워지는 사고 방지(KAN-34) */}
+        {/* ↺(H13, 마지막 하나 취소)는 히스토리 실행취소(Ctrl-Z)가 상위호환이라 흡수 — S25 머지 */}
+        <div className="edit-item">
+          <button className="chip ghost edit-btn" disabled={making} data-sfx="back" onMouseDown={() => soundManager.playSfx("back")} onTouchStart={() => soundManager.playSfx("back")} onClick={resetAll} aria-label="처음부터 다시">
+            <img className="edit-icon" src="/assets/ui_undo.webp" alt="" />
+          </button>
+        </div>
+        <div className="edit-item">
+          <button className="chip ghost edit-btn" disabled={making} data-sfx="back" onMouseDown={() => soundManager.playSfx("back")} onTouchStart={() => soundManager.playSfx("back")} onClick={clearBoard} aria-label="케이크 위 다 지우기">
+            <img className="edit-icon" src="/assets/ui_broom.webp" alt="" />
+          </button>
+        </div>
+        <div className="edit-item">
+          <button className="chip ghost edit-btn" disabled={making || history.current.length === 0} data-sfx="back" onMouseDown={() => soundManager.playSfx("back")} onTouchStart={() => soundManager.playSfx("back")} onClick={undoLast} aria-label="실행취소">
+            <img className="edit-icon" src="/assets/ui_ctrlz.webp" alt="" />
+          </button>
+        </div>
+      </div>
+
       <div className={"make-nav" + introDim}>
         <button className="arrow" disabled={step === 0 || making} onClick={() => setStep(step - 1)}>
           ←
@@ -281,20 +299,6 @@ export default function OrderScreen({ order, index, total, cake, setCake, onSubm
           onClick={goNext}
         >
           →
-        </button>
-      </div>
-
-      <div className={"edit-row" + introDim}>
-        {/* 굽는 중엔 잠근다 — 타이머가 살아 있어 빈 반죽이 구워지는 사고 방지(KAN-34) */}
-        {/* ↺(H13, 마지막 하나 취소)는 히스토리 실행취소(Ctrl-Z)가 상위호환이라 흡수 — S25 머지 */}
-        <button className="chip ghost edit-btn" disabled={making} data-sfx="back" onMouseDown={() => soundManager.playSfx("back")} onTouchStart={() => soundManager.playSfx("back")} onClick={resetAll} data-tip="처음부터 다시" aria-label="처음부터 다시">
-          <img className="edit-icon" src="/assets/ui_undo.webp" alt="" />
-        </button>
-        <button className="chip ghost edit-btn" disabled={making} data-sfx="back" onMouseDown={() => soundManager.playSfx("back")} onTouchStart={() => soundManager.playSfx("back")} onClick={clearBoard} data-tip="케이크 위 다 지우기" aria-label="케이크 위 다 지우기">
-          <img className="edit-icon" src="/assets/ui_broom.webp" alt="" />
-        </button>
-        <button className="chip ghost edit-btn" disabled={making || history.current.length === 0} data-sfx="back" onMouseDown={() => soundManager.playSfx("back")} onTouchStart={() => soundManager.playSfx("back")} onClick={undoLast} data-tip="실행취소" aria-label="실행취소">
-          <img className="edit-icon" src="/assets/ui_ctrlz.webp" alt="" />
         </button>
       </div>
 

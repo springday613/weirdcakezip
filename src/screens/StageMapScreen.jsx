@@ -14,12 +14,14 @@ function nodeState(i, stars) {
 // 노드 배치 — 마을 그림(bg_stage1, 1024×1536) 안 노란 길 위 좌표. 아래→위 순서.
 // %는 화면이 아니라 **그림** 기준이다. 그림의 길 중심선을 픽셀로 훑어 잡았고,
 // .stage-canvas 가 1024:1536 비율을 지키므로 화면이 커져도 노드는 길에 붙어 있다.
+// 최상단이 top 20% 였을 때 「Stage 1」 헤더 카드에 덮였다 (QA7 / KAN-57).
+// 헤더를 피해 27% 까지 내리고, 다섯 개를 88%~27% 사이에 균등 재배분했다.
 const NODE_OFFSETS = [
   { left: "50%", top: "88%" },
-  { left: "69%", top: "71%" },
-  { left: "46%", top: "54%" },
-  { left: "29%", top: "37%" },
-  { left: "42%", top: "20%" },
+  { left: "68%", top: "73%" },
+  { left: "49%", top: "58%" },
+  { left: "45%", top: "44%" },
+  { left: "43%", top: "29%" },
 ];
 
 export default function StageMapScreen({ stars, onSelect, onFinish }) {

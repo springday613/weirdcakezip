@@ -128,6 +128,9 @@ body {
    캔버스(390)가 좌우 패딩(12px)을 스며 나가는 무대라, 음수 마진으로 스크롤러 폭을
    셸 전폭으로 넓혀 좌우가 잘리지 않게 한다 */
 .app-shell.shell--scroll .build-keep { overflow-y: auto; margin: 0 calc(-1 * var(--pad-screen, 12px)); }
+/* 스크롤 모드 — 구도 하향(translateY)을 끈다. 켜 두면 스크롤러가 캔버스 위로 뻗은
+   배경(::before -144px)을 잘라 위쪽에 틈이 생기고, 맨 위로 올려도 상단이 안 보인다 */
+.app-shell.shell--scroll .screen--canvas { transform: scale(var(--fit, 1)); }
 
 .layer-art   { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
 .layer-veil  { position: absolute; inset: 0; z-index: 0; background: var(--veil); pointer-events: none; }

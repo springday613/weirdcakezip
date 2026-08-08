@@ -42,14 +42,20 @@ export default function useFitCanvas(screen) {
       // 세로에 맞춰 줄이되(상한 = 폭 배율), 바닥(MIN_FIT) 아래로는 줄이지 않는다 — 그 밑은 스크롤
       const fit = Math.max(MIN_FIT, Math.min(widthFit, heightFit));
       shell.style.setProperty("--fit", String(fit));
-      // 우드 밴드 fill 폭 — 캔버스의 화면상 폭과 같아야 결이 이어진다 (styles.css 에서 사용)
-      shell.style.setProperty("--stage-w", `${Math.round(STAGE_W * fit)}px`);
-      // 레이아웃 높이도 같은 배율로 — transform 은 레이아웃을 안 바꾸므로, 안 맞추면
-      // 중앙정렬(margin:auto)이 옛 높이로 계산되고 스크롤 길이도 어긋난다
-      canvas.style.height = `${Math.round(baseH * fit)}px`;
+      // 우드 밴드 fill 폭 — 배경 그림(::before)은 캔버스보다 좌우로 넓다(-12px 블리드).
+      // 몸통 폭(390)이 아니라 그림 폭에 맞춰야 결·가장자리가 정확히 이어진다.
+      const artW = parseFloat(getComputedStyle(canvas, "::before").width) || STAGE_W;
+      shell.style.setProperty("--stage-w", `${Math.round(artW * fit)}px`);
 
-      // 바닥까지 줄이고도 안 들어가면 그 구간만 스크롤을 연다
-      shell.classList.toggle("shell--scroll", (need + shift) * fit - shift > avail + 1);
+      // 바닥까지 줄이고도 안 들어가면 그 구간만 스크롤을 연다.
+      // 스크롤 모드에선 구도 하향(translateY)을 끈다(styles.css) — 켜 두면 스크롤러가
+      // 캔버스 위로 뻗은 배경을 잘라 위쪽에 틈이 생기고, 맨 위로 올려도 상단이 안 보인다.
+      const scrollNeeded = (need + shift) * fit - shift > avail + 1;
+      shell.classList.toggle("shell--scroll", scrollNeeded);
+      // 레이아웃 높이도 같은 배율로 — transform 은 레이아웃을 안 바꾸므로, 안 맞추면
+      // 중앙정렬(margin:auto)이 옛 높이로 계산되고 스크롤 길이도 어긋난다.
+      // 스크롤 모드에선 내용 높이만큼만 — 무대 상자(748) 그대로면 바닥에 빈 꼬리가 남는다.
+      canvas.style.height = `${Math.round((scrollNeeded ? need : baseH) * fit)}px`;
     };
 
     apply();

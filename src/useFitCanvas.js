@@ -4,6 +4,9 @@ import { useLayoutEffect, useRef } from "react";
 // 이 캔버스는 748px 기준으로 픽셀 단위로 맞춰 둔 구도라 재배치가 아니라 '통째로 축소'로 맞춘다.
 // 세로가 넉넉하면 배율 1 — 기존 화면과 완전히 같다. 짧은 기기에서만 줄어든다.
 const BOTTOM_GAP = 8; // 맨 아래 편집줄과 화면 끝 사이 최소 여백
+// 축소 바닥 — 이보다 더 줄이면 재료 칩·글자가 못 읽을 만큼 작아진다.
+// 바닥에 닿고도 안 들어가는 화면에서는 더 줄이지 않고 스크롤로 넘긴다.
+const MIN_FIT = 0.8;
 
 export default function useFitCanvas(screen) {
   const shellRef = useRef(null);
@@ -26,7 +29,10 @@ export default function useFitCanvas(screen) {
       const need = (last ? last.getBoundingClientRect().bottom : canvas.getBoundingClientRect().bottom) - top;
       const avail = window.innerHeight - top - BOTTOM_GAP;
       if (need <= 0 || avail <= 0) return;
-      shell.style.setProperty("--fit", String(Math.min(1, avail / need)));
+      const fit = Math.max(MIN_FIT, Math.min(1, avail / need));
+      shell.style.setProperty("--fit", String(fit));
+      // 바닥까지 줄이고도 안 들어가면 스크롤을 연다 (min-height 아래로는 축소 대신 스크롤)
+      shell.classList.toggle("shell--scroll", need * fit > avail);
     };
 
     apply();

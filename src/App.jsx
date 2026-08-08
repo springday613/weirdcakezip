@@ -314,8 +314,8 @@ export default function App() {
     }
   };
 
-  // 맵(STAGE)도 BUILD 처럼 셸 배경층을 걷어 맨 뒤 구름 타일이 옆을 받게 한다 (QA15 / KAN-72)
-  const bgClass = `bg-${BG_MODES[bgMode]}${screen === "STAGE" ? " shell--stage" : ""}`;
+  // 맵·타이틀도 BUILD 처럼 셸 배경층을 걷어 맨 뒤 구름 타일 한 겹으로 통일한다 (QA15 / KAN-72)
+  const bgClass = `bg-${BG_MODES[bgMode]}${["STAGE", "TITLE"].includes(screen) ? " shell--stage" : ""}`;
   const shellRef = useFitCanvas(screen);
 
   return (

@@ -85,7 +85,7 @@ export const orders = [
     ],
   },
 
-  // ── 3번째: 애매(쪽지 '필요없음' + 초콜릿) ──────
+  // ── 3번째: 애매(쪽지 '필요없음' + 복숭아/레몬/토마토) ──────
   {
     id: "order-002",
     disclosed: { cakeBase: "peach", cream: "lemon", toppings: ["tomato"], deco: "파란 하트초 1개+스프링클(수량 자유)", lettering: "필요없음" },

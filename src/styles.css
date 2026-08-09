@@ -1768,6 +1768,27 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   font-size: var(--fs-body);
   font-weight: normal;
 }
+/* 커튼콜 (QA24) — 본편에 못 나온 손님들이 한꺼번에 튀어나온다.
+   살짝 어긋난 등장(0.08s 간격)이 동시 등장보다 활기차 보인다 */
+.credits-cast {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 4px;   /* 다섯이 한 줄에 서야 '한꺼번에 나왔다' 로 읽힌다 — 줄바꿈 금지 */
+  width: 100%;
+}
+.credits-cast-face {
+  /* 폭이 제각각(모찌가 가장 넓다)이라 높이를 화면 폭에 매어 한 줄을 지킨다 */
+  height: clamp(40px, 13.5vw, 62px);
+  width: auto;
+  object-fit: contain;
+  animation: cast-pop 0.42s cubic-bezier(.34, 1.56, .64, 1) backwards;
+  animation-delay: calc(var(--i) * 0.08s);
+}
+@keyframes cast-pop {
+  from { opacity: 0; transform: translateY(16px) scale(0.7); }
+  to   { opacity: 1; transform: none; }
+}
 
 /* ── 정산 화면 레이아웃 (H14) — CONFIRM/CLEAR 와 같은 스크롤+고정버튼 패턴 ── */
 .result-screen {
@@ -1795,10 +1816,10 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .result-coin-why { margin-left: 12px; }
 /* 별·코인을 80% 로 (QA14) — 케이크와 채점표에 무게를 싣는다.
    Icon 은 width/height 를 속성으로 주므로 CSS 로 덮어쓴다 (md 28 → 22, sm 20 → 16) */
-.result-screen .stars svg { width: 22px; height: 22px; }
+.result-screen .stars svg { width: 26px; height: 26px; } /* 별 120% (22 → 26) */
 /* 별 사이가 넓어 보이던 건 아이콘 상자(icon-box--md 44px)가 별 그림(20px)의 두 배여서다.
    상자를 그림에 맞춰 좁히면 별끼리 붙는다 (QA14) */
-.result-screen .stars .icon-box { width: 26px; height: 26px; }
+.result-screen .stars .icon-box { width: 31px; height: 31px; } /* 별 120% (26 → 31) */
 .result-coin svg { width: 16px; height: 16px; }
 
 /* 괴물 — 표정만 읽히면 된다. 케이크보다 작게 */

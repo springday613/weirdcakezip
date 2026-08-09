@@ -8,16 +8,18 @@ export default function ConfirmScreen({ order, cake, onBack, onSubmit, busy }) {
   return (
     <div className="screen confirm-screen">
       <div className="confirm-scroll">
-        {/* 손님 + 주문 말풍선 (말줄임 없이 전문) */}
-        <div className="confirm-order-row">
+        {/* 손님과 완성 케이크를 나란히 — '이 손님에게 이 케이크를' 이라는 그림 (QA14).
+            케이크는 236px 고정이라 손님(72)+간격을 붙여도 가용 폭(351) 안에 들어간다 —
+            세로로 쌓던 두 줄이 한 줄이 되어 그만큼 화면이 짧아진다. */}
+        <div className="confirm-hero">
           <Img className="confirm-monster" src={monster.img.normal} alt={monster.name} />
-          <p className="confirm-bubble stk">{order.dialogue}</p>
+          <div className="confirm-cake-wrap">
+            <CakeView cake={cake} preview="cake" notePlacement="beside" />
+          </div>
         </div>
 
-        {/* 완성 케이크 — 이 화면에서 제일 크게 */}
-        <div className="confirm-cake-wrap">
-          <CakeView cake={cake} preview="cake" notePlacement="beside" />
-        </div>
+        {/* 주문 전문 — 확인 화면의 근거라 말줄임 없이 (폭이 넓어져 줄 수가 준다) */}
+        <p className="confirm-bubble stk">{order.dialogue}</p>
 
         {/* 내가 만든 것 요약 */}
         <div className="spec">

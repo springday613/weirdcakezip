@@ -162,13 +162,13 @@ test("코인은 점수 그대로", () => {
   assert.equal(coinsFor(100), 100);
 });
 
-test("별점 경계 — 90/75/60/50", () => {
-  assert.deepEqual([100, 90, 89, 75, 74, 60, 59, 50, 49, 0].map(starsFor),
+test("별점 경계 — 85/70/60/30", () => {
+  assert.deepEqual([100, 85, 84, 70, 69, 60, 59, 30, 29, 0].map(starsFor),
                    [5, 5, 4, 4, 3, 3, 2, 2, 1, 1]);
 });
 
 test("표정은 별점·통과선과 어긋나지 않는다", () => {
-  for (const s of [0, 49, 50, 59, 60, 74, 75, 89, 90, 100]) {
+  for (const s of [0, 29, 30, 59, 60, 69, 70, 84, 85, 100]) {
     const mood = moodOf(s), stars = starsFor(s), passed = s >= 60;
     if (mood === "happy") assert.ok(stars >= 4, `${s}점: happy 인데 별 ${stars}개`);
     if (mood === "sad") assert.ok(!passed, `${s}점: sad 인데 통과`);

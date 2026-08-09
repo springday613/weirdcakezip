@@ -1783,7 +1783,13 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   gap: 16px;
   padding-bottom: 8px;
 }
-.result-screen .stars { margin-top: 0; }
+/* 시각 여백 보정 (QA14) — 상자 간격은 모두 16px 이지만 별 svg 안쪽 여백 탓에
+   눈에는 케이크→별 36 · 별→코인 40 · 코인→말풍선 27px 로 들쭉날쭉했다.
+   케이크와 별을 붙이고, 코인 위아래가 같아 보이게 맞춘다 */
+.result-screen .stars { margin-top: -14px; }
+.result-coin { margin-top: -14px; }
+/* 0 코인 사유 — 숫자와 한 칸 띄워 보여 준다 */
+.result-coin-why { margin-left: 12px; }
 /* 별·코인을 80% 로 (QA14) — 케이크와 채점표에 무게를 싣는다.
    Icon 은 width/height 를 속성으로 주므로 CSS 로 덮어쓴다 (md 28 → 22, sm 20 → 16) */
 .result-screen .stars svg { width: 22px; height: 22px; }

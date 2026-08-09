@@ -44,9 +44,12 @@ export default function ResultScreen({ result, order, cake, onNext, onMap, onRet
         <div className="result-coin">
           <Icon name="coin" size="sm" />
           <span>
-            {result.earned > 0
-              ? <>+{" "}<CoinCount value={result.earned} delay={starAnimEnd(starValue)} />코인</>
-              : zeroCoinMsg}
+            {result.earned > 0 ? (
+              <>+{" "}<CoinCount value={result.earned} delay={starAnimEnd(starValue)} />코인</>
+            ) : (
+              /* 0 을 먼저 보여 주고 이유를 옆에 — 코인 줄의 자리(숫자)가 항상 같게 (QA14) */
+              <>0<span className="result-coin-why">{zeroCoinMsg}</span></>
+            )}
           </span>
         </div>
 

@@ -126,7 +126,7 @@ export function describeCake(cake) {
 //
 // character 는 '종'의 것이다. 성격(personality)이 화법을 정하고, 좋아함·배경은 양념.
 // S15 의 9종 로스터 + S8 의 character 구조를 합쳤다 — trait 초안이 personality 로 승격.
-// 어금니는 흑백 라인만 있어 아직 없다 → 위키 캐릭터 도감 참조.
+// (구 '어금니 그림 없음' 메모 해소 — tooth 3표정 추가, QA24)
 const face = (id) => ({
   normal: `/assets/${id}.webp`, happy: `/assets/${id}_happy.webp`, sad: `/assets/${id}_sad.webp`,
 });
@@ -172,6 +172,15 @@ export const MONSTERS = {
       favorite: "조용한 오후, 옛날 이야기, 하얀 것",
       dislike: "재촉당하는 것, 시끄러운 곳",
       background: "가게에 제일 오래 다닌 단골. 먹은 케이크는 다 기억하는데 언제 먹었는지는 잘 못 떠올린다.",
+    },
+  },
+  tooth: {
+    name: "이빨이", img: face("tooth"),
+    character: {
+      personality: "왕관 쓴 이의 요정. 단 걸 좋아하면서도 이가 상할까 늘 걱정한다.",
+      favorite: "반짝이는 것, 잘 닦인 이, 요술봉 흔들기",
+      dislike: "충치, 밤늦게 먹는 사탕",
+      background: "빠진 이를 모으러 다니는 요정. 케이크는 좋아하지만 먹고 나면 꼭 양치를 시킨다.",
     },
   },
   spike: {

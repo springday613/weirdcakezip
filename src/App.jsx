@@ -37,6 +37,18 @@ const emptyCake = () => ({
   lettering: { text: "", color: null },
 });
 
+// 크레딧 커튼콜 — 본편에 끝내 못 나온 손님들 (QA24 / KAN-78).
+// 표정은 둘 중 그림이 나은 쪽으로 골랐다 — 활활이·이빨이는 기본, 나머지는 해피.
+// (이빨이 해피는 무지개가 커서 같은 높이로 맞추면 정작 얼굴이 작아진다)
+// 주문에 편입된 손님은 자동으로 빠진다.
+const CAMEO = [
+  { id: "flame", face: "normal" },
+  { id: "bean", face: "happy" },
+  { id: "cat", face: "happy" },
+  { id: "marsh", face: "happy" },
+  { id: "tooth", face: "normal" },
+].filter((c) => !orders.some((o) => o.monster === c.id));
+
 const BG_MODES = ["solid", "day", "night"];
 const BG_LABELS = { solid: "단색", day: "낮", night: "밤" };
 
@@ -526,7 +538,22 @@ export default function App() {
             <img className="credits-char" src="/assets/story_user_full.webp" alt="주인공" />
             <p className="credits-q">{playerName || "주인공"}의 앞으로의 여정이 궁금하다면?</p>
             {cheered ? (
-              <p className="credits-thanks">감사합니다! 뭉게뭉게 마을에서 기다릴게요 🍰</p>
+              <>
+                <p className="credits-thanks">감사합니다! 뭉게뭉게 마을에서 기다릴게요 🍰</p>
+                {/* 못 나온 손님들이 한꺼번에 인사하러 나온다 (QA24) */}
+                <div className="credits-cast">
+                  {CAMEO.map((c, i) => (
+                    <img
+                      key={c.id}
+                      className="credits-cast-face"
+                      src={MONSTERS[c.id].img[c.face]}
+                      alt={MONSTERS[c.id].name}
+                      title={MONSTERS[c.id].name}
+                      style={{ "--i": i }}
+                    />
+                  ))}
+                </div>
+              </>
             ) : (
               <button className="btn" onClick={() => setCheered(true)}>
                 프롬프트 파티시에 팀 합격시키기

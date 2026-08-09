@@ -1784,6 +1784,10 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   padding-bottom: 8px;
 }
 .result-screen .stars { margin-top: 0; }
+/* 별·코인을 80% 로 (QA14) — 케이크와 채점표에 무게를 싣는다.
+   Icon 은 width/height 를 속성으로 주므로 CSS 로 덮어쓴다 (md 28 → 22, sm 20 → 16) */
+.result-screen .stars svg { width: 22px; height: 22px; }
+.result-coin svg { width: 16px; height: 16px; }
 
 /* 괴물 — 표정만 읽히면 된다. 케이크보다 작게 */
 /* 손님 프로필 + 반응 말풍선 한 줄 (QA14) — 전신(구 .result-monster)은 세로를 크게 먹었다 */
@@ -1829,7 +1833,7 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   justify-content: center;
   gap: 6px;
   font-weight: normal;
-  font-size: var(--fs-body);
+  font-size: calc(var(--fs-body) * 0.8); /* 별과 함께 80% (QA14) */
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
 }

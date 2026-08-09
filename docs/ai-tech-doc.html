@@ -21,7 +21,7 @@
     break-after: avoid; letter-spacing: -.3px;
   }
   h2 .no { color: var(--muted); font-weight: 400; margin-right: 0.5rem; }
-  h3 { font-size: 1.12rem; margin: 1.5rem 0 0.35rem; break-after: avoid; }
+  h3 { font-size: 1.12rem; margin: 1.0rem 0 0.3rem; break-after: avoid; }
   p { margin: 0.55rem 0; }
   ul, ol { padding-left: 1.4rem; margin: 0.45rem 0; }
   li { margin: 0.28rem 0; }
@@ -36,8 +36,8 @@
     white-space: pre-wrap; break-inside: avoid;
   }
   pre code { background: none; padding: 0; }
-  table { border-collapse: collapse; width: 100%; margin: 0.9rem 0; font-size: 0.93rem; break-inside: avoid; }
-  th, td { text-align: left; padding: 0.42rem 0.6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.93rem; line-height: 1.55; break-inside: avoid; }
+  th, td { text-align: left; padding: 0.32rem 0.6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
   th { background: var(--cream); font-weight: 600; white-space: nowrap; }
   td.num { text-align: right; font-variant-numeric: tabular-nums; }
   header {
@@ -73,8 +73,9 @@
   }
   .cap { font-size: 0.84rem; color: var(--muted); margin-top: -0.1rem; }
   .pagebreak { break-before: page; }
+  .keep { break-inside: avoid; }
   a { color: var(--ink); text-decoration: none; }
-  footer { margin-top: 2.4rem; padding-top: 0.8rem; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--muted); }
+  footer { margin-top: 0.9rem; break-inside: avoid; padding-top: 0.8rem; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -368,6 +369,7 @@ LLM은 확률적이라 사람이 손으로 플레이테스트하면 "한 번은 
 
 <h3>5-5. A/B 실험으로 프롬프트를 결정한다</h3>
 <p>기준선 위에서 프롬프트 변형을 <strong>같은 시나리오 ×20, 같은 판정자</strong>로 비교했습니다.</p>
+
 <table>
   <tr><th>안</th><th>내용</th><th>위반율</th><th>판정</th></tr>
   <tr><td>A</td><td>기존 프롬프트</td><td class="num">15%</td><td>기준선</td></tr>
@@ -377,6 +379,17 @@ LLM은 확률적이라 사람이 손으로 플레이테스트하면 "한 번은 
   <tr><td><strong>G</strong></td><td>손님 종을 9종으로 늘려 주문마다 제 성격을 배정</td><td class="num"><strong>7.8%</strong> 🏆</td><td><strong>채택</strong></td></tr>
   <tr><td>H</td><td>G + 종 설정(좋아함·싫어함·배경)을 프롬프트에 모두 추가</td><td class="num">11.9%</td><td>되돌림</td></tr>
 </table>
+<div class="box">
+  <div class="t">이 사이클을 돌린 도구: 로컬 전용 프롬프트 콘솔</div>
+  변형 하나 시험할 때마다 코드를 고치고 서버를 다시 띄우면 하루에 몇 번 못 돌립니다. 그래서 브라우저에서
+  프롬프트를 고치는 콘솔(<code>admin/index.html</code> + <code>api/_admin.js</code>)을 먼저 만들었습니다.
+  공통 규칙 템플릿, 종별 성격, 주문별 첫 대사·정답(<code>wants</code>)·힌트 사다리를 화면에서 고치고
+  저장하면 <strong>다음 대화 턴부터 바로 반영</strong>됩니다. 재시작이 없습니다. "모델에 가는 것 보기"로
+  실제 전송되는 system·messages 원문까지 확인할 수 있어 조립 결과를 눈으로 봅니다. 회귀 스크립트도 같은
+  로컬 엔드포인트를 때리므로 고친 즉시 ×20 측정으로 넘어갑니다. 위 표의 A~H를 이 순환으로 돌렸습니다.
+  편집본(<code>prompt-overrides.json</code>)은 커밋하지 않고, 콘솔 경로는 배포에 포함되지 않아
+  프로덕션은 언제나 코드의 <code>TEMPLATE</code>을 씁니다.
+</div>
 <div class="box">
   <div class="t">이 실험에서 배운 것</div>
   <ul style="margin-bottom:0">
@@ -458,12 +471,14 @@ AI에게 바로 코드를 쓰게 하면, <strong>잘못된 전제가 그대로 �
 </table>
 <p class="cap">전체 상세(곡 페이지 URL·개별 조건)는 리포 <code>public/sounds/CREDITS.md</code>에 파일 단위로 기록되어 있습니다.</p>
 
+<div class="keep">
 <h3>6-4. 그래픽</h3>
 <ul>
   <li>캐릭터·배경·케이크 파츠 일러스트는 <strong>팀 자체 제작</strong>입니다. 색연필 화풍으로 통일해 생성형 이미지
       도구로 제작 후, 자체 Python 파이프라인(PIL/NumPy)으로 누끼·색 변형·타일화 가공.</li>
   <li>UI 아이콘 일부(별·자물쇠·톱니 등): 자체 제작 SVG.</li>
 </ul>
+</div>
 
 <footer>
 프롬프트 파티시에 · WeirdCakeZip · NAN 2026 사전과제 · 문서 버전 2026-08-10<br>

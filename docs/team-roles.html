@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Weird Cake Zip — 팀원 롤 기술서</title>
+<style>
+  :root{
+    --ink:#523412; --text:#1E1A16; --muted:#8B8175;
+    --cream:#F7EBD2; --line:#E4D7C4;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:0 20px 80px; background:#fff; color:var(--text);
+    font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+    line-height:1.75; font-size:16px;
+  }
+  .wrap{max-width:820px; margin:0 auto}
+  header{padding:56px 0 24px; border-bottom:2.2px solid var(--ink); margin-bottom:8px}
+  .badge{display:inline-block; background:var(--ink); color:#fff; font-size:13px;
+         padding:3px 12px; border-radius:999px; margin-bottom:14px}
+  .badge.team{background:none; color:var(--ink); border:2px solid var(--ink); margin-left:6px}
+  h1{font-size:32px; margin:0 0 10px; letter-spacing:-.5px}
+  .tag{font-size:16px; margin:0; color:var(--muted)}
+  h2{font-size:24px; margin:52px 0 6px; padding-top:8px}
+  h2 .num{color:var(--muted); font-weight:400; margin-right:8px}
+  h3{font-size:18px; margin:30px 0 8px}
+  h4{font-size:15px; margin:20px 0 4px; color:var(--muted)}
+  p{margin:12px 0}
+  table{width:100%; border-collapse:collapse; margin:16px 0; font-size:15px}
+  th,td{text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:top}
+  th{background:var(--cream); font-weight:600; white-space:nowrap}
+  code{font-family:'SFMono-Regular',Consolas,monospace; font-size:14px;
+       background:var(--cream); padding:2px 6px; border-radius:5px}
+  ol,ul{padding-left:22px} li{margin:6px 0}
+  .note{border-left:4px solid var(--ink); background:var(--cream);
+        padding:12px 16px; border-radius:0 10px 10px 0; margin:18px 0}
+  .person{border:2.2px solid var(--ink); border-radius:14px; padding:18px 22px; margin:20px 0}
+  .person h3{margin:0 0 2px}
+  .person .who{color:var(--muted); font-size:14px; margin:0 0 10px}
+  .flow{list-style:none; padding:0; counter-reset:f}
+  .flow li{counter-increment:f; position:relative; padding:10px 0 10px 42px; border-bottom:1px solid var(--line)}
+  .flow li::before{content:counter(f); position:absolute; left:0; top:10px;
+    width:28px; height:28px; border:2.2px solid var(--ink); border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600}
+  footer{margin-top:56px; padding-top:18px; border-top:1px solid var(--line); font-size:14px; color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="badge">NAN 2026 · NHN Game×AI 해커톤 사전과제</span>
+  <span class="badge team">팀 프롬프트 파티시에</span>
+  <h1>팀원 롤 기술서</h1>
+  <p class="tag">Weird Cake Zip 이상한 케이크 가게 · 2인 팀</p>
+</header>
+
+<h2><span class="num">1</span>역할 요약</h2>
+
+<table>
+  <tr><th>이름</th><th>담당</th><th>맡은 영역</th></tr>
+  <tr>
+    <td><strong>이수민</strong></td>
+    <td>기획 · 백엔드 · AI · 아트</td>
+    <td>게임 시스템과 채점 로직, 손님 프롬프트 설계, 손그림 에셋 전량,
+        스토리·튜토리얼, 배포·패키징</td>
+  </tr>
+  <tr>
+    <td><strong>이효희</strong></td>
+    <td>기획 · 프론트엔드 · QA</td>
+    <td>화면 구현 전반, 디자인 시스템, 이펙트·사운드, 문서,
+        모바일·APK 품질 점검</td>
+  </tr>
+</table>
+
+<p>
+  두 사람 모두 기획에 참여했고, 구현은 <strong>서버·데이터·에셋(수민)</strong> 과
+  <strong>화면·인터랙션(효희)</strong> 으로 나눴습니다.
+</p>
+
+<h2><span class="num">2</span>이수민 — 시스템 · AI · 아트</h2>
+
+<div class="person">
+  <h3>이수민</h3>
+  <p class="who">sumin.lee816@gmail.com · 커밋 286건 · 브랜치 접두사 <code>S</code></p>
+
+  <h4>AI — 손님 대화 설계</h4>
+  <ul>
+    <li><strong>손님 시스템 프롬프트</strong> (<code>api/_monsterPrompt.js</code>) —
+        괴물이 정답을 알지만 떠먹여주지 않게 만드는 규칙 설계</li>
+    <li><strong>LLM 프로바이더 추상화</strong> (<code>api/_llm.js</code>) — OpenAI / Anthropic 교체 가능,
+        키가 없으면 mock 으로 자동 폴백</li>
+    <li><strong>프롬프트 회귀 테스트</strong> — 별도 심사 모델로 응답을 채점하는
+        <code>prompt-regression</code> CI 와 <code>docs/judge-report.md</code>.
+        “정답 유출”·“지어내기” 같은 위반을 수치로 잡아 프롬프트를 고쳤습니다</li>
+    <li><strong>프롬프트 엔지니어링 로그</strong> (<code>docs/prompt-engineering-log.md</code>) —
+        플레이테스트에서 발견한 문제 → 원인 → 수정을 기록</li>
+  </ul>
+
+  <h4>게임 시스템</h4>
+  <ul>
+    <li><strong>결정적 채점</strong> (<code>src/scoreCake.js</code>) — 6항목 가중 채점, 별점·코인 환산,
+        대화 비용 반영. 단위 테스트 포함</li>
+    <li><strong>주문 데이터</strong> (<code>src/data/orders.js</code>) — 손님별 숨은 정답(<code>wants</code>),
+        힌트 사다리, 페르소나</li>
+    <li>재료 잠금·해금, 편집 버튼, 실행취소 히스토리, 굽기 타이머</li>
+    <li>스토리(오프닝·엔딩·크레딧)와 <strong>튜토리얼 전체</strong> — 치트 시트, 대본 대화, 건너뛰기 보상</li>
+  </ul>
+
+  <h4>아트</h4>
+  <ul>
+    <li><strong>색연필 손그림 에셋 전량</strong> — 괴물 9종(표정 3단계), 케이크·시트·생크림·토핑·데코,
+        재료 아이콘, 배경, 스토리 컷, UI 아이콘</li>
+    <li>에셋 생성·가공 <strong>파이썬 도구 모음</strong> (<code>tools/assets/</code>) —
+        토핑 좌표 실측(<code>cakeLayout.json</code>), 색 입히기, WebP 변환</li>
+  </ul>
+
+  <h4>배포 · 운영</h4>
+  <ul>
+    <li>Vercel 배포 자동화 · PR 프리뷰 · GitHub Pages 빌드</li>
+    <li>Capacitor 안드로이드 패키징, 런처 아이콘, APK 릴리스</li>
+    <li>프롬프트 편집 콘솔(로컬 전용) — 배포 없이 프롬프트를 고치고 바로 시험</li>
+  </ul>
+</div>
+
+<h2><span class="num">3</span>이효희 — 프론트엔드 · QA</h2>
+
+<div class="person">
+  <h3>이효희</h3>
+  <p class="who">13thspringday@gmail.com · 커밋 103건 · 브랜치 접두사 <code>H</code> · <code>QA</code></p>
+
+  <h4>디자인 시스템</h4>
+  <ul>
+    <li><strong>스티커 오버레이</strong> 방향 확립 — 흰 채움 + 잉크 아웃라인,
+        강조는 색이 아니라 반전, 비활성은 투명도</li>
+    <li>디자인 토큰(색·글자 크기 6단계·간격·라운드)과 <strong>4층 레이어 모델</strong>
+        (배경 → 장식 → 에셋 → UI)</li>
+    <li><strong>전역 스크롤 규칙</strong> — 화면당 한 군데만 스크롤. 모바일에서 버튼이 밀려나지 않게</li>
+  </ul>
+
+  <h4>화면 구현</h4>
+  <ul>
+    <li>타이틀 · 채팅(주문) · 스테이지 맵 · 로딩 오버레이 · 제작 위저드 ·
+        완성 확인 · 정산 · 영업 종료</li>
+    <li><strong>대화 상태 구조 정리</strong> — 채팅이 화면과 팝업 두 곳에서 렌더되며 생긴
+        대본 중복 재생 버그를 상태 소유권을 올려 해결</li>
+    <li>진행바, 별점·코인 컴포넌트, 환경설정 팝업, HUD</li>
+  </ul>
+
+  <h4>이펙트 · 사운드</h4>
+  <ul>
+    <li>별점 순차 등장, 코인 카운트업, 재료 톡 튀기, 굽기 흔들림 —
+        <code>transform</code>/<code>opacity</code> 만 쓰고 <code>prefers-reduced-motion</code> 대응</li>
+    <li>howler 기반 사운드 매니저 — BGM 3곡 + 효과음, 효과음·음악 개별 음소거,
+        AudioContext 잠금 해제 처리</li>
+    <li>폰트 3종 적용 및 라이선스 정리</li>
+  </ul>
+
+  <h4>QA · 모바일 품질</h4>
+  <ul>
+    <li>안드로이드 실기기 점검 — 탭 하이라이트·텍스트 선택 차단,
+        키보드가 레이아웃을 밀지 않게 <code>interactive-widget</code> 적용</li>
+    <li><strong>GitHub Pages 무음 버그</strong> — 빌드 경로 치환 목록에 <code>/sounds/</code> 가 빠져
+        음원 7개가 전부 404 나던 것을 발견·수정</li>
+    <li>튜토리얼 강조 가시성, 버튼 정렬·줄바꿈, 문구 일관성 정리</li>
+  </ul>
+
+  <h4>문서</h4>
+  <ul>
+    <li>화면별 구현 스펙 문서 — 착수 전 작성해 범위와 규칙을 먼저 합의</li>
+    <li>게임 소개 및 설명서, 미결 사항·회의 안건 정리</li>
+  </ul>
+</div>
+
+<h2><span class="num">4</span>협업 · 분업 방식</h2>
+
+<h3>트랙을 나눠 충돌을 줄였습니다</h3>
+<p>
+  브랜치 접두사로 담당을 구분했습니다 — <code>S</code>(수민) · <code>H</code>(효희) · <code>QA</code>(품질 수정).
+  <strong>서버·데이터·에셋</strong> 과 <strong>화면·스타일</strong> 로 파일을 갈라 같은 파일을 동시에 고치는 일을 줄였고,
+  겹칠 수밖에 없는 <code>App.jsx</code>·<code>styles.css</code> 는 <strong>머지 순서를 먼저 합의</strong>한 뒤 작업했습니다.
+</p>
+
+<h3>작업 흐름</h3>
+<ol class="flow">
+  <li><strong>Jira 티켓</strong> — 할 일을 티켓으로 쪼갠다 (<code>KAN-</code>)</li>
+  <li><strong>스펙 먼저</strong> — 화면 단위 작업은 착수 전에 구현 문서를 써서 범위·규칙·수용 기준을 정한다</li>
+  <li><strong>브랜치</strong> — 티켓 번호를 접두사로</li>
+  <li><strong>PR · 상호 리뷰</strong> — 서로의 PR을 읽고 코멘트. 규칙이 어긋난 곳은 고치지 않고 기록해 회의로</li>
+  <li><strong>머지 후 위키 반영</strong> — 결정 사항을 원본 문서에 되돌려 적는다</li>
+</ol>
+
+<div class="note">
+  <strong>“고치지 말고 기록한다”</strong> 를 규칙으로 뒀습니다.
+  상대 트랙의 코드가 문서와 달라 보여도 임의로 고치지 않고 안건으로 올려,
+  같은 파일을 서로 되돌리는 일을 막았습니다.
+</div>
+
+<h3>정기 회의</h3>
+<p>
+  주기적으로 만나 미결 안건을 한 번에 정리했습니다.
+  작업 중 “혼자 정할 게 아니다” 싶은 것은 <code>pending-decisions.md</code> 에 모아두고,
+  회의에서 결정한 뒤 결과를 위키와 스펙 문서에 반영했습니다.
+</p>
+
+<h3>AI 활용 방식</h3>
+<table>
+  <tr><th>게임 안</th><td>손님 대화를 LLM 이 실시간으로 연기. 채점은 결정적 코드가 담당해 결과의 공정성을 보장</td></tr>
+  <tr><th>품질 관리</th><td>손님 모델과 <strong>분리된 심사 모델</strong>로 응답을 채점하는 프롬프트 회귀 CI</td></tr>
+  <tr><th>개발 과정</th><td>Claude Code 를 짝 프로그래밍 도구로 사용. 반복 작업은 프로젝트 전용 스킬로 자동화
+      (에셋 생성, Jira 티켓, APK 릴리스, 화면 구현 규칙)</td></tr>
+</table>
+
+<footer>
+  프롬프트 파티시에 · Weird Cake Zip · NAN 2026 사전과제
+</footer>
+
+</div>
+</body>
+</html>

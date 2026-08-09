@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
-  "description": "괴물 세상의 케이크 가게 — NAN 2026 사전과제 (walking skeleton)",
+  "description": "WeirdCakeZip — NAN 2026 사전과제 (walking skeleton)",
   "scripts": {
     "dev": "vite",
     "api": "node --env-file=.env.local devServer.js",

@@ -1793,6 +1793,9 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 /* 별·코인을 80% 로 (QA14) — 케이크와 채점표에 무게를 싣는다.
    Icon 은 width/height 를 속성으로 주므로 CSS 로 덮어쓴다 (md 28 → 22, sm 20 → 16) */
 .result-screen .stars svg { width: 22px; height: 22px; }
+/* 별 사이가 넓어 보이던 건 아이콘 상자(icon-box--md 44px)가 별 그림(20px)의 두 배여서다.
+   상자를 그림에 맞춰 좁히면 별끼리 붙는다 (QA14) */
+.result-screen .stars .icon-box { width: 26px; height: 26px; }
 .result-coin svg { width: 16px; height: 16px; }
 
 /* 괴물 — 표정만 읽히면 된다. 케이크보다 작게 */
@@ -1830,14 +1833,15 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
   flex-shrink: 0;
 }
 .result-cake-wrap .cake {
-  width: clamp(112px, 16.8vh, 158px);
+  /* 화면의 주인공이라 크게 — 아래 여백이 넉넉해 키워도 스크롤이 안 생긴다 (QA14) */
+  width: clamp(130px, 24vh, 210px);
 }
 
 .result-coin {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 2px; /* 코인 그림과 숫자를 붙인다 (QA14) */
   font-weight: normal;
   font-size: calc(var(--fs-body) * 0.8); /* 별과 함께 80% (QA14) */
   font-variant-numeric: tabular-nums;

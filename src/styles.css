@@ -31,6 +31,9 @@
 
 /* ── 0b. 네이티브 느낌 리셋 ──────────────────────────────── */
 html, body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   -webkit-user-select: none;

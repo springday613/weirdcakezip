@@ -1799,8 +1799,9 @@ h1 { color: var(--text); font-family: var(--font); font-size: var(--fs-title); f
 .result-bubble {
   border-radius: 14px;
   border-top-left-radius: 4px;
-  padding: 10px 14px;
-  font-size: var(--fs-body);
+  padding: 8px 12px;
+  /* 주기 화면 말풍선(.confirm-bubble)과 같은 크기로 — 두 화면이 같은 프로필+말풍선 구조다 */
+  font-size: var(--fs-label);
   font-family: var(--font-chat);
   font-weight: normal;
   line-height: 1.5;

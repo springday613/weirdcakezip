@@ -32,29 +32,37 @@ export default function ResultScreen({ result, order, cake, onNext, onMap, onRet
   return (
     <div className="screen result-screen">
       <div className="result-scroll">
-        {/* 1. 괴물 (표정 3종) */}
-        <Img className="result-monster" src={monster.img[mood]} alt="손님 반응" />
-
-        {/* 2. 말풍선 — 평가가 먼저, 물건이 나중 */}
-        <p className="result-bubble stk">{result.reaction}</p>
-
-        {/* 3. 별점 */}
-        <Stars value={starValue} size="md" animate />
-
-        {/* 4. 코인 */}
-        <div className="result-coin">
-          <Icon name="coin" size="sm" />
-          <span>
-            {result.earned > 0
-              ? <>+{" "}<CoinCount value={result.earned} delay={starAnimEnd(starValue)} />코인</>
-              : zeroCoinMsg}
-          </span>
-        </div>
-
-        {/* 5. 케이크 */}
+        {/* 1. 케이크 — 결과 화면의 주인공 (QA14) */}
         <div className="result-cake-wrap">
           <CakeView cake={cake} preview="cake" notePlacement="beside" />
         </div>
+
+        {/* 2. 별점 */}
+        <Stars value={starValue} size="md" animate />
+
+        {/* 3. 코인 */}
+        <div className="result-coin">
+          <Icon name="coin" size="sm" />
+          <span>
+            {result.earned > 0 ? (
+              <>+{" "}<CoinCount value={result.earned} delay={starAnimEnd(starValue)} />코인</>
+            ) : (
+              /* 0 을 먼저 보여 주고 이유를 옆에 — 코인 줄의 자리(숫자)가 항상 같게 (QA14) */
+              <>0<span className="result-coin-why">{zeroCoinMsg}</span></>
+            )}
+          </span>
+        </div>
+
+        {/* 4. 손님 프로필 + 반응 말풍선 — 케이크·점수를 본 뒤에 손님 반응 (QA14).
+            전신을 세우면 세로를 크게 먹어 프로필로 줄였다(표정 3종은 그대로 드러난다) */}
+        <div className="result-speaker">
+          <Img className="bubble-face" src={monster.img[mood]} alt="손님 반응" />
+          <p className="result-bubble stk">{result.reaction}</p>
+        </div>
+
+
+
+
 
         {/* 6. 채점 1열 — 6항목 6줄 */}
         {result.parts && (
@@ -98,7 +106,7 @@ export default function ResultScreen({ result, order, cake, onNext, onMap, onRet
         <button className="btn-ghost result-action" onClick={onRetry}>
           <Icon name="retry" size="sm" /> 다시하기
         </button>
-        {onMap && <button className="btn-ghost result-action" onClick={onMap}>맵 보기</button>}
+        {onMap && <button className="btn-ghost result-action" onClick={onMap}>맵으로</button>}
         <button className="btn result-action" onClick={onNext}>
           {lastRound ? "엔딩 보기 →" : "다음 손님 →"}
         </button>

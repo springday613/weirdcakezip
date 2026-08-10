@@ -137,10 +137,8 @@
     <div><div class="n">3<small>종</small></div><div class="l">직접 만든 AI 스킬 (약 900줄)</div></div>
   </div>
   <p class="links">
-    플레이 <a href="https://springday613.github.io/weirdcakezip/">springday613.github.io/weirdcakezip</a> ·
-    플레이 영상 <a href="https://youtube.com/shorts/y-mXOzeUH4w">youtube.com/shorts/y-mXOzeUH4w</a><br>
-    소스 <a href="https://github.com/springday613/weirdcakezip">github.com/springday613/weirdcakezip</a> ·
-    APK GitHub Releases (v1.2)
+    소스 <a href="https://github.com/springday613/weirdcakezip">github.com/springday613/weirdcakezip</a>
+    &nbsp;·&nbsp; 플레이 링크·게임 소개·규칙은 별도 제출물 <strong>게임 가이드</strong> 참고
   </p>
   <p class="meta">팀 프롬프트 파티시에 (수민 · 효희) · 2026-08-10</p>
 </div>
@@ -177,8 +175,9 @@
 
 <h2><span class="no">1</span>AI가 게임의 재미인 이유</h2>
 <p>
-이 게임에서 플레이어는 케이크 가게 주인이 되어, 괴물 손님의 <strong>두루뭉술한 주문</strong>
-(<em>"바다 생각나는 케이크 없을까요?"</em>)을 채팅으로 파고들어 진짜 원하는 케이크를 알아내고 만들어 냅니다.
+괴물 손님의 <strong>두루뭉술한 주문</strong>(<em>"바다 생각나는 케이크 없을까요?"</em>)을 채팅으로
+파고들어 진짜 원하는 케이크를 알아내는 게임입니다. (게임 소개·화면·규칙은 별도 제출물인
+<strong>게임 가이드</strong>가 다루며, 이 문서는 그 재미를 만드는 AI만 다룹니다.)
 손님의 대사·성격·힌트는 <strong>실시간 LLM이 연기</strong>합니다. 정해진 대사 트리가 없으므로 플레이어는
 어떤 질문이든 할 수 있고, 손님은 정답을 흘리지 않는 선에서 자기 성격대로 답합니다.
 </p>
@@ -191,11 +190,6 @@
   LLM은 <strong>연기만</strong> 합니다. 점수는 서버의 결정적 함수(<code>scoreCake.js</code>)가 계산하므로
   같은 케이크는 언제나 같은 점수입니다. 모델이 후해지거나 박해지는 흔들림이 채점에 영향을 주지 않아,
   "왜 이 점수인가"를 항상 코드로 설명할 수 있습니다.
-</div>
-<div class="fig">
-  <figure><img src="img/shot_chat.webp" alt="대화 화면"><figcaption>① 대화 — 질문으로 진짜 주문을 좁힌다 (질문마다 비용)</figcaption></figure>
-  <figure><img src="img/shot_build.webp" alt="제작 화면"><figcaption>② 제작 — 시트부터 데코까지 6단계</figcaption></figure>
-  <figure><img src="img/shot_score.webp" alt="채점 화면"><figcaption>③ 채점 — 항목별 점수·별점·코인</figcaption></figure>
 </div>
 
 <h2><span class="no">2</span>시스템 구조</h2>

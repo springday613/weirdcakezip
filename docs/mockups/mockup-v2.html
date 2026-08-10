@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<title>wierdcake.zip — 목업 v2 (실제 에셋)</title>
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --ink:#1A1A1A; --paper:#fff; --warm:#FAF6EE; --text:#1E1A16; --muted:#8B8175; }
+  *{box-sizing:border-box}
+  body{margin:0;padding:28px;background:#E8E4DC;font-family:'Gaegu',system-ui,sans-serif;color:var(--text)}
+  header,footer{max-width:1500px;margin:0 auto}
+  h1{margin:0 0 6px;font-size:28px}
+  .sub{font-size:15px;color:#5c554d;line-height:1.6}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 22px;align-items:center}
+  .bar button{font:inherit;font-size:14px;padding:5px 12px;border-radius:99px;border:2px solid var(--ink);background:#fff;cursor:pointer}
+  .bar button.on{background:var(--ink);color:#fff}
+  .bar em{font-style:normal;font-size:13px;color:#6b645c;margin-left:10px}
+  .grid{max-width:1500px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:26px}
+  .cell{display:flex;flex-direction:column;gap:7px}
+  .cap b{font-size:17px}
+  .note{font-size:13px;color:#5c554d;line-height:1.5;min-height:36px}
+  .ph{position:relative;width:100%;aspect-ratio:390/844;border-radius:20px;overflow:hidden;border:2px solid var(--ink);background:#F2EBDF}
+  .ph svg,.ph img{position:absolute;left:0;top:0}
+  .ph svg{width:100%;height:100%}
+  .ph img{object-fit:contain}
+  footer{margin-top:30px;font-size:13px;color:#5c554d;line-height:1.7}
+</style>
+
+<header>
+  <h1>wierdcake.zip — 목업 v2 <span style="font-size:16px;color:#6b645c">· 실제 에셋 적용</span></h1>
+  <div class="sub">
+    위키 <b>게임 플로우</b> 확정 스펙 반영 · 스티커 오버레이 · 390×844<br>
+    그림은 전부 <code>public/assets</code>의 실제 PNG. UI만 흰 채움 + 잉크 아웃라인 2.2px.
+    점수 숫자는 어디에도 노출하지 않는다 — <b>별점 + 코인</b>만.
+  </div>
+  <div class="bar">
+    <em>배경</em>
+    <button data-bd="plain" class="on">단색(임시)</button><button data-bd="day">밝은 낮</button><button data-bd="night">밤</button>
+    <em>맛</em>
+    <button data-ck="blueberry" class="on">블루베리</button><button data-ck="strawberry">딸기</button>
+    <button data-ck="lemon">레몬</button><button data-ck="chocolate">초콜릿</button><button data-ck="vanilla">바닐라</button>
+    <em>시트</em>
+    <button data-tp="cake" class="on">케이크</button><button data-tp="jelly">젤리</button><button data-tp="icecream">아이스크림</button>
+  </div>
+</header>
+
+<div class="grid" id="grid"></div>
+
+<footer>
+  <b>확정 규칙</b> — 스테이지 3개 × 손님 5명 · 통과선 60점(별 3개) · 코인 = 점수 그대로 ·
+  질문 1–10턴 −2점/턴, 11–15턴 코인 구매(감점 없음) · 하트 최대 5 · 제작 6단계(굽기는 연출) ·<br><b>튜토리얼 제안 버블은 무료</b>(턴 소모·감점 없음, 스테이지 1 한정).<br>
+  <b>버튼 규칙</b> — <b>다시만들기</b> = 이 단계 처음으로 / <b>되돌리기(↺)</b> = 마지막 동작 하나 취소. ↺는 여러 개를 쌓는 단계(생크림·토핑)에만 둔다.<br>
+  <b>⚠ 실측 후 확정</b> — 질문 코인 단가(30/턴), 재료 언락 단가(120). 화면 숫자는 자리표시.<br>
+  <b>에셋</b> — <code>public/assets</code>의 실제 PNG 사용. 파일이 없으면 <code>onerror</code>로 조용히 비워진다.<br><b>⚠ 없는 에셋 1개</b> — <code>ing_vanilla.png</code>. 바닐라만 재료 아이콘이 없어 임시로 <code>cream_vanilla.png</code>로 대체했다. 그려서 넣으면 자동 반영됨.
+</footer>
+
+<script>
+const A='../../public/assets/';
+const INK='#1A1A1A',PAPER='#fff',TXT='#1E1A16',MUT='#8B8175',PINK='#F8C8D0',COIN='#F5D563',WARM='#FAF6EE';
+const W=390,H=844;
+let bd='plain', ck='blueberry', tp='cake';
+
+/* ── SVG 프리미티브 (UI 크롬 전용) ─────────────── */
+const R=(x,y,w,h,r,f,sw)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${f||PAPER}" stroke="${INK}" stroke-width="${sw??2.2}"/>`;
+const Rn=(x,y,w,h,r,f)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${f}"/>`;
+const E=(x,y,w,h,f,sw)=>`<ellipse cx="${x+w/2}" cy="${y+h/2}" rx="${w/2}" ry="${h/2}" fill="${f||PAPER}" stroke="${INK}" stroke-width="${sw??2.2}"/>`;
+const En=(x,y,w,h,f)=>`<ellipse cx="${x+w/2}" cy="${y+h/2}" rx="${w/2}" ry="${h/2}" fill="${f}"/>`;
+const T=(s,size,w,c,x,y,a)=>`<text x="${x}" y="${y}" font-size="${size}" font-weight="${w}" fill="${c||TXT}" text-anchor="${a||'start'}" font-family="Gaegu">${s}</text>`;
+const TC=(s,size,w,c,y)=>T(s,size,w,c,W/2,y,'middle');
+const STAR=(x,y,sz,f)=>`<path transform="translate(${x},${y}) scale(${sz/19})" d="M9.5 0l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L9.5 14.8 3.7 17.9l1.1-6.5L.1 6.8l6.5-.9z" fill="${f}" stroke="${INK}" stroke-width="${2*19/sz}"/>`;
+const LOCK=(x,y,s)=>`<g transform="translate(${x},${y}) scale(${s})">${R(0,6,16,13,3,PAPER,1.8)}<path d="M3.5 6V4a4.5 4.5 0 0 1 9 0v2" fill="none" stroke="${INK}" stroke-width="1.8"/></g>`;
+const btnP=(x,y,w,h,l,fs)=>`${R(x,y,w,h,h/2,INK)}${T(l,fs||22,700,'#fff',x+w/2,y+h/2+fs/3,'middle')}`;
+const btnG=(x,y,w,h,l,fs)=>`${R(x,y,w,h,h/2,PAPER)}${T(l,fs||18,700,TXT,x+w/2,y+h/2+fs/3,'middle')}`;
+const bub=(x,y,w,h,side,s,fs)=>`${R(x,y,w,h,h/2,side==='me'?INK:PAPER)}${T(s,fs||15,400,side==='me'?'#fff':TXT,x+w/2,y+h/2+5,'middle')}`;
+const seg=(done)=>{let s='';for(let i=0;i<6;i++)s+=R(20+i*59,96,50,10,5,i<done?INK:PAPER,1.8);return s};
+/* 제작 화면 상단 바: [몬스터][고정 주문][···]  — mid/img/ui 3층으로 나눠 그린다 */
+const chipMid=()=>`${E(12,18,56,56)}${R(78,23,216,44,22)}${E(310,20,50,50)}`;
+const chipUI=(t)=>`${T(t,14,400,TXT,92,50)}${T('···',20,700,INK,335,52,'middle')}`;
+/* 에셋 내용이 캔버스의 48~60%라 박스를 1.6배쯤 크게 잡는다 */
+const chipMon=(who)=>monster(who||'ghost','normal',9,17,62);
+/* 하단 버튼줄 — 되돌리기(↺)는 여러 개를 쌓는 단계에만 둔다
+   다시만들기 = 이 단계 처음으로 / 되돌리기 = 마지막 동작 하나 취소 */
+const stepFoot=(hasUndo,next,nextW)=>{
+  const nw=nextW||116;
+  return btnG(20,742,116,52,'다시만들기',15)
+   + (hasUndo?`${R(160,742,52,52,26)}${T('↺',22,700,INK,186,776,'middle')}`:'')
+   + btnP(390-20-nw,742,nw,52,next||'다음 →',nextW?20:18);
+};
+const hud=(coins,hearts)=>`<g>
+  ${R(48,29,70,28,14)}${E(20,25,36,36)}
+  <path d="M38 32c-2.6-3-7.4-1.4-7.4 2.2 0 3.6 7.4 8.4 7.4 8.4s7.4-4.8 7.4-8.4c0-3.6-4.8-5.2-7.4-2.2z" transform="translate(0,-1)" fill="${PINK}" stroke="${INK}" stroke-width="2"/>
+  ${T(hearts||'4',19,700,TXT,88,49,'middle')}
+  ${R(158,29,146,28,14)}${E(130,25,36,36,COIN)}${En(139,34,18,18,'#E0B93A')}
+  ${T(coins,17,700,TXT,232,49,'middle')}
+  ${R(334,25,36,36,11)}<path d="M344 36h16M344 42h16M344 48h16" stroke="${INK}" stroke-width="2.2" stroke-linecap="round"/></g>`;
+
+/* ── 배경 (교체 예정 자리) ─────────────────────── */
+const bgSVG=()=>{
+  if(bd==='day') return `<rect width="${W}" height="${H}" fill="#C9E6F2"/>
+    <ellipse cx="80" cy="130" rx="54" ry="24" fill="#fff" opacity=".8"/><ellipse cx="320" cy="230" rx="58" ry="25" fill="#fff" opacity=".8"/>
+    <rect y="640" width="${W}" height="204" fill="#E9C79A"/><rect y="632" width="${W}" height="12" fill="#C89B68"/>
+    <rect x="30" y="470" width="330" height="12" fill="#C89B68"/><rect x="56" y="424" width="34" height="46" fill="#D98C6A"/><rect x="106" y="436" width="28" height="34" fill="#8FBF8A"/>`;
+  if(bd==='night') return `<rect width="${W}" height="${H}" fill="#2B2340"/>
+    <circle cx="60" cy="100" r="2.4" fill="#fff"/><circle cx="170" cy="62" r="2" fill="#fff"/><circle cx="310" cy="140" r="2.6" fill="#fff"/>
+    <circle cx="100" cy="250" r="2" fill="#fff"/><circle cx="250" cy="300" r="2" fill="#fff"/><circle cx="340" cy="400" r="2.2" fill="#fff"/>
+    <circle cx="330" cy="80" r="26" fill="#F5E6A8" opacity=".9"/>
+    <rect y="660" width="${W}" height="184" fill="#3D3155"/><rect y="652" width="${W}" height="10" fill="#564470"/>`;
+  return `<rect width="${W}" height="${H}" fill="#F2EBDF"/><rect y="640" width="${W}" height="204" fill="#E5D9C6"/>`;
+};
+const veil=(o)=>`<rect width="${W}" height="${H}" fill="#fff" opacity="${o}"/>`;
+const dim=()=>`<rect width="${W}" height="${H}" fill="${INK}" opacity=".45"/>`;
+
+/* ── 에셋 배치 (HTML img 레이어) ───────────────── */
+const pct=(v,t)=>(v/t*100)+'%';
+const IMG=(file,x,y,w,h,extra)=>`<img src="${A}${file}" onerror="this.style.visibility='hidden'" alt=""
+  style="left:${pct(x,W)};top:${pct(y,H)};width:${pct(w,W)};height:${pct(h||w,H)};${extra||''}">`;
+const monster=(who,mood,x,y,s)=>IMG(`${who}${mood==='normal'?'':'_'+mood}.png`,x,y,s,s);
+const cakeImg=(x,y,s)=>IMG(`${tp}_${ck}.png`,x,y,s,s);
+/* 바닐라는 ing_ 아이콘이 없다(에셋 미제작) → 크림 그림으로 대체 */
+const flavorIcon=(id)=>id==='vanilla'?'cream_vanilla.png':`ing_${id}.png`;
+
+/* 데이터 */
+const BASE=[['flour','밀가루'],['milk','우유'],['egg','계란'],['butter','버터'],['water','물'],['soymilk','두유'],['riceflour','쌀가루'],['veggieoil','오일'],['icecream','아이스크림'],['gelatin','젤라틴']];
+const COLORS=['vanilla','strawberry','cherry','lemon','chocolate','tomato','blueberry','avocado','peach','banana','protein'];
+const LOCKED=['tomato','avocado','protein'];  /* 아직 해금 안 된 재료 */
+const TOPS=[['strawberry','딸기'],['cherry','체리'],['lemon','레몬'],['chocolate','초콜릿'],['blueberry','블루베리'],['almond','아몬드'],['banana','바나나'],['chicken','닭가슴살']];
+const DECO=[['birthday_candle','생일초'],['heart_candle','하트초'],['bomb_candle','폭탄초'],['sprinkle','스프링클']];
+
+/* ── 화면 정의: {svgBg, imgs, svgUI} ───────────── */
+const SCREENS=[
+{t:'01 타이틀',n:'logo.png 그대로 사용. 괴물 2종이 아래에서 인사.',
+ build:()=>({imgs: IMG('logo.png',35,150,320,320) + monster('pink','normal',2,414,160) + monster('ghost','normal',238,414,160) + cakeImg(120,455,150),
+  ui:`${TC('애매한 주문 속 진짜 마음을 읽고,',17,400,TXT,626)}${TC('케이크를 만들어 주세요',17,400,TXT,650)}
+      ${btnP(105,676,180,56,'가게 열기',24)}${btnG(115,746,160,42,'이어하기',17)}
+      ${TC('스테이지 1 · 손님 2/5',12,400,MUT,812)}`})},
+
+{t:'02 스테이지 맵',n:'손님 5명. 완료 노드에 획득 별점, 잠김은 자물쇠.',
+ build:()=>{const st=[[80,700,'d',3,'pink'],[210,630,'d',2,'ghost'],[310,530,'n',0,'pink'],[190,430,'l'],[80,330,'l']];
+  let imgs='', mid='', ui=hud('1,308')+R(110,84,170,44,22)+TC('Stage 1',26,700,TXT,116)+TC('괴물 마을 · 손님 5명 · 튜토리얼',14,400,TXT,152);
+  for(let i=0;i<st.length-1;i++){const[a,b]=[st[i],st[i+1]];
+    [.3,.45,.6,.75].forEach(t=>{ui+=E(a[0]+(b[0]-a[0])*t-4,a[1]+(b[1]-a[1])*t-4,8,8,PAPER,1.6)})}
+  st.forEach(([x,y,k,star,who],i)=>{const r=k==='n'?32:27;
+    mid+=E(x-r,y-r,r*2,r*2,k==='d'?PINK:(k==='n'?INK:PAPER),2.6);
+    if(who) imgs+=monster(who,k==='d'?'happy':'normal',x-r*1.3,y-r*1.3+2,r*2.6);
+    else ui+=T(String(i+1),22,700,MUT,x,y+8,'middle');
+    if(k==='d')for(let j=0;j<3;j++) ui+=STAR(x-40+j*20,y-r-24,17,j<star?COIN:PAPER);
+    if(k==='n') ui+=T('지금!',16,700,TXT,x,y+r+22,'middle');
+    if(k==='l') ui+=LOCK(x-8,y+r+4,1);});
+  return {mid, imgs, ui: ui+btnP(105,762,180,54,'손님 만나기',22)}}},
+
+{t:'03 주문·채팅 (튜토)',n:'주문 상단 고정 · 남은 턴/−2점 · 제안 버블(무료, 턴 소모 X).',
+ build:()=>({imgs: monster('ghost','normal',120,56,150),
+  ui:`${hud('1,308')}
+   ${R(24,190,342,58,16,WARM)}${R(24,178,52,22,11,INK)}${T('주문',13,700,'#fff',50,194,'middle')}
+   ${TC('“모든 걸 딸기로 해주세요! 레터링도 ‘딸기’!”',14,400,TXT,224)}
+   ${R(140,262,110,26,13,PAPER,1.8)}${T('질문 3 / 10턴 · −2점',12,400,MUT,195,280,'middle')}
+   ${bub(150,304,216,44,'me','시트 맛도 딸기인가요?')}
+   ${bub(24,358,196,44,'you','응! 전부 딸기!')}
+   ${bub(160,412,206,44,'me','레터링도 딸기라고?')}
+   ${R(24,478,342,90,16)}
+   ${T('이렇게 물어보세요',12,700,MUT,40,502)}
+   ${R(276,488,84,20,10,INK)}${T('무료 · 턴 X',11,700,'#fff',318,502,'middle')}
+   ${R(40,518,150,36,18,WARM,1.8)}${T('토핑도 딸기예요?',13,400,TXT,115,541,'middle')}
+   ${R(200,518,150,36,18,WARM,1.8)}${T('생크림은 뭘로?',13,400,TXT,275,541,'middle')}
+   ${R(24,700,236,52,26)}${T('괴물에게 물어보기…',15,400,MUT,44,732)}
+   ${R(272,694,94,62,18,INK)}${T('보내기',17,700,'#fff',319,724,'middle')}${T('−2점',12,400,'#fff',319,742,'middle')}
+   ${btnP(24,772,342,52,'케이크 만들기',22)}`})},
+
+{t:'04 제작 1/6 · 시트 반죽',n:'bowl_empty → 재료 담기. 굽기는 자동 연출.',
+ build:()=>{let imgs=chipMon()+IMG('bowl_empty.png',95,220,200,200);
+  let mid=chipMid()+R(20,450,350,254,18);
+  let ui=chipUI('“모든 걸 딸기로…”')+seg(1)+TC('1 / 6 · 시트 반죽',17,700,TXT,138)+TC('재료 고르기',20,700,TXT,482);
+  BASE.slice(0,8).forEach(([id,label],i)=>{const x=68+(i%4)*85, y=530+Math.floor(i/4)*82;
+    mid+=E(x-27,y-27,54,54,i<4?PINK:PAPER); imgs+=IMG(`ing_${id}.png`,x-19,y-19,38,38);
+    ui+=T(label,12,400,TXT,x,y+42,'middle')});
+  ui+=T('기본 조합: 밀가루 · 우유 · 계란 · 버터',12,400,MUT,195,690,'middle');
+  return {mid, imgs, ui: ui+stepFoot(false)}}},
+
+{t:'05 제작 2/6 · 색내기',n:'맛=색. 하나만 고르므로 되돌리기 없음. 잠긴 재료는 자물쇠.',
+ build:()=>{let imgs=chipMon()+cakeImg(95,170,200);
+  let mid=chipMid()+R(20,450,350,254,18);
+  let ui=chipUI('“모든 걸 딸기로…”')+seg(2)+TC('2 / 6 · 맛과 색',17,700,TXT,138)+TC('맛 / 색',20,700,TXT,482);
+  COLORS.slice(0,8).forEach((id,i)=>{const x=68+(i%4)*85, y=530+Math.floor(i/4)*82, on=id===ck, lk=LOCKED.includes(id);
+    mid+=E(x-27,y-27,54,54,PAPER,on?3.4:2); imgs+=IMG(flavorIcon(id),x-18,y-18,36,36);
+    if(lk){ui+=`<circle cx="${x}" cy="${y}" r="27" fill="#fff" opacity=".72"/>`+LOCK(x-8,y-9,1)}});
+  ui+=T('잠긴 재료는 코인으로 해금',12,400,MUT,195,690,'middle');
+  return {mid, imgs, ui: ui+stepFoot(false)}}},
+
+{t:'06 제작 3/6 · 생크림',n:'“안 올림” 선택 상태 — 맛 팔레트 비활성. 되돌리기(↺) 있음.',
+ build:()=>{let imgs=chipMon()+cakeImg(95,170,200);
+  let mid=chipMid()+R(20,450,350,254,18);
+  let ui=chipUI('“모든 걸 딸기로…”')+seg(3)+TC('3 / 6 · 생크림',17,700,TXT,138)+TC('생크림',20,700,TXT,482);
+  /* '안 올림'이 선택된 상태 → 아래 팔레트는 비활성(opacity .4), 케이크에도 크림이 없다 */
+  ui+=`${R(56,500,120,38,19,INK)}${T('안 올림',15,700,'#fff',116,525,'middle')}`;
+  ui+=`${R(200,500,134,38,19)}${T('올리기',15,700,TXT,267,525,'middle')}`;
+  mid+='<g opacity=".4">';
+  COLORS.slice(0,4).forEach((id,i)=>{const x=68+i*85,y=600;
+    mid+=E(x-27,y-27,54,54,PAPER,2); imgs+=IMG(flavorIcon(id),x-18,y-18,36,36,'opacity:.4')});
+  mid+='</g>';
+  imgs+=IMG('cream.png',168,644,54,36,'opacity:.4');
+  ui+=T('“안 올림” 선택 시 크림 맛 선택이 비활성돼요',12,400,MUT,195,694,'middle');
+  return {mid, imgs, ui: ui+stepFoot(true)}}},
+
+{t:'07 제작 4/6 · 토핑',n:'크림 올린 상태에서 토핑을 좌표에 배치. 되돌리기(↺) 있음.',
+ build:()=>{let imgs=chipMon()+cakeImg(95,170,200);
+  /* 3/6에서 크림을 올린 흐름 → 크림이 이미 얹혀 있다 */
+  [[138,236],[180,224],[222,236]].forEach(([x,y])=>{imgs+=IMG(`cream_${ck}.png`,x,y,42,32)});
+  [[140,206],[186,196],[232,206]].forEach(([x,y])=>{imgs+=IMG('ing_strawberry.png',x,y,34,34)});
+  let mid=chipMid()+R(20,450,350,254,18);
+  let ui=chipUI('“모든 걸 딸기로…”')+seg(4)+TC('4 / 6 · 토핑',17,700,TXT,138)+TC('토핑',20,700,TXT,482);
+  TOPS.forEach(([id,label],i)=>{const x=68+(i%4)*85, y=530+Math.floor(i/4)*82;
+    mid+=E(x-27,y-27,54,54,i===0?PINK:PAPER); imgs+=IMG(`ing_${id}.png`,x-19,y-19,38,38);
+    ui+=T(label,12,400,TXT,x,y+42,'middle')});
+  ui+=T('올린 개수도 채점에 들어가요',12,400,MUT,195,690,'middle');
+  return {mid, imgs, ui: ui+stepFoot(true)}}},
+
+{t:'08 제작 5/6 · 데코',n:'초·스프링클. 개수를 −/+로 조절하므로 되돌리기 없음.',
+ build:()=>{let imgs=chipMon()+cakeImg(95,170,200);
+  [[138,240],[180,228],[222,240]].forEach(([x,y])=>{imgs+=IMG(`cream_${ck}.png`,x,y,42,32)});
+  [[152,180],[186,172],[220,180]].forEach(([x,y])=>{imgs+=IMG('ing_birthday_candle.png',x,y,30,44)});
+  imgs+=IMG('ing_sprinkle_on.png',120,212,150,58);
+  let mid=chipMid()+R(20,450,350,254,18);
+  let ui=chipUI('“모든 걸 딸기로…”')+seg(5)+TC('5 / 6 · 데코',17,700,TXT,138)+TC('데코',20,700,TXT,482);
+  DECO.forEach(([id,label],i)=>{const x=68+i*85, y=548;
+    mid+=E(x-30,y-30,60,60,i===0?PINK:PAPER); imgs+=IMG(`ing_${id}.png`,x-21,y-21,42,42);
+    ui+=T(label,12,400,TXT,x,y+46,'middle')});
+  ui+=`${R(60,626,270,44,22,WARM)}${T('생일초',14,400,TXT,84,654)}${T('−  3  +',18,700,TXT,290,655,'end')}`;
+  ui+=T('개수를 조절하세요',12,400,MUT,195,690,'middle');
+  return {mid, imgs, ui: ui+stepFoot(false)}}},
+
+{t:'09 제작 6/6 · 레터링',n:'“안 올림” 켜지면 문구·글자색이 opacity 0.4로 잠김.',
+ build:()=>{let imgs=chipMon()+cakeImg(95,160,200);
+  let mid=chipMid()+R(20,430,350,272,18);
+  let ui=chipUI('“모든 걸 딸기로…”')+seg(6)+TC('6 / 6 · 레터링',17,700,TXT,138);
+  ui+=T('딸기',26,700,'#E8798A',195,262,'middle');
+  ui+=TC('레터링',20,700,TXT,464)+T('문구',15,400,TXT,42,510);
+  ui+=`${R(92,488,96,34,17,PAPER)}${T('안 올림',14,700,TXT,140,510,'middle')}`;
+  ui+=`${R(204,488,146,34,17,INK)}${T('딸기',15,700,'#fff',277,510,'middle')}`;
+  ui+=T('글자 맛',15,400,TXT,42,584);
+  COLORS.slice(1,5).forEach((id,i)=>{const x=120+i*60,y=572;
+    mid+=E(x-24,y-24,48,48,PAPER,id==='strawberry'?3.4:2); imgs+=IMG(flavorIcon(id),x-16,y-16,32,32)});
+  ui+=T('“안 올림”을 고르면 아래가 비활성돼요',12,400,MUT,195,650,'middle');
+  return {mid, imgs, ui: ui+stepFoot(false,'완성하기',156)}}},
+
+{t:'10 대화 팝업',n:'제작 중 ··· 클릭. 여기서도 질문 가능, 턴 규칙 동일.',
+ build:()=>({mid:`${dim()}${R(24,120,342,620,24)}`, imgs: monster('ghost','normal',26,168,76),
+  ui:`${TC('대화 기록',22,700,TXT,166)}${T('✕',20,700,INK,334,166)}
+   ${R(96,186,250,64,16,WARM)}
+   ${T('“모든 걸 딸기로 해주세요!',14,400,TXT,221,214,'middle')}${T('레터링도 ‘딸기’!”',14,400,TXT,221,236,'middle')}
+   ${bub(150,272,196,40,'me','시트 맛도 딸기인가요?',14)}
+   ${bub(44,324,176,40,'you','응! 전부 딸기!',14)}
+   ${bub(160,376,186,40,'me','레터링도 딸기라고?',14)}
+   ${bub(44,428,196,40,'you','히히, 맞아 딸기!',14)}
+   ${R(140,494,110,24,12,PAPER,1.8)}${T('질문 4 / 10턴 · −2점',11,400,MUT,195,511,'middle')}
+   ${R(44,640,200,48,24)}${T('이어서 물어보기…',14,400,MUT,62,670)}
+   ${R(256,634,90,58,18,INK)}${T('보내기',15,700,'#fff',301,662,'middle')}${T('−2점',11,400,'#fff',301,679,'middle')}
+   ${TC('제작 중에도 언제든 물어볼 수 있어요',13,400,'#fff',770)}`})},
+
+{t:'11 재료 언락 팝업',n:'잠긴 재료를 코인으로 해금. 보유 → 잔액 표시.',
+ build:()=>({mid:`${dim()}${R(40,220,310,430,24)}${E(150,286,90,90,WARM,0)}`, imgs: IMG('ing_chocolate.png',162,296,66,66),
+  ui:`${TC('새 재료 해금',24,700,TXT,282)}
+   ${TC('초콜릿',20,700,TXT,412)}${TC('시트 · 크림 · 레터링에 쓸 수 있어요',13,400,MUT,438)}
+   ${R(70,466,250,76,14,WARM)}${E(96,482,28,28,COIN)}${T('120 코인',20,700,TXT,136,504)}
+   ${TC('보유 1,308 → 1,188',13,400,MUT,532)}
+   ${btnP(70,564,250,50,'해금하기',20)}${TC('나중에',15,700,MUT,634)}`})},
+
+{t:'12 완성 확인',n:'주기 전 마지막 대조. 되돌아가 고칠 수 있다.',
+ build:()=>({imgs: monster('ghost','normal',130,52,130) + cakeImg(85,250,220),
+  ui:`${hud('1,308')}
+   ${R(24,176,342,44,16)}${TC('“모든 걸 딸기로! 레터링도 ‘딸기’!”',14,400,TXT,204)}
+   ${TC('주문과 대조해서 마지막 점검!',16,400,TXT,540)}${TC('내면 되돌릴 수 없어요',13,400,MUT,566)}
+   ${btnG(20,742,130,52,'다시만들기',15)}${btnP(196,736,174,64,'주기',26)}`})},
+
+{t:'13 정산',n:'별점 + 코인만. 점수 숫자 없음. parts 6항목 그대로.',
+ build:()=>{let imgs=monster('ghost','happy',8,72,120)+cakeImg(120,190,150);
+  let ui=hud('1,376')+R(120,104,250,52,26)+T('“우와! 완전 내가 원하던 거야!”',15,400,TXT,245,136,'middle');
+  ui+=TC('손님 만족도',15,400,MUT,368);
+  for(let i=0;i<5;i++) ui+=STAR(58+i*56,382,44,i<4?COIN:PAPER);
+  ui+=E(126,452,30,30,COIN)+T('+68 코인',24,700,TXT,170,476);
+  ui+=R(20,504,350,196,16);
+  [['시트 반죽','15','완벽'],['시트 맛','25','완벽'],['토핑','25','완벽'],['레터링','20','아쉬움'],['생크림','10','완벽'],['데코','10','완벽']]
+   .forEach(([k,w,st],i)=>{const y=534+i*26;
+    ui+=T(k,14,400,TXT,40,y)+T(st,13,400,st==='완벽'?TXT:MUT,300,y,'end')+T(w,13,400,MUT,350,y,'end')});
+  ui+=T('scoreCake parts 그대로 · 점수 숫자는 노출 안 함',11,400,MUT,195,694,'middle');
+  ui+=`${R(20,732,150,54,27)}<path d="M50 754a13 13 0 1 0 5-10" fill="none" stroke="${INK}" stroke-width="2.4"/><path d="M48 742l2 12 12-3z" fill="${INK}"/>${T('다시 플레이',15,700,TXT,112,758,'middle')}${T('♡ −1',11,400,MUT,112,774,'middle')}`;
+  return {imgs, ui: ui+btnP(196,732,174,54,'다음 손님 →',19)}}},
+
+{t:'14 스테이지 클리어',n:'손님 5명 별점 요약 + 총 코인. 신규 화면.',
+ build:()=>{let imgs=monster('pink','happy',52,174,146)+monster('ghost','happy',192,174,146);
+  let ui=hud('1,682')+TC('Stage 1 클리어!',30,700,TXT,164);
+  ui+=R(20,320,350,286,18);
+  [['딸기 개구쟁이',3],['정중한 블루베리',2],['고집불통 ‘필요없음’',3],['바다의 몽상가',2],['???',3]]
+   .forEach(([nm,st],i)=>{const y=362+i*48;
+    ui+=T(`${i+1}. ${nm}`,15,400,TXT,40,y+6);
+    for(let j=0;j<3;j++) ui+=STAR(228+j*36,y-10,26,j<st?COIN:PAPER)});
+  ui+=R(20,626,350,72,16,WARM)+T('스테이지 획득',15,400,MUT,44,668)+E(212,648,30,30,COIN)+T('+ 326 코인',20,700,TXT,348,670,'end');
+  ui+=TC('별점을 올리려면 손님을 다시 만날 수 있어요',12,400,MUT,724);
+  return {imgs, ui: ui+btnG(20,752,130,52,'맵으로',16)+btnP(176,752,194,52,'다음 스테이지 →',19)}}},
+
+{t:'15 로딩',n:'화면 전환·LLM 대기. 게임 팁 노출.',
+ build:()=>({mid: veil(.5), imgs: monster('pink','normal',130,96,130) + IMG('bowl_making.png',105,244,180,180),
+  ui:`${R(96,440,198,54,27)}${TC('케이크 굽는 중…',24,700,TXT,476)}
+   ${En(160,522,18,18,INK)}<ellipse cx="195" cy="531" rx="9" ry="9" fill="${INK}" opacity=".55"/><ellipse cx="230" cy="531" rx="9" ry="9" fill="${INK}" opacity=".25"/>
+   ${R(60,572,270,20,10)}${Rn(64,576,110,12,6,INK)}
+   ${R(40,650,310,80,16,WARM)}${R(40,638,64,24,12,INK)}${T('TIP',13,700,'#fff',72,655,'middle')}
+   ${TC('제작 중에도 ··· 아이콘으로',15,400,TXT,686)}${TC('대화창을 열어 더 물어볼 수 있어요',15,400,TXT,710)}`})},
+];
+
+function paint(){
+  document.getElementById('grid').innerHTML = SCREENS.map(s=>{
+    const o=s.build();
+    return `<div class="cell">
+      <div class="cap"><b>${s.t}</b></div>
+      <div class="note">${s.n}</div>
+      <div class="ph">
+        <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${bgSVG()}${o.mid||''}</svg>
+        ${o.imgs||''}
+        <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${o.ui||''}</svg>
+      </div></div>`}).join('');
+}
+document.addEventListener('click',e=>{
+  for(const k of ['bd','ck','tp']){
+    const b=e.target.closest(`[data-${k}]`);
+    if(b){ if(k==='bd')bd=b.dataset.bd; if(k==='ck')ck=b.dataset.ck; if(k==='tp')tp=b.dataset.tp;
+      document.querySelectorAll(`[data-${k}]`).forEach(n=>n.classList.toggle('on',n===b)); paint(); return}
+  }
+});
+paint();
+</script>
+</html>

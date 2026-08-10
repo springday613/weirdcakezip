@@ -35,7 +35,7 @@
     font-size: 1.5rem; margin: 2.1rem 0 0.4rem; padding-top: 0.4rem;
     break-after: avoid; letter-spacing: -.3px;
   }
-  h2 .no { color: var(--muted); font-weight: 400; margin-right: 0.5rem; }
+  h2 .no { color: #D9C9A8; font-weight: 800; font-size: 2.1rem; margin-right: 0.55rem; letter-spacing: -.02em; }
   h3 { font-size: 1.12rem; margin: 1.0rem 0 0.3rem; break-after: avoid; }
   /* 문단이 쪽을 넘어가며 한 줄만 떨어지는 것(과부/고아 줄)을 막는다 */
   p { margin: 0.55rem 0; orphans: 2; widows: 2; break-inside: avoid; }
@@ -53,20 +53,38 @@
   }
   pre code { background: none; padding: 0; }
   table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.93rem; line-height: 1.55; font-variant-numeric: tabular-nums; break-inside: avoid; }
-  th, td { text-align: left; padding: 0.32rem 0.6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th, td { text-align: left; padding: 0.28rem 0.6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
   th { background: var(--cream); font-weight: 600; white-space: nowrap; }
   td.num { text-align: right; font-variant-numeric: tabular-nums; }
-  header {
-    padding: 1.6rem 0 1.3rem; border-bottom: 2.2px solid var(--ink); margin-bottom: 0.4rem;
+  /* ── 표지 (한 면 전체) ─────────────────────────────── */
+  .cover {
+    height: 262mm; display: flex; flex-direction: column; break-after: page;
   }
+  .cover .badges { padding-top: 10mm; }
+  .cover .spacer { flex: 1; }
+  .cover h1 { font-size: 3.1rem; line-height: 1.22; letter-spacing: -.02em; margin: 0 0 0.7rem; }
+  .cover .tag { font-size: 1.08rem; color: var(--muted); line-height: 1.7; max-width: 34em; }
+  .cast { display: flex; align-items: flex-end; gap: 1.6rem; margin: 2rem 0 0; }
+  .cast img { height: 21mm; width: auto; }
+  .kpis { display: flex; border-top: 2.2px solid var(--ink); border-bottom: 1px solid var(--line); margin: 0 0 8mm; }
+  .kpis > div { flex: 1; padding: 0.85rem 1rem 0.9rem 0; }
+  .kpis > div + div { border-left: 1px solid var(--line); padding-left: 1.2rem; }
+  .kpis .n { font-size: 1.9rem; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .kpis .n small { font-size: 1rem; font-weight: 700; }
+  .kpis .l { font-size: 0.82rem; color: var(--muted); letter-spacing: .04em; margin-top: 0.1rem; }
+  .cover .meta { border-top: 1px solid var(--line); padding-top: 3mm; font-size: 0.9rem; color: var(--muted); }
   .badge {
     display: inline-block; background: var(--ink); color: #fff; font-size: 0.8rem;
     padding: 0.15rem 0.75rem; border-radius: 999px; margin-bottom: 0.8rem;
   }
   .badge.team { background: none; color: var(--ink); border: 2px solid var(--ink); margin-left: 0.35rem; }
-  .tag { font-size: 1rem; margin: 0; color: var(--muted); }
   .links { margin-top: 0.9rem; font-size: 0.9rem; color: var(--muted); }
   .links a { color: var(--ink); border-bottom: 1px solid var(--line); }
+  /* ── 게임플레이 컷 ── */
+  .fig { display: flex; gap: 4mm; margin: 0.9rem 0 0.2rem; break-inside: avoid; }
+  .fig figure { flex: 1; margin: 0; }
+  .fig img { width: 100%; border: 1px solid var(--line); border-radius: 8px; display: block; }
+  .fig figcaption { font-size: 0.8rem; color: var(--muted); margin-top: 0.3rem; text-align: center; letter-spacing: .02em; }
   .box {
     border-left: 4px solid var(--ink); background: var(--cream);
     padding: 0.75rem 1rem; border-radius: 0 10px 10px 0; margin: 0.9rem 0; break-inside: avoid;
@@ -96,18 +114,36 @@
 </head>
 <body>
 
-<header>
-  <span class="badge">NAN 2026 · NHN Game×AI 해커톤 사전과제</span>
-  <span class="badge team">팀 프롬프트 파티시에</span>
+<div class="cover">
+  <div class="badges">
+    <span class="badge">NAN 2026 · NHN Game×AI 해커톤 사전과제</span>
+    <span class="badge team">팀 프롬프트 파티시에</span>
+  </div>
+  <div class="spacer"></div>
   <h1>AI 활용 기술 문서</h1>
-  <p class="tag">WeirdCakeZip 이상한 케이크 가게 · 손님의 애매한 주문을 대화로 파고들어, 진짜 마음을 케이크로 완성하는 게임</p>
+  <p class="tag">
+    <strong>WeirdCakeZip 이상한 케이크 가게</strong> — 손님의 애매한 주문을 대화로 파고들어,
+    진짜 마음을 케이크로 완성하는 게임. 손님은 실시간 LLM이 연기하고, 채점은 결정적 코드가 맡습니다.
+  </p>
+  <div class="cast">
+    <img src="img/spike.webp" alt="별사탕"><img src="img/pink.webp" alt="핑크"><img
+      src="img/cherry.webp" alt="체리"><img src="img/robot.webp" alt="네모"><img src="img/dust.webp" alt="먼지">
+  </div>
+  <div class="spacer"></div>
+  <div class="kpis">
+    <div><div class="n">19</div><div class="l">프롬프트 회귀 시나리오 (매 PR CI)</div></div>
+    <div><div class="n">15<small>%</small> → 7.8<small>%</small></div><div class="l">A/B 실험으로 낮춘 규칙 위반율</div></div>
+    <div><div class="n">26</div><div class="l">채점 로직 결정적 유닛 테스트</div></div>
+    <div><div class="n">3<small>종</small></div><div class="l">직접 만든 AI 스킬 (약 900줄)</div></div>
+  </div>
   <p class="links">
     플레이 <a href="https://springday613.github.io/weirdcakezip/">springday613.github.io/weirdcakezip</a> ·
     플레이 영상 <a href="https://youtube.com/shorts/y-mXOzeUH4w">youtube.com/shorts/y-mXOzeUH4w</a><br>
     소스 <a href="https://github.com/springday613/weirdcakezip">github.com/springday613/weirdcakezip</a> ·
     APK GitHub Releases (v1.2)
   </p>
-</header>
+  <p class="meta">팀 프롬프트 파티시에 (수민 · 효희) · 2026-08-10</p>
+</div>
 
 <div class="toc">
   <h2>목차</h2>
@@ -139,7 +175,7 @@
   </ol>
 </div>
 
-<h2 class="pagebreak"><span class="no">1.</span>AI가 게임의 재미인 이유</h2>
+<h2><span class="no">1</span>AI가 게임의 재미인 이유</h2>
 <p>
 이 게임에서 플레이어는 케이크 가게 주인이 되어, 괴물 손님의 <strong>두루뭉술한 주문</strong>
 (<em>"바다 생각나는 케이크 없을까요?"</em>)을 채팅으로 파고들어 진짜 원하는 케이크를 알아내고 만들어 냅니다.
@@ -156,8 +192,13 @@
   같은 케이크는 언제나 같은 점수입니다. 모델이 후해지거나 박해지는 흔들림이 채점에 영향을 주지 않아,
   "왜 이 점수인가"를 항상 코드로 설명할 수 있습니다.
 </div>
+<div class="fig">
+  <figure><img src="img/shot_chat.webp" alt="대화 화면"><figcaption>① 대화 — 질문으로 진짜 주문을 좁힌다 (질문마다 비용)</figcaption></figure>
+  <figure><img src="img/shot_build.webp" alt="제작 화면"><figcaption>② 제작 — 시트부터 데코까지 6단계</figcaption></figure>
+  <figure><img src="img/shot_score.webp" alt="채점 화면"><figcaption>③ 채점 — 항목별 점수·별점·코인</figcaption></figure>
+</div>
 
-<h2><span class="no">2.</span>시스템 구조</h2>
+<h2><span class="no">2</span>시스템 구조</h2>
 <div class="diagram">┌─ 클라이언트 (React 18 + Vite, 순수 JS) ──────────────────────────────┐
 │  화면 상태머신(App.jsx): TITLE → 이름 → 스토리 → 맵 → 대화 → 제작(6단계)   │
 │                          → 확인 → 채점 → … → 정산 → 엔딩 → 크레딧        │
@@ -181,7 +222,7 @@
       같은 서버리스 API를 바라봅니다. LLM 키는 어떤 클라이언트에도 포함되지 않습니다.</li>
 </ul>
 
-<h2><span class="no">3.</span>손님 괴물 시스템 프롬프트</h2>
+<h2><span class="no">3</span>손님 괴물 시스템 프롬프트</h2>
 <p>
 손님의 시스템 프롬프트(<code>api/_monsterPrompt.js</code>)는 <strong>공통 규칙 템플릿 하나</strong>에
 주문별 데이터를 주입해 만듭니다. 규칙을 손님 수만큼 복사하면 튜닝이 불가능해지기 때문에,
@@ -244,7 +285,7 @@
 </table>
 <p class="cap">재시도로도 교정되지 않으면 안전한 대사("응? 갑자기 무슨 말이야~")로 대체해, 규칙 위반 응답이 플레이어에게 도달하지 않게 합니다.</p>
 
-<h2><span class="no">4.</span>품질 보증: 프롬프트 회귀 테스트</h2>
+<h2><span class="no">4</span>품질 보증: 프롬프트 회귀 테스트</h2>
 <p>
 프롬프트는 코드처럼 회귀합니다. 한 손님의 함정을 고치면 다른 손님의 응답이 무너질 수 있습니다.
 그래서 <strong>시나리오 19개짜리 자동 회귀 테스트</strong>(<code>scripts/testChat.py</code>)를 CI에 걸어
@@ -264,7 +305,7 @@
 규칙·데코 수량 채점까지 고정합니다. 대화의 비결정성은 회귀 테스트로, 채점의 공정성은 결정적 코드로 관리합니다. 이 두 축이 품질 장치입니다.
 </p>
 
-<h2><span class="no">5.</span>개발 과정의 AI 활용</h2>
+<h2><span class="no">5</span>개발 과정의 AI 활용</h2>
 <p>
 게임 안에서 AI를 쓴 것만큼, 게임을 만드는 과정 자체를 AI 협업으로 설계했습니다.
 2인 팀이 2주 남짓에 대화형 게임을 완성하려면, AI를 "가끔 물어보는 도구"가 아니라
@@ -455,7 +496,7 @@ AI에게 바로 코드를 쓰게 하면, <strong>잘못된 전제가 그대로 �
 확률적 검증을 다룰 땐 실패를 그대로 믿지 않고 재현부터 하는 절차가 필요합니다.
 </p>
 
-<h2><span class="no">6.</span>외부 에셋 · 오픈소스 출처</h2>
+<h2 style="margin-top:0.5rem"><span class="no">6</span>외부 에셋 · 오픈소스 출처</h2>
 
 <h3>6-1. 오픈소스 라이브러리</h3>
 <table>

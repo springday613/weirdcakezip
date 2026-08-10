@@ -127,7 +127,19 @@ ap.add_argument("--summary", default=os.environ.get("GITHUB_STEP_SUMMARY"), help
 ap.add_argument("--judge", action="store_true",
                 help="LLM 판정 추가 — 키워드로 못 재는 규칙(거짓부정·누설·지어내기·톤)을 "
                      "루브릭+근거 인용으로 평가. 리포트만 내고 종료 코드에는 영향 없음")
+ap.add_argument("--only", default=None, metavar="말",
+                help="라벨이나 orderId 에 이 말이 들어간 시나리오만 실행. "
+                     "바뀐 시나리오만 다시 재고 싶을 때 쓴다 — 안 바뀐 것까지 다시 돌리면 "
+                     "돈과 시간을 쓰고도 잡음만 얻는다(2026-08-10 실측: 코드 그대로인 "
+                     "order-001 이 16 → 26/260 으로 흔들렸다). "
+                     "부분 실행이라 docs/judge-report.md 는 덮어쓰지 않고 화면에만 낸다")
 args = ap.parse_args()
+
+if args.only:
+    SCEN = [r for r in SCEN if args.only in r[0] or args.only in r[1]]
+    if not SCEN:
+        print(f"'{args.only}' 에 걸리는 시나리오가 없다."); sys.exit(1)
+    print(f"[--only {args.only}] {len(SCEN)}개 시나리오만 실행한다. 리포트 파일은 건드리지 않는다.\n")
 
 # ── LLM 판정 (--judge) ─────────────────────────────────────────
 # 키워드 체크는 결정적이지만 말투가 바뀌면 뒤집힌다. 판정자는 규칙 위반의 '의미'를 보되,
@@ -270,8 +282,11 @@ if args.judge:
     print("-" * 100)
     print(f"판정: 위반 있는 응답 {total_v}건 (리포트 → docs/judge-report.md)")
     lines += ["", f"**위반 있는 응답 {total_v}건.** 키워드 판정과 어긋나는 행(키워드 PASS + 위반, 또는 FAIL + 무위반)이 회귀 스위트의 사각지대다.", ""]
-    from pathlib import Path
-    Path(__file__).resolve().parent.parent.joinpath("docs", "judge-report.md").write_text("\n".join(lines), encoding="utf-8")
+    if args.only:
+        print("\n(--only 부분 실행이라 docs/judge-report.md 는 갱신하지 않았다. 위 표를 해당 행에만 반영해라.)")
+    else:
+        from pathlib import Path
+        Path(__file__).resolve().parent.parent.joinpath("docs", "judge-report.md").write_text("\n".join(lines), encoding="utf-8")
 
 # FLAKY 는 통과. 전부 실패(FAIL)나 호출 오류(ERR)만 게이트를 막는다. --judge 는 게이트에 영향 없음.
 sys.exit(1 if n["FAIL"] or n["ERR"] else 0)

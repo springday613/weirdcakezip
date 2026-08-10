@@ -91,8 +91,9 @@
         괴물이 정답을 알지만 떠먹여주지 않게 만드는 규칙 설계</li>
     <li><strong>LLM 프로바이더 추상화</strong> (<code>api/_llm.js</code>) — OpenAI / Anthropic 교체 가능,
         키가 없으면 mock 으로 자동 폴백</li>
-    <li><strong>프롬프트 회귀 테스트</strong> — 별도 심사 모델로 응답을 채점하는
-        <code>prompt-regression</code> CI 와 <code>docs/judge-report.md</code>.
+    <li><strong>프롬프트 회귀 테스트</strong> — 시나리오 19개를 매 PR 마다 실제 LLM 으로 돌리는
+        <code>prompt-regression</code> CI. 별도 <strong>심사 모델</strong>로 채점한 결과는
+        <code>docs/judge-report.md</code> 에 따로 남깁니다 (확률적이라 CI 게이트로는 쓰지 않음).
         “정답 유출”·“지어내기” 같은 위반을 수치로 잡아 프롬프트를 고쳤습니다</li>
     <li><strong>프롬프트 엔지니어링 로그</strong> (<code>docs/prompt-engineering-log.md</code>) —
         플레이테스트에서 발견한 문제 → 원인 → 수정을 기록</li>
@@ -110,7 +111,7 @@
 
   <h4>아트</h4>
   <ul>
-    <li><strong>색연필 손그림 에셋 전량</strong> — 괴물 9종(표정 3단계), 케이크·시트·생크림·토핑·데코,
+    <li><strong>색연필 화풍 에셋 전량</strong> — 괴물 10종(표정 3단계), 케이크·시트·생크림·토핑·데코,
         재료 아이콘, 배경, 스토리 컷, UI 아이콘</li>
     <li>에셋 생성·가공 <strong>파이썬 도구 모음</strong> (<code>tools/assets/</code>) —
         토핑 좌표 실측(<code>cakeLayout.json</code>), 색 입히기, WebP 변환</li>

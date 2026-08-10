@@ -34,7 +34,7 @@ cake-shop/
 ├── scripts/                 회귀 테스트 하네스 (testChat.py 등)
 ├── tools/assets/            에셋 빌드 스크립트 (cake·monster) — 원본 그림은 리포 밖 ../assets/assets-* 에 두고 스크립트만 여기서 리뷰한다
 ├── rules/                   에이전트용 세부 규칙 (아래 참조)
-└── docs/                    사람용 개발 기록 (prompt-engineering-log 등)
+└── docs/                    사람용 개발 기록 · 제출 문서 (design-system.md 는 문서 조판 규약)
 ```
 
 ## 핵심 파일 (건드릴 때 주의)

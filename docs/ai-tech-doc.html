@@ -6,10 +6,20 @@
 <style>
   @page {
     size: A4; margin: 17mm 18mm 14mm;
-    @top-right {
-      content: "WeirdCakeZip · AI 활용 기술 문서";
+    @top-left {
+      content: "NAN 2026 · NHN Game×AI 해커톤 사전과제";
       font-family: "Pretendard", "Apple SD Gothic Neo", sans-serif;
       font-size: 8pt; color: #B3A794; vertical-align: bottom; padding-bottom: 4mm;
+    }
+    @top-right {
+      content: "AI 활용 기술 문서";
+      font-family: "Pretendard", "Apple SD Gothic Neo", sans-serif;
+      font-size: 8pt; color: #B3A794; vertical-align: bottom; padding-bottom: 4mm;
+    }
+    @bottom-left {
+      content: "WeirdCakeZip 이상한 케이크 가게";
+      font-family: "Pretendard", "Apple SD Gothic Neo", sans-serif;
+      font-size: 8pt; color: #B3A794; vertical-align: top; padding-top: 4mm;
     }
     @bottom-right {
       content: counter(page) " / " counter(pages);
@@ -19,7 +29,8 @@
     }
   }
   /* 표지 면에는 러닝 헤더·쪽번호를 넣지 않는다 */
-  @page :first { @top-right { content: ""; } @bottom-right { content: ""; } }
+  @page :first { @top-left { content: ""; } @top-right { content: ""; }
+                @bottom-left { content: ""; } @bottom-right { content: ""; } }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
     --ink: #523412; --text: #1E1A16; --muted: #8B8175;
@@ -97,7 +108,7 @@
   .toc ol { list-style: none; padding: 0; margin: 0; counter-reset: c; }
   .toc > ol > li { counter-increment: c; border-bottom: 1px solid var(--line); padding: 0.4rem 0; }
   .toc > ol > li:last-child { border-bottom: 0; }
-  .toc > ol > li > .t::before { content: counter(c) ". "; color: var(--muted); }
+  .toc > ol > li > .t::before { content: counter(c, decimal-leading-zero) ". "; color: var(--muted); }
   .toc > ol > li > .t { font-weight: 600; font-size: 1rem; }
   .toc .sub { margin: 0.15rem 0 0; padding: 0; font-size: 0.87rem; color: var(--muted); line-height: 1.65; }
   .diagram {
@@ -173,7 +184,7 @@
   </ol>
 </div>
 
-<h2><span class="no">1</span>AI가 게임의 재미인 이유</h2>
+<h2><span class="no">01</span>AI가 게임의 재미인 이유</h2>
 <p>
 괴물 손님의 <strong>두루뭉술한 주문</strong>(<em>"바다 생각나는 케이크 없을까요?"</em>)을 채팅으로
 파고들어 진짜 원하는 케이크를 알아내는 게임입니다. (게임 소개·화면·규칙은 별도 제출물인
@@ -192,7 +203,7 @@
   "왜 이 점수인가"를 항상 코드로 설명할 수 있습니다.
 </div>
 
-<h2><span class="no">2</span>시스템 구조</h2>
+<h2><span class="no">02</span>시스템 구조</h2>
 <div class="diagram">┌─ 클라이언트 (React 18 + Vite, 순수 JS) ──────────────────────────────┐
 │  화면 상태머신(App.jsx): TITLE → 이름 → 스토리 → 맵 → 대화 → 제작(6단계)   │
 │                          → 확인 → 채점 → … → 정산 → 엔딩 → 크레딧        │
@@ -216,7 +227,7 @@
       같은 서버리스 API를 바라봅니다. LLM 키는 어떤 클라이언트에도 포함되지 않습니다.</li>
 </ul>
 
-<h2><span class="no">3</span>손님 괴물 시스템 프롬프트</h2>
+<h2><span class="no">03</span>손님 괴물 시스템 프롬프트</h2>
 <p>
 손님의 시스템 프롬프트(<code>api/_monsterPrompt.js</code>)는 <strong>공통 규칙 템플릿 하나</strong>에
 주문별 데이터를 주입해 만듭니다. 규칙을 손님 수만큼 복사하면 튜닝이 불가능해지기 때문에,
@@ -280,7 +291,7 @@
 </table>
 <p class="cap">재시도로도 교정되지 않으면 안전한 대사("응? 갑자기 무슨 말이야~")로 대체해, 규칙 위반 응답이 플레이어에게 도달하지 않게 합니다.</p>
 
-<h2><span class="no">4</span>AI로 AI를 검증한다: 게임 LLM의 품질 보증</h2>
+<h2><span class="no">04</span>AI로 AI를 검증한다: 게임 LLM의 품질 보증</h2>
 <p>
 대화가 실시간 LLM이라는 건 <strong>매 플레이가 비결정적</strong>이라는 뜻입니다. 이 장은 그 비결정성을
 관리한 세 겹의 장치입니다. 회귀 테스트로 지키고(4-1), LLM 판정자로 재고(4-2), A/B 실험으로 고칩니다(4-3).
@@ -403,7 +414,7 @@ A/B 실험은 <strong>H를 유지한 11.9%</strong>에서 끝났습니다(G가 �
   전체 위반율의 방향을 보기엔 충분해도, <strong>한 시나리오(20회)의 증감으로 개선을 주장하기엔 부족합니다.</strong>
 </div>
 
-<h2><span class="no">5</span>AI를 팀원으로 쓰는 개발 방식</h2>
+<h2><span class="no">05</span>AI를 팀원으로 쓰는 개발 방식</h2>
 <p>
 4장이 게임 <em>안의</em> AI를 검증하는 이야기라면, 이 장은 게임을 <em>만드는</em> AI 이야기입니다.
 2인 팀이 2주 남짓에 대화형 게임을 완성하려면, AI를 "가끔 물어보는 도구"가 아니라
@@ -530,7 +541,7 @@ AI에게 바로 코드를 쓰게 하면, <strong>잘못된 전제가 그대로 �
 확률적 검증을 다룰 땐 실패를 그대로 믿지 않고 재현부터 하는 절차가 필요합니다.
 </p>
 
-<h2 style="margin-top:0.5rem"><span class="no">6</span>외부 에셋 · 오픈소스 출처</h2>
+<h2 style="margin-top:0.5rem"><span class="no">06</span>외부 에셋 · 오픈소스 출처</h2>
 
 <h3>6-1. 오픈소스 라이브러리</h3>
 <table>

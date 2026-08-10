@@ -6,7 +6,7 @@
 
 ## 이 리포는 무엇인가
 
-"WeirdCakeZip" — 손님(LLM)이 애매한 주문을 내면, 플레이어가 대화로 의도를 좁혀
+WeirdCakeZip(이상한 케이크 가게) — 손님(LLM)이 애매한 주문을 내면, 플레이어가 대화로 의도를 좁혀
 케이크를 만들고, 결정적 코드가 채점하는 웹 게임. NAN 2026 해커톤 사전과제.
 
 **핵심 설계**: 대화(재미)는 LLM, 채점(공정성)은 코드. 이 경계를 흐리지 마세요.
@@ -16,9 +16,9 @@
 ```
 cake-shop/
 ├── src/
-│   ├── App.jsx              상태머신: TITLE → PLAYING → RESULT → END
-│   ├── screens/             화면별 컴포넌트 (Title / Order / Result)
-│   ├── components/          CakeView · IngredientPalette · ChatBox
+│   ├── App.jsx              화면 상태머신 12종. 손님 루프는 STAGE→CHAT→BUILD→CONFIRM→RESULT
+│   ├── screens/             화면별 컴포넌트 11개 (Title·Name·Story·StageMap·Chat·Order·Confirm·Result·StageClear·TutorialEnd·Loading)
+│   ├── components/          CakeView · IngredientPalette · ChatBox · Hud · Stars 등 11개
 │   ├── data/
 │   │   ├── ingredients.js   재료 vocabulary + sheetType() 조합 판정
 │   │   └── orders.js        주문 + hidden.wants(숨은 정답) — 채점 기준

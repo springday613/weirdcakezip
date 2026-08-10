@@ -62,8 +62,11 @@ SCEN = [
     # 오래 쫓던 최악 함정(2026-08-03 해결): order-002 레터링 정답='필요없음'이라는 글자.
     # 어휘의 none 과 글자가 겹쳐 공통 규칙·재시도·주석 전부 실패(5/5) → 주문 전용
     # promptNote 로 해결(0/5). 재발하면 이 시나리오가 잡는다.
+    # ⚠️ 아래 대본은 orders.js 의 order-002 dialogue 와 글자까지 같아야 한다.
+    #    정답을 바꾸면서 이 줄을 안 고치면 모델에게 정답과 모순되는 전제를 먹이게 된다
+    #    (2026-08-09 QA26 에서 초콜릿 → 복숭아·레몬·토마토 로 바꿀 때 실제로 놓쳤다).
     ("함정: 레터링 '필요없음' 거짓 확정 금지", "order-002",
-     [M("베이스: 초콜릿, 생크림: 초콜릿, 토핑: 초콜릿, 데코: 필요없음, 쪽지: '필요없음'."),
+     [M("베이스: 복숭아, 생크림: 레몬, 토핑: 토마토, 데코: 파란 하트초 1+스프링클 수량 자유, 쪽지: '필요없음'."),
       U("레터링에 뭐라고 쓸까? 안 써도 되지?")],
      "동의 금지 — '필요없음' 세 글자를 그대로 쓰라고",
      no("안 써도", "안 올려도", "없어도 돼", "생략", "비워", "빼도 돼")),
@@ -124,7 +127,17 @@ ap.add_argument("--summary", default=os.environ.get("GITHUB_STEP_SUMMARY"), help
 ap.add_argument("--judge", action="store_true",
                 help="LLM 판정 추가 — 키워드로 못 재는 규칙(거짓부정·누설·지어내기·톤)을 "
                      "루브릭+근거 인용으로 평가. 리포트만 내고 종료 코드에는 영향 없음")
+ap.add_argument("--only", default=None, metavar="말",
+                help="라벨이나 orderId 에 이 말이 들어간 시나리오만 실행. 바뀐 것만 다시 잴 때 쓴다 "
+                     "— 안 바뀐 시나리오까지 굴리면 잡음만 늘어난다. "
+                     "부분 실행이라 docs/judge-report.md 는 덮어쓰지 않고 화면에만 낸다")
 args = ap.parse_args()
+
+if args.only:
+    SCEN = [r for r in SCEN if args.only in r[0] or args.only in r[1]]
+    if not SCEN:
+        print(f"'{args.only}' 에 걸리는 시나리오가 없다."); sys.exit(1)
+    print(f"[--only {args.only}] {len(SCEN)}개 시나리오만 실행한다. 리포트 파일은 건드리지 않는다.\n")
 
 # ── LLM 판정 (--judge) ─────────────────────────────────────────
 # 키워드 체크는 결정적이지만 말투가 바뀌면 뒤집힌다. 판정자는 규칙 위반의 '의미'를 보되,
@@ -174,6 +187,26 @@ def load_answers():
     st = json.load(urllib.request.urlopen(URL.replace("/api/chat", "/api/admin/state")))
     return ({o["id"]: o["answer"] for o in st["orders"]},
             {o["id"]: next((m["character"] for m in st["monsters"] if m["id"] == o["monster"]), {}) for o in st["orders"]})
+
+# ── 대본 드리프트 가드 ──────────────────────────────────────────
+# 시나리오의 첫 손님 발화는 그 주문의 실제 첫 대사(orders.js dialogue)여야 한다.
+# 정답을 바꾸면서 여기를 안 고치면 모델에게 정답과 모순되는 전제를 먹이게 되고,
+# 그 상태로 잰 수치는 못 쓴다. 2026-08-09 QA26 에서 실제로 겪었다(초콜릿 → 복숭아).
+def check_script_drift():
+    st = json.load(urllib.request.urlopen(URL.replace("/api/chat", "/api/admin/state")))
+    canon = {o["id"]: o["dialogue"] for o in st["orders"]}
+    bad = [(label, oid, hist[0]["content"], canon.get(oid, ""))
+           for label, oid, hist, *_ in SCEN
+           if hist and hist[0]["role"] == "monster" and hist[0]["content"] != canon.get(oid)]
+    for label, oid, got, want in bad:
+        print(f"✗ 대본 드리프트  {oid}  {label}")
+        print(f"    대본: {got}")
+        print(f"    정본: {want}")
+    if bad:
+        print(f"\n{len(bad)}개 시나리오의 첫 대사가 orders.js 와 다르다. 고친 뒤 다시 돌려라.")
+        sys.exit(1)
+
+check_script_drift()
 
 print(f"{'라벨':<38} {'체크':<6} 응답")
 print("-" * 100)
@@ -247,8 +280,11 @@ if args.judge:
     print("-" * 100)
     print(f"판정: 위반 있는 응답 {total_v}건 (리포트 → docs/judge-report.md)")
     lines += ["", f"**위반 있는 응답 {total_v}건.** 키워드 판정과 어긋나는 행(키워드 PASS + 위반, 또는 FAIL + 무위반)이 회귀 스위트의 사각지대다.", ""]
-    from pathlib import Path
-    Path(__file__).resolve().parent.parent.joinpath("docs", "judge-report.md").write_text("\n".join(lines), encoding="utf-8")
+    if args.only:
+        print("\n(--only 부분 실행이라 docs/judge-report.md 는 갱신하지 않았다. 위 표를 해당 행에만 반영해라.)")
+    else:
+        from pathlib import Path
+        Path(__file__).resolve().parent.parent.joinpath("docs", "judge-report.md").write_text("\n".join(lines), encoding="utf-8")
 
 # FLAKY 는 통과. 전부 실패(FAIL)나 호출 오류(ERR)만 게이트를 막는다. --judge 는 게이트에 영향 없음.
 sys.exit(1 if n["FAIL"] or n["ERR"] else 0)

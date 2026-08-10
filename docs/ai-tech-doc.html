@@ -4,7 +4,22 @@
 <meta charset="utf-8">
 <title>WeirdCakeZip — AI 활용 기술 문서</title>
 <style>
-  @page { size: A4; margin: 17mm 16mm; }
+  @page {
+    size: A4; margin: 17mm 18mm 14mm;
+    @top-right {
+      content: "WeirdCakeZip · AI 활용 기술 문서";
+      font-family: "Pretendard", "Apple SD Gothic Neo", sans-serif;
+      font-size: 8pt; color: #B3A794; vertical-align: bottom; padding-bottom: 4mm;
+    }
+    @bottom-right {
+      content: counter(page) " / " counter(pages);
+      font-family: "Pretendard", "Apple SD Gothic Neo", sans-serif;
+      font-size: 8.5pt; color: #8B8175; vertical-align: top; padding-top: 4mm;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+  /* 표지 면에는 러닝 헤더·쪽번호를 넣지 않는다 */
+  @page :first { @top-right { content: ""; } @bottom-right { content: ""; } }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
     --ink: #523412; --text: #1E1A16; --muted: #8B8175;
@@ -22,9 +37,10 @@
   }
   h2 .no { color: var(--muted); font-weight: 400; margin-right: 0.5rem; }
   h3 { font-size: 1.12rem; margin: 1.0rem 0 0.3rem; break-after: avoid; }
-  p { margin: 0.55rem 0; }
+  /* 문단이 쪽을 넘어가며 한 줄만 떨어지는 것(과부/고아 줄)을 막는다 */
+  p { margin: 0.55rem 0; orphans: 2; widows: 2; break-inside: avoid; }
   ul, ol { padding-left: 1.4rem; margin: 0.45rem 0; }
-  li { margin: 0.28rem 0; }
+  li { margin: 0.28rem 0; orphans: 2; widows: 2; }
   code {
     font-family: "SFMono-Regular", Menlo, Consolas, monospace; font-size: 0.86em;
     background: var(--cream); padding: 0.1em 0.4em; border-radius: 5px;
@@ -36,7 +52,7 @@
     white-space: pre-wrap; break-inside: avoid;
   }
   pre code { background: none; padding: 0; }
-  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.93rem; line-height: 1.55; break-inside: avoid; }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; font-size: 0.93rem; line-height: 1.55; font-variant-numeric: tabular-nums; break-inside: avoid; }
   th, td { text-align: left; padding: 0.32rem 0.6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
   th { background: var(--cream); font-weight: 600; white-space: nowrap; }
   td.num { text-align: right; font-variant-numeric: tabular-nums; }
@@ -75,7 +91,7 @@
   .pagebreak { break-before: page; }
   .keep { break-inside: avoid; }
   a { color: var(--ink); text-decoration: none; }
-  footer { margin-top: 0.9rem; break-inside: avoid; padding-top: 0.8rem; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--muted); }
+  footer { margin-top: 0.35rem; break-inside: avoid; padding-top: 0.5rem; border-top: 1px solid var(--line); font-size: 0.78rem; line-height: 1.6; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -87,6 +103,7 @@
   <p class="tag">WeirdCakeZip 이상한 케이크 가게 · 손님의 애매한 주문을 대화로 파고들어, 진짜 마음을 케이크로 완성하는 게임</p>
   <p class="links">
     플레이 <a href="https://springday613.github.io/weirdcakezip/">springday613.github.io/weirdcakezip</a> ·
+    플레이 영상 <a href="https://youtube.com/shorts/y-mXOzeUH4w">youtube.com/shorts/y-mXOzeUH4w</a><br>
     소스 <a href="https://github.com/springday613/weirdcakezip">github.com/springday613/weirdcakezip</a> ·
     APK GitHub Releases (v1.2)
   </p>
@@ -159,7 +176,7 @@
   <li><strong>프로바이더 추상화.</strong> <code>api/_llm.js</code> 한 곳에서 OpenAI(기본 <code>gpt-4o-mini</code>)
       / Anthropic(Claude)을 환경변수 하나로 교체할 수 있습니다. 게임 로직은 모델을 모릅니다.</li>
   <li><strong>mock 폴백.</strong> API 키가 없으면 힌트 사다리 기반 mock 대화로 자동 전환됩니다.
-      심사자가 키 없이 <code>npm run dev</code>만으로 끝까지 플레이할 수 있습니다.</li>
+      심사자가 키 없이 <code>npm&nbsp;run&nbsp;dev</code>만으로 끝까지 플레이할 수 있습니다.</li>
   <li><strong>배포.</strong> 웹(GitHub Pages·Vercel)과 APK(Capacitor WebView 셸, 원격 로드)가 모두
       같은 서버리스 API를 바라봅니다. LLM 키는 어떤 클라이언트에도 포함되지 않습니다.</li>
 </ul>
@@ -299,7 +316,7 @@
   <tr><th>#</th><th>블로킹 사유</th><th>왜 이것인가</th></tr>
   <tr><td>①</td><td><strong>채점 무결성</strong></td><td><code>hidden.wants</code>(정답)가 프론트로 새지 않는가. don't-care와 "없음(필요없음)"이 뒤섞이지 않는가</td></tr>
   <tr><td>②</td><td><strong>키 노출</strong></td><td>API 키·토큰이 프론트 번들이나 커밋에 들어가지 않는가</td></tr>
-  <tr><td>③</td><td>빌드</td><td><code>npm run build</code> 통과. CI가 자동 확인하고, red면 블로킹</td></tr>
+  <tr><td>③</td><td>빌드</td><td><code>npm&nbsp;run&nbsp;build</code> 통과. CI가 자동 확인하고, red면 블로킹</td></tr>
   <tr><td>④</td><td><strong>프롬프트 회귀</strong></td><td><code>_monsterPrompt.js</code>를 고쳤으면 손님 행동이 깨지지 않았는지 회귀 테스트로 확인했는가</td></tr>
   <tr><td>⑤</td><td>상태머신</td><td>화면 전이와 케이크 상태 전이가 깨지지 않는가</td></tr>
 </table>
@@ -335,7 +352,7 @@ PR 본문 골격은 <code>.github/pull_request_template.md</code>로 강제합�
   </tr>
   <tr>
     <td><strong>release-apk</strong><br><span class="cap">409줄</span></td>
-    <td>웹 빌드 → <code>cap sync</code> → Gradle → GitHub Release 생성·APK 업로드를 한 명령으로. <code>doctor</code>로 사전 진단(JDK 21·SDK 확인), 더티 트리 거부</td>
+    <td>웹 빌드 → <code>cap&nbsp;sync</code> → Gradle → GitHub Release 생성·APK 업로드를 한 명령으로. <code>doctor</code>로 사전 진단(JDK 21·SDK 확인), 더티 트리 거부</td>
     <td>제출용 APK를 손으로 조립하던 5단계를 묶음. <strong>"웹만 바뀌면 APK 재빌드 불필요"</strong>(원격 모드)라는 판단 기준도 스킬 설명에 넣어 불필요한 릴리즈를 막음</td>
   </tr>
 </table>
@@ -482,8 +499,7 @@ AI에게 바로 코드를 쓰게 하면, <strong>잘못된 전제가 그대로 �
 
 <footer>
 프롬프트 파티시에 · WeirdCakeZip · NAN 2026 사전과제 · 문서 버전 2026-08-10<br>
-본 문서의 프롬프트 발췌는 리포 <code>api/_monsterPrompt.js</code> 원문 기준이며,
-전체 프롬프트·검증 로직·회귀 시나리오는 공개 리포에서 확인할 수 있습니다.
+프롬프트 발췌는 리포 <code>api/_monsterPrompt.js</code> 원문 기준입니다. 전체 프롬프트·검증 로직·회귀 시나리오는 공개 리포에 있습니다.
 </footer>
 
 </body>

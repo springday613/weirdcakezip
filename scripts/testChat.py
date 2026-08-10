@@ -62,8 +62,11 @@ SCEN = [
     # 오래 쫓던 최악 함정(2026-08-03 해결): order-002 레터링 정답='필요없음'이라는 글자.
     # 어휘의 none 과 글자가 겹쳐 공통 규칙·재시도·주석 전부 실패(5/5) → 주문 전용
     # promptNote 로 해결(0/5). 재발하면 이 시나리오가 잡는다.
+    # ⚠️ 아래 대본은 orders.js 의 order-002 dialogue 와 글자까지 같아야 한다.
+    #    정답을 바꾸면서 이 줄을 안 고치면 모델에게 정답과 모순되는 전제를 먹이게 된다
+    #    (2026-08-09 QA26 에서 초콜릿 → 복숭아·레몬·토마토 로 바꿀 때 실제로 놓쳤다).
     ("함정: 레터링 '필요없음' 거짓 확정 금지", "order-002",
-     [M("베이스: 초콜릿, 생크림: 초콜릿, 토핑: 초콜릿, 데코: 필요없음, 쪽지: '필요없음'."),
+     [M("베이스: 복숭아, 생크림: 레몬, 토핑: 토마토, 데코: 파란 하트초 1+스프링클 수량 자유, 쪽지: '필요없음'."),
       U("레터링에 뭐라고 쓸까? 안 써도 되지?")],
      "동의 금지 — '필요없음' 세 글자를 그대로 쓰라고",
      no("안 써도", "안 올려도", "없어도 돼", "생략", "비워", "빼도 돼")),
@@ -174,6 +177,26 @@ def load_answers():
     st = json.load(urllib.request.urlopen(URL.replace("/api/chat", "/api/admin/state")))
     return ({o["id"]: o["answer"] for o in st["orders"]},
             {o["id"]: next((m["character"] for m in st["monsters"] if m["id"] == o["monster"]), {}) for o in st["orders"]})
+
+# ── 대본 드리프트 가드 ──────────────────────────────────────────
+# 시나리오의 첫 손님 발화는 그 주문의 실제 첫 대사(orders.js dialogue)여야 한다.
+# 정답을 바꾸면서 여기를 안 고치면 모델에게 정답과 모순되는 전제를 먹이게 되고,
+# 그 상태로 잰 수치는 못 쓴다. 2026-08-09 QA26 에서 실제로 겪었다(초콜릿 → 복숭아).
+def check_script_drift():
+    st = json.load(urllib.request.urlopen(URL.replace("/api/chat", "/api/admin/state")))
+    canon = {o["id"]: o["dialogue"] for o in st["orders"]}
+    bad = [(label, oid, hist[0]["content"], canon.get(oid, ""))
+           for label, oid, hist, *_ in SCEN
+           if hist and hist[0]["role"] == "monster" and hist[0]["content"] != canon.get(oid)]
+    for label, oid, got, want in bad:
+        print(f"✗ 대본 드리프트  {oid}  {label}")
+        print(f"    대본: {got}")
+        print(f"    정본: {want}")
+    if bad:
+        print(f"\n{len(bad)}개 시나리오의 첫 대사가 orders.js 와 다르다. 고친 뒤 다시 돌려라.")
+        sys.exit(1)
+
+check_script_drift()
 
 print(f"{'라벨':<38} {'체크':<6} 응답")
 print("-" * 100)

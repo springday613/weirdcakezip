@@ -22,7 +22,8 @@
 3. **빌드** — `npm run build` 가 통과하는가? (CI 가 자동 확인 — red 면 블로킹)
 4. **프롬프트 회귀** — `_monsterPrompt.js` 변경 시 `scripts/testChat.py` 로 손님 행동이
    깨지지 않았음을 확인했는가? (정답 유출·힌트 남발 등)
-5. **상태머신** — `App.jsx` 흐름(TITLE→PLAYING→RESULT→END)과 케이크 상태 전이가 깨지지 않는가?
+5. **상태머신** — `App.jsx` 의 화면 전이(손님 루프 `STAGE→CHAT→BUILD→CONFIRM→RESULT`)와
+   케이크 상태 전이가 깨지지 않는가? 전체 상태도는 위키 「게임 아키텍처」.
 
 ## 체크리스트 (권장)
 
